@@ -1,0 +1,24 @@
+define({
+  "name": "Plan on plan API Documentation",
+  "version": "0.3.1",
+  "description": "",
+  "title": "Plan on plan API Documentation",
+  "url": "http://35.167.196.64:8100/api",
+  "header": {
+    "title": "Readme",
+    "content": "<p>READ ME</p>\n"
+  },
+  "footer": {
+    "title": "Socket DOCS",
+    "content": "<h1>Socket Docs</h1>\n<p>Short documentation to send information by socket about changes on the Project Gantt.</p>\n<h2>Connect</h2>\n<p>Connect with socket server and room.</p>\n<pre><code class=\"language-js\">var socket = io.connect('http://35.167.196.64:8100');\n\nsocket.on('connect', function (data) {\n    socket.emit('join room', 'idProject' );\n});\n</code></pre>\n<h2>Event time</h2>\n<p>Example</p>\n<pre><code class=\"language-js\">socket.on('time', function(data) {\n    console.log(data);\n    // Method to create task on gantt\n});\n</code></pre>\n<p>Where data is:</p>\n<pre><code class=\"language-json\">{\n    &quot;time_now&quot;: 1511863680009\n}\n</code></pre>\n<h2>Event addTask</h2>\n<p>Example</p>\n<pre><code class=\"language-js\">socket.on('addTask', function(data) {\n    console.log(data);\n    // Method to create task on gantt\n});\n</code></pre>\n<p>Where data is:</p>\n<pre><code class=\"language-json\">{\n    &quot;_id&quot;: &quot;59e5aa134f0558095297e2e0&quot;,\n    &quot;start_date&quot;: &quot;2017-10-16 02:00:0&quot;,\n    &quot;end_date&quot;: &quot;2017-10-17 02:00:00&quot;,\n    &quot;project&quot;: &quot;59df4c714fbe2a1ca7665fa2&quot;,\n    &quot;parent&quot;: &quot;0&quot;,\n    &quot;duration&quot;: 24,\n    &quot;action_window_duration&quot;: 16,\n    &quot;action_window_progress&quot;: 0, \n    &quot;progress&quot;: 0.6,\n    &quot;type_task&quot;: &quot;action_window&quot;,\n    &quot;text&quot;: &quot;New task&quot;,\n    &quot;description&quot;: &quot;example description&quot;,\n    &quot;activity_type&quot;: &quot;developent&quot;, \n    &quot;open&quot;: true\n}\n</code></pre>\n<h2>Event updateTask</h2>\n<p>Example</p>\n<pre><code class=\"language-js\">socket.on('updateTask', function(data) {\n    console.log(data);\n    // Method to update task on gantt\n});\n</code></pre>\n<p>Where data is:</p>\n<pre><code class=\"language-json\">{\n    &quot;_id&quot;: &quot;59e5aa134f0558095297e2e0&quot;,\n    &quot;start_date&quot;: &quot;2017-10-16 02:00:0&quot;,\n    &quot;end_date&quot;: &quot;2017-10-17 02:00:00&quot;,\n    &quot;project&quot;: &quot;59df4c714fbe2a1ca7665fa2&quot;,\n    &quot;parent&quot;: &quot;0&quot;,\n    &quot;duration&quot;: 24,\n    &quot;action_window_duration&quot;: 16,\n    &quot;action_window_progress&quot;: 0, \n    &quot;progress&quot;: 0.6,\n    &quot;type_task&quot;: &quot;action_window&quot;,\n    &quot;text&quot;: &quot;New task&quot;,\n    &quot;description&quot;: &quot;example description&quot;,\n    &quot;activity_type&quot;: &quot;developent&quot;, \n    &quot;open&quot;: true\n}\n</code></pre>\n<h2>Event deleteTask</h2>\n<p>Example</p>\n<pre><code class=\"language-js\">socket.on('deleteTask', function(data) {\n    console.log(data);\n    // Method to update task on gantt\n});\n</code></pre>\n<p>Where data is:</p>\n<pre><code class=\"language-json\">{\n    &quot;_id&quot;: &quot;59e5aa134f0558095297e2e0&quot;,\n}\n</code></pre>\n<h2>Event addLink</h2>\n<p>Example</p>\n<pre><code class=\"language-js\">socket.on('addLink', function(data) {\n    console.log(data);\n    // Method to update task on gantt\n});\n</code></pre>\n<p>Where data is:</p>\n<pre><code class=\"language-json\">{\n    &quot;source&quot;: &quot;59e5aa134f0558095297e2e0&quot;,\n    &quot;target&quot;: &quot;59e5aa134f0558095297e2e2&quot;,\n    &quot;type&quot;: &quot;1&quot;, \n    &quot;id&quot;: &quot;59e5aa134f055809529dad3&quot; \n}\n</code></pre>\n<h2>Event updateLink</h2>\n<p>Example</p>\n<pre><code class=\"language-js\">socket.on('updateLink', function(data) {\n    console.log(data);\n    // Method to update task on gantt\n});\n</code></pre>\n<p>Where data is:</p>\n<pre><code class=\"language-json\">{\n    &quot;source&quot;: &quot;59e5aa134f0558095297e2e0&quot;,\n    &quot;target&quot;: &quot;59e5aa134f0558095297e2e2&quot;,\n    &quot;type&quot;: &quot;1&quot;,  \n    &quot;id&quot;: &quot;59e5aa134f055809529dad3&quot; \n}\n</code></pre>\n<h2>Event deleteLink</h2>\n<p>Example</p>\n<pre><code class=\"language-js\">socket.on('deleteLink', function(data) {\n    console.log(data);\n    // Method to update task on gantt\n});\n</code></pre>\n<p>Where data is:</p>\n<pre><code class=\"language-json\">{\n    &quot;_id&quot;: &quot;59e5aa134f0558095297e2e0&quot;,\n}\n</code></pre>\n"
+  },
+  "sampleUrl": false,
+  "defaultVersion": "0.0.0",
+  "apidoc": "0.3.0",
+  "generator": {
+    "name": "apidoc",
+    "time": "2018-01-09T16:46:05.272Z",
+    "url": "http://apidocjs.com",
+    "version": "0.17.6"
+  }
+});

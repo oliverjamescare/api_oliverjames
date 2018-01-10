@@ -1,0 +1,15 @@
+define({
+  "name": "apidoc-example",
+  "version": "0.3.0",
+  "description": "apiDoc example project",
+  "title": "Custom apiDoc browser title",
+  "url": "http://5.135.147.222:8100",
+  "sampleUrl": false,
+  "apidoc": "0.2.0",
+  "generator": {
+    "name": "apidoc",
+    "time": "2016-02-17T12:39:20.406Z",
+    "url": "http://apidocjs.com",
+    "version": "0.15.0"
+  } 
+});

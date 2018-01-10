@@ -1,0 +1,5 @@
+/nbproject/private/
+/public/docs/*
+/public/gantt/*
+/node_modules/
+.env

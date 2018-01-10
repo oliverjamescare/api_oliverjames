@@ -1,0 +1,9 @@
+h3 Hello #{user.first_name}!
+p Thank you for registration on Plan on Plan platform. To complete registration process, please confirm your email by clicking link below.
+
+br
+a(href="http://#{config.DOMAIN}#{config.EMAIL_CONFIRMATION_URL}?token=#{emailConfirmation.token}") Confirm email
+br
+
+p Best regards
+p Plan on plan Team

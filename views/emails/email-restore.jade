@@ -1,0 +1,18 @@
+//- 
+    To change this license header, choose License Headers in Project Properties.
+    To change this template file, choose Tools | Templates
+    and open the template in the editor.
+     
+
+h3 Hello #{user.first_name}!
+p You have changed your email address from #{email_restore.email} to #{user.email}. If you'd like to restore your old email, please click link below.
+
+br
+a(href="http://#{config.DOMAIN}#{config.RESTORE_EMAIL_URL}?token=#{email_restore.token}") Restore email
+br
+
+p This link is valid for 48 hours.
+br
+
+p Best regards
+p Plan on plan Team
