@@ -1,76 +1,82 @@
-var JWT = require('jsonwebtoken');
-var bcrypt = require('bcrypt-nodejs');
-var randomstring = require("randomstring");
-var Utils = require('./../services/utils');
-var config = process.env;
+const JWT = require('jsonwebtoken');
+const bcrypt = require('bcrypt-nodejs');
+const randomstring = require("randomstring");
+const async = require("async");
+const multer  = require('multer');
+const upload = multer({ dest: 'uploads/users/'});
+const config = process.env;
 
-var User = require("./../models/User").schema;
+const Utils = require('./../services/utils');
+const GoogleHandler = require('./../services/googleHandler');
+const User = require("./../models/User").schema;
 
 module.exports = {
     register: function(req, res)
-    { 
-        var user = new User({
+    {
+
+        GoogleHandler.findPlacesByPostCode(req.body.postal_code);
+        return res.status(201).json({ status: true });
+        //care home
+        if(req.body.care_service_name)
+        {
+            const careHome = {
+                care_service_name: req.body.care_service_name,
+                type_of_home: req.body.type_of_home,
+                name: req.body.type_of_home,
+            }
+        }
+
+        let user = new User({
             email: req.body.email,
             password: req.body.password,
-            first_name: req.body.first_name,
-            surname: req.body.surname,
-            country: req.body.country,
-            job_title: req.body.job_title
+            access_token: {
+                token: randomstring.generate(128)
+            },
+            phone_number: req.body.phone_number
         });
-        
-        //validation
-        user.validate().then(() => {
 
+
+
+        console.log(user);
+
+        user.validate().then(() => {
             //sending response
             res.status(201).json({ status: true });
 
-            //hashing password and creating access token
-            bcrypt
-                .hash(user.password, null, null, (error, hash) => {
-                    user.password = hash;
-                    user.access_token = JWT.sign({
-                        exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * config.TOKEN_EXPIRATION_DAYS), 
-                        data: user 
-                    }, config.SECRET_AUTH);
-                    
-                //email confirmation
-                var emailConfirmation = {
-                    token: randomstring.generate(128),
-                    email: user.email
-                };
+            async.parallel({
+                passwordHash: (callback) => {
+                    bcrypt.hash(user.password, null, null, (error, hash) => callback(null, hash));
+                },
+                emailConfirmation: (callback) => {
 
-                user.email_confirmations.push(emailConfirmation);
-                
-                //sending email
-                req.app.mailer.send(__dirname + "/../../views/emails/confirmation-email", {
-                    to: user.email,
-                    subject: "Email confirmation",
-                    user: user,
-                    emailConfirmation: emailConfirmation,
-                    config: config
-                }, (error) => console.log(error) );
-                
+                    const emailConfirmation = {
+                        token: randomstring.generate(128),
+                        email: user.email
+                    };
+
+                    //sending email
+                    req.app.mailer.send(__dirname + "/../../views/emails/confirmation-email", {
+                        to: user.email,
+                        subject: "Email confirmation",
+                        user: user,
+                        emailConfirmation: emailConfirmation,
+                        config: config
+                    }, (error) => console.log(error));
+
+                    callback(null, emailConfirmation);
+                }
+            }, (error, results) => {
+
                 //saving user
+                user.password = results.passwordHash;
+                user.email_confirmations.push(results.emailConfirmation);
+
                 user.save().catch(error => console.log(error));
-                
-                //handling account invitations
-                Account.find({invited_emails: user.email}).then(accounts => {
-                    
-                    accounts.forEach(account => {
-                        AccountMember.create({user: user._id, account: account._id}, (error, member) => {
-                            
-                            account.invited_emails.splice(account.invited_emails.indxOf(user.email),1); //removing invitation
-                            account.members.push(member);
-                            account.save().catch(error => console.log(error)); //saving  account
-                            
-                            user.membered_accounts.push(member)
-                            user.save().catch(error => console.log(error));
-                        });
-                    });
-                });
             });
 
         }).catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+        
+
     },
     
     login: function (req, res)

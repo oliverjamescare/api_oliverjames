@@ -10,8 +10,6 @@ var expressValidator = require('express-validator');
 var cors = require('cors');
 var app = express();
 
-require("date-format-lite");
-
 //CORS ALLOW
 app.use(cors());
 

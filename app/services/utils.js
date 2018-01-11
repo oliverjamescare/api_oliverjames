@@ -7,11 +7,15 @@ module.exports.parseValidatorErrors = function(error)
         for(var key in errors)
         {
             var message = errors[key].message;
-            message = (message.charAt(0).toUpperCase() + message.slice(1)).replace(/_/g,' ');
-            errorMessages.push({
-                field: key,
-                message: message
-            })
+            if(message && errors[key].path)
+            {
+                message = (message.charAt(0).toUpperCase() + message.slice(1)).replace(/_|\./g,' ');
+                message = message.slice(0, message.lastIndexOf(" ")) + ".";
+                errorMessages.push({
+                    field: key,
+                    message: message
+                })
+            }
         }
     }
 
