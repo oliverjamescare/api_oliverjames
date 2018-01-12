@@ -1,4 +1,4 @@
-const endpoint = "https://maps.googleapis.com/maps/api/place/radarsearch/json?"
+const endpoint = "https://maps.googleapis.com/maps/api/place/textsearch/json?"
 const request = require('request');
 const config = process.env;
 
@@ -7,9 +7,7 @@ module.exports = {
     {
         let params = {
             key: config.GOOGLE_KEY,
-            location: "51.4871288,-0.1977504",
-            radius: 5000,
-            type: "museum"
+            query: postcode
         };
 
         const url = endpoint + encodeUrlParams(params)

@@ -50,13 +50,18 @@ module.exports =  mongoose.Schema({
         validate: validators.alpha,
         maxlength: [100,"{PATH} can't be longer than {MAXLENGTH} characters."]
     },
+    date_of_birth: {
+        type: Date,
+        required: [true, "{PATH} field is required."],
+        validate: validators.adult
+    },
     profile_image: {
         type: String,
         default: null
     },
     joining_care_experiance: {
         type: Number,
-        default: null
+        default: 1 // this means more than one year
     },
     address: addressSchema,
     cv: {

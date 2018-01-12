@@ -31,6 +31,16 @@ module.exports.datesRange = { //to rebuild
     validator: function(value) { return !value || this.start_date.getTime() <= value.getTime() },
     message: "{PATH} must be greater than start date"
 };
+module.exports.adult = {
+    validator: function(value)
+    {
+        let now = new Date();
+        now.setFullYear(now.getFullYear() - 18);
+
+        return !value || now.getTime() <= value.getTime();
+    },
+    message: "You have to be adult to register"
+};
 
 // module.exports.futureDate = {
 //     validator: value => !value || value.getTime() >= new Date().getTime(),

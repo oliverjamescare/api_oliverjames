@@ -41,11 +41,11 @@ const schema = mongoose.Schema({
     access_token: {
         token: {
             type: String,
-            required: true
+            default: null
         },
-        expiration: {
-            type: Date,
-            default: +new Date() + accessTokenExpirationDays * 24 * 60 * 60 * 1000
+        refresh_token: {
+            type: String,
+            default: null
         }
     },
     phone_number: {
@@ -72,7 +72,7 @@ const schema = mongoose.Schema({
         }
     }],
     email_confirmations: [{
-        email:{
+        email: {
             type: String,
             required: true,
             validate: validators.email

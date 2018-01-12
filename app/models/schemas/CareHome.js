@@ -10,23 +10,22 @@ const homeTypes = [
 ];
 
 module.exports = mongoose.Schema({
-
     care_service_name: {
         type: String,
         required: validators.required_if_present("care_home"),
         validate: validators.alpha,
-        maxlength: [100,"{PATH} can't be longer than {MAXLENGTH} characters."]
+        maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
     },
     type_of_home: {
         type: String,
-        required: [true, "{PATH} field is required."],
+        required: [ true, "{PATH} field is required." ],
         enum: Object.keys(homeTypes)
     },
     name: {
         type: String,
-        required: [true, "{PATH} field is required."],
+        required: [ true, "{PATH} field is required." ],
         validate: validators.alpha,
-        maxlength: [100,"{PATH} can't be longer than {MAXLENGTH} characters."]
+        maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
     },
     address: addressSchema,
     blocked_carers: [
@@ -35,23 +34,30 @@ module.exports = mongoose.Schema({
             ref: 'User'
         }
     ],
-    general_guidance: [
-        {
-            question: {
-                type: String,
-                required: [true, "{PATH} field is required."],
-                maxlength: [100,"{PATH} can't be longer than {MAXLENGTH} characters."]
-            },
-            answer: {
-                type: String,
-                required: [true, "{PATH} field is required."],
-                maxlength: [100,"{PATH} can't be longer than {MAXLENGTH} characters."]
-            },
-            type: {
-                type: Number,
-                required: [true, "{PATH} field is required."],
-                enum: [0,1]
-            }
+    general_guidance: {
+        superior: {
+            type: String,
+            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        },
+        report_contact: {
+            type: String,
+            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        },
+        emergency_guidance: {
+            type: String,
+            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        },
+        notes_for_carers: {
+            type: String,
+            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        },
+        parking: {
+            type: String,
+            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        },
+        florplan: {
+            type: String,
+            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
         }
-    ]
+    }
 });

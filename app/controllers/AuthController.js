@@ -13,11 +13,8 @@ const User = require("./../models/User").schema;
 module.exports = {
     register: function(req, res)
     {
-
-        GoogleHandler.findPlacesByPostCode(req.body.postal_code);
-        return res.status(201).json({ status: true });
         //care home
-        if(req.body.care_service_name)
+        if(req.body.care_service_name && req.body.type_of_home && req.body.name)
         {
             const careHome = {
                 care_service_name: req.body.care_service_name,
@@ -25,16 +22,29 @@ module.exports = {
                 name: req.body.type_of_home,
             }
         }
+        //carer
+        else if(req.body.first_name && req.body.surname)
+        {
+            const carer = {
+                first_name: req.body.first_name,
+                surname: req.body.surname,
+                middle_name: req.body.middle_name,
+                date_of_birth: req.body.date_of_birth,
+                eligible_roles: JSON.parse(req.body.eligible_roles),
+            }
+        }
+
+        //care home and carer not present
+        if(typeof careHome == 'undefined' && typeof carer == 'undefined')
+            return  res.status(406).json(Utils.parseStringError("You have to provide all carer or care home fields", "user_type"))
 
         let user = new User({
             email: req.body.email,
             password: req.body.password,
-            access_token: {
-                token: randomstring.generate(128)
-            },
             phone_number: req.body.phone_number
         });
 
+        (typeof careHome !== 'undefined') ? user.set({ care_home: careHome }) : user.set({ carer: carer });
 
 
         console.log(user);
