@@ -4,14 +4,51 @@
  * and open the template in the editor.
  */
 
-var bcrypt = require('bcrypt-nodejs');
-var randomstring = require("randomstring");
-var User = require("./../models/User").schema;
-var Utils = require('./../services/utils');
-var config = process.env;
+const bcrypt = require('bcrypt-nodejs');
+const randomstring = require("randomstring");
+const User = require("./../models/User").schema;
+const Utils = require('./../services/utils');
+const config = process.env;
 
 module.exports = {
-    
+
+    checkUniqueness: function(req, res)
+    {
+        const paramValue = req.query.email || req.query.phone_number;
+        const paramKey = req.query.email ? "email" : req.query.phone_number ? "phone_number" : null;
+
+        if(!paramKey)
+            return res.status(406).json(Utils.parseStringError("Invalid param", "user"));
+
+        User.findOne({ paramKey: paramValue }, (error, user) => res.json({ exists: Boolean(user) }));
+    },
+
+    confirmEmail: function(req, res)
+    {
+        User.findOne({"email_confirmations.token": req.body.token}, (error, user) => {
+
+            //user not found
+            if(!user)
+                return res.status(404).json(Utils.parseStringError("Token not found", "token"));
+
+            //getting email confirmation
+            const emailConfirmation = user.email_confirmations.find((email_confirmation) => email_confirmation.token == req.body.token);
+
+            //checking expiration
+            if(emailConfirmation.expiration < new Date())
+                return res.status(410).json(Utils.parseStringError("Token expired", "token"));
+
+            //different emails
+            if(emailConfirmation.email != user.email)
+                return res.status(406).json(Utils.parseStringError("This email cannot be confirmed from this link", "email"));
+
+            //response and updating user
+            res.send({ status: true });
+
+            user.set({ email_confirmations: [], email_verified: true });
+            user.save().catch(error => console.log(error));
+        });
+    },
     profile: function(req, res)
     {
         User.findOne({"_id": req.user._id}, {"email": 1, "first_name": 1, "surname": 1, "owned_accounts": 1, "membered_accounts":1,  "job_title": 1, "country": 1})
@@ -26,17 +63,17 @@ module.exports = {
             })
             .lean()
             .then(user => {
-                //parsing owned accounts 
+                //parsing owned accounts
                 user.owned_accounts.map((account) => {
                    account['members_amount'] = account.members.length;
                    delete account.members;
                 });
-                
+
                 //sending reponse
                 res.json(user);
             }).catch(err => console.log(err));
     },
-    
+
     updateProfile: function(req, res)
     {
         var user = req.user;
@@ -52,7 +89,7 @@ module.exports = {
 
         user.validate()
             .then(() => {
-                
+
                 //sending response
                 res.send({ status: true });
 
@@ -103,7 +140,7 @@ module.exports = {
             })
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },
-    
+
     restoreEmail: function(req, res)
     {
         User.findOne({"email_restores.token": req.body.token}, (error, user) => {
@@ -136,33 +173,8 @@ module.exports = {
                 .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
         });
     },
-    
-    confirmEmail: function(req, res)
-    {
-        User.findOne({"email_confirmations.token": req.body.token}, (error, user) => {
-        
-            //user not found
-            if(!user)
-                return res.status(404).json(Utils.parseStringError("Token not found", "token"));
 
-            //getting email confirmation
-            var emailConfirmation = user.email_confirmations.find((email_confirmation) => {
-                if(email_confirmation.token == req.body.token)
-                    return email_confirmation;
-            });
 
-            //removing email confirmations
-            if(emailConfirmation.email != user.email)
-                return res.status(406).json(Utils.parseStringError("This email cannot be confirmed from this link", "email"));
-
-            //response and save
-            res.send({ status: true });
-
-            user.email_confirmations.id(emailConfirmation._id).set({status: true});
-            user.save().catch(error => console.log(error));
-        });
-    },
-    
     changePassword: function(req, res)
     {
         var user = req.user; 

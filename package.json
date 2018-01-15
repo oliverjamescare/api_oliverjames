@@ -28,7 +28,8 @@
     "randomstring": "^1.1.5",
     "request": "^2.83.0",
     "serve-favicon": "^2.4.5",
-    "set-tz": "0.0.3"
+    "set-tz": "0.0.3",
+    "xregexp": "^4.0.0"
   },
   "devDependencies": {
     "grunt": "^0.4.5",

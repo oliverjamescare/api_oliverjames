@@ -3,8 +3,8 @@ const uniqueValidator = require('mongoose-unique-validator');
 const mongoosePaginate = require('mongoose-paginate');
 const validators = require('./../services/validators');
 
-const careHomeSchema = require("./schemas/CareHome");
-const carerSchema = require('./schemas/Carer');
+const careHomeSchema = require("./schemas/CareHome").schema;
+const carerSchema = require('./schemas/Carer').schema;
 
 //settings
 const passwordRegExp = /^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]{6,}$/;
@@ -111,3 +111,4 @@ schema.plugin(mongoosePaginate);
 
 module.exports.schema = mongoose.model("User", schema);
 module.exports.accessTokenExpirationDays = accessTokenExpirationDays;
+module.exports.statuses = statuses;

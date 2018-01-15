@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const validators = require('./../../services/validators');
-const addressSchema = require('./Address');
 
 const eligibleRoles = [
     "Carer",
@@ -27,12 +26,13 @@ const radio = function(radioAvailableValues)
     return {
         value: {
             type: Number,
+            required: [true, "{PATH} field is required."],
             enum: radioAvailableValues
         }
     }
 }
 
-module.exports =  mongoose.Schema({
+module.exports.schema =  mongoose.Schema({
     first_name: {
         type: String,
         required: [true, "{PATH} field is required."],
@@ -63,14 +63,20 @@ module.exports =  mongoose.Schema({
         type: Number,
         default: 1 // this means more than one year
     },
-    address: addressSchema,
+    address: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Address',
+        required: [ true, "{PATH} field is required." ]
+    },
     cv: {
         type: String,
         required: [true, "{PATH} field is required."]
     },
     eligible_roles: [{
-        type: String,
-        enum: Object.keys(eligibleRoles)
+        type: Number,
+        required: [true, "{PATH} field is required."],
+        enum: Object.keys(eligibleRoles).map(role => parseInt(role)),
+        unique: true
     }],
     q_a_form: {
         criminal_record: radioText([0,1]),
@@ -82,3 +88,5 @@ module.exports =  mongoose.Schema({
         serve_lunch_meals: radio([0,1,2])
     }
 });
+
+module.exports.eligibleRoles = eligibleRoles;

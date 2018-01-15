@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const validators = require('./../../services/validators');
-const addressSchema = require('./Address');
 
 const homeTypes = [
     "Residential",
@@ -9,10 +8,10 @@ const homeTypes = [
     "Supported living"
 ];
 
-module.exports = mongoose.Schema({
+module.exports.schema = mongoose.Schema({
     care_service_name: {
         type: String,
-        required: validators.required_if_present("care_home"),
+        required: [ true, "{PATH} field is required." ],
         validate: validators.alpha,
         maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
     },
@@ -27,7 +26,11 @@ module.exports = mongoose.Schema({
         validate: validators.alpha,
         maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
     },
-    address: addressSchema,
+    address: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Address',
+        required: [ true, "{PATH} field is required." ]
+    },
     blocked_carers: [
         {
             type: mongoose.Schema.Types.ObjectId,
