@@ -117,45 +117,53 @@ module.exports = {
     login: function (req, res)
     {
         const userTypes = ["carer", "care_home"];
-        const userType = userTypes.indexOf(req.body.userType) != -1 ? req.body.userType : "carer";
+        let query = {};
+        userTypes.indexOf(req.body.userType) != -1 ? query[req.body["userType"]] =  { $exists: true } : query["carer"] =  { $exists: true };
 
-        User.findOne({"email": req.body.email, userType: { $exists: true }}, (error, user) => {
-            
+        //login with credentials and refresh token handle
+        if(req.body.email && req.body.password)
+            query["email"] = req.body.email;
+        else if(req.body.refresh_token)
+            query["access_token.refresh_token"] = req.body.refresh_token;
+        else
+            return res.status(401).json(Utils.parseStringError("Authorization failed", "auth"));
+
+        User.findOne(query, (error, user) => {
+
             //user not found
             if(!user)
                 return res.status(401).json(Utils.parseStringError("Authorization failed", "auth"));
             
             //blocked account and unblocking handle
-            if(user.status == UserModel.statuses.BLOCKED)
+            if(!user.blockingHandle())
+                return res.status(403).json(Utils.parseStringError("Blocked account", "user"));
+
+            //password verification
+            if(query["access_token.refresh_token"])
             {
-                if(user.blocked_until.getTime() >= new Date().getTime())
-                    return res.status(403).json(Utils.parseStringError("Blocked account", "user"));
-                else
-                    user.set({ status: UserModel.statuses.CONFIRMED });
-            }
-
-            //password verification    
-            bcrypt.compare(req.body.password, user.password, (error, status) => {
-
-                //wrong password
-                if(!status)
-                    return res.status(401).json(Utils.parseStringError("Authorization failed", "auth"));
+                user.generateAccessTokens();
+                user.save().catch( error =>  console.log(error));
 
                 //generating tokens, updating user and sending response
-                let returnedUser = (({ _id, email, carer, care_home }) => ({ _id, email, carer, care_home }))(user);
-                const accessToken = {
-                    token: JWT.sign({
-                        exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * UserModel.accessTokenExpirationDays),
-                        data: returnedUser
-                    }, config.SECRET_AUTH),
-                    refresh_token: randomstring.generate(128)
-                };
+                let returnedUser = (({ _id, email, access_token}) => ({ _id, email, access_token}))(user);
+                return res.json({ user: returnedUser });
+            }
+            else
+            {
+                bcrypt.compare(req.body.password, user.password, (error, status) => {
 
-                returnedUser["access_token"] = accessToken;
+                    //wrong password
+                    if(!status)
+                        return res.status(401).json(Utils.parseStringError("Authorization failed", "auth"));
 
-                user.save().catch( error =>  console.log(error));
-                return res.send({ user: returnedUser });
-            });
+                    user.generateAccessTokens();
+                    user.save().catch( error =>  console.log(error));
+
+                    //generating tokens, updating user and sending response
+                    let returnedUser = (({ _id, email, access_token}) => ({ _id, email, access_token}))(user);
+                    return res.json({ user: returnedUser });
+                });
+            }
         });
     },
 

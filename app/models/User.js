@@ -145,6 +145,17 @@ schema.methods.addEmailConfirmationHandle = function(email, mailer)
     }, (error) => console.log(error));
 }
 
+schema.methods.blockingHandle = function()
+{
+    if(this.status == statuses.BLOCKED)
+    {
+        if(this.blocked_until.getTime() < new Date().getTime())
+            this.status = statuses.CONFIRMED;
+    }
+
+    return this.status != statuses.BLOCKED;
+}
+
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been taken.' });
 schema.plugin(mongoosePaginate);

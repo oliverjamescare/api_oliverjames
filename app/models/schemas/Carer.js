@@ -79,8 +79,7 @@ module.exports.schema =  mongoose.Schema({
     eligible_roles: [{
         type: Number,
         required: [true, "{PATH} field is required."],
-        enum: Object.keys(eligibleRoles).map(role => parseInt(role)),
-        unique: true
+        enum: Object.keys(eligibleRoles).map(role => parseInt(role))
     }],
     q_a_form: {
         criminal_record: radioText([0,1]),
