@@ -13,7 +13,9 @@ const radioText = function(radioAvailableValues)
         value: {
             type: Number,
             required: [true, "{PATH} field is required."],
-            enum: radioAvailableValues
+            min: Math.min.apply(Math, radioAvailableValues),
+            max: Math.max.apply(Math, radioAvailableValues),
+            validate: validators.integer
         },
         text: {
             type: String,
@@ -27,7 +29,9 @@ const radio = function(radioAvailableValues)
         value: {
             type: Number,
             required: [true, "{PATH} field is required."],
-            enum: radioAvailableValues
+            min: Math.min.apply(Math, radioAvailableValues),
+            max: Math.max.apply(Math, radioAvailableValues),
+            validate: validators.integer
         }
     }
 }

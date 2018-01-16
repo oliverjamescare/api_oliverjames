@@ -21,6 +21,8 @@ router.put('/password/remind/change', AuthController.remindPasswordChange);
 router.get('/user/uniqueness', UsersController.checkUniqueness);
 router.put('/user/confirm-email', UsersController.confirmEmail);
 
+
+
 //router.get('/user/profile', UsersController.profile);
 // router.put('/user/profile', UsersController.updateProfile);
 // router.put('/user/email', UsersController.restoreEmail);

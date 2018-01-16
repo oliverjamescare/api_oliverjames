@@ -19,4 +19,6 @@ function getConnectionLink()
 }
 
 mongoose.connect(getConnectionLink(), { useMongoClient: true });
+mongoose.Promise = global.Promise;
+
 module.exports = mongoose;

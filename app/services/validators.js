@@ -28,6 +28,11 @@ module.exports.alphaNumbers = {
     message: "{PATH} can contain only alphabetical characters and numbers."
 };
 
+module.exports.integer = {
+    validator: Number.isInteger,
+    message: "{PATH} can contain only integer value."
+};
+
 module.exports.adult = {
     validator: function(value)
     {

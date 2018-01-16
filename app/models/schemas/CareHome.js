@@ -18,7 +18,7 @@ module.exports.schema = mongoose.Schema({
     type_of_home: {
         type: String,
         required: [ true, "{PATH} field is required." ],
-        enum: Object.keys(homeTypes)
+        enum: homeTypes
     },
     name: {
         type: String,

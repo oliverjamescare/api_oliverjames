@@ -1,16 +1,24 @@
+//core
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 const mongoosePaginate = require('mongoose-paginate');
-const validators = require('./../services/validators');
+const randomstring = require("randomstring");
+const JWT = require('jsonwebtoken');
+const config = process.env;
 
+//custom
+const validators = require('./../services/validators');
+const paths = require('./../../config/paths');
 const careHomeSchema = require("./schemas/CareHome").schema;
 const carerSchema = require('./schemas/Carer').schema;
 
 //settings
 const passwordRegExp = /^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]{6,}$/;
-const emailConfirmationExpirationDays = 7;
-const accessTokenExpirationDays = 7;
-const passwordResetExpirationDays = 7;
+const settings =  {
+    emailConfirmationExpirationDays: 7,
+    accessTokenExpirationDays: 7,
+    passwordResetExpirationDays: 7
+};
 
 const statuses = {
     CREATED: 0,
@@ -62,13 +70,13 @@ const schema = mongoose.Schema({
     },
     blocked_until: Date,
     password_resets: [{
-        token:{
+        token: {
             type: String,
-            required: true
+            default: randomstring.generate(128)
         },
         expiration:{
             type: Date,
-            default: +new Date() + passwordResetExpirationDays * 24 * 60 * 60 * 1000
+            default: +new Date() + (settings.passwordResetExpirationDays * 24 * 60 * 60 * 1000)
         }
     }],
     email_confirmations: [{
@@ -79,11 +87,11 @@ const schema = mongoose.Schema({
         },
         token:{
             type: String,
-            required: true
+            default: randomstring.generate(128)
         },
         expiration:{
             type: Date,
-            default: +new Date() + emailConfirmationExpirationDays * 24 * 60 * 60 * 1000
+            default: +new Date() + (settings.emailConfirmationExpirationDays * 24 * 60 * 60 * 1000)
         }
     }],
     care_home: careHomeSchema,
@@ -105,10 +113,40 @@ schema.pre("save", function(next)
     next();
 });
 
+//methods
+schema.methods.generateAccessTokens = function()
+{
+    //refreshes access tokens
+    this.access_token = {
+        token: JWT.sign({
+            exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * settings.accessTokenExpirationDays),
+            data: {
+                _id: this._id,
+                email: this.email
+            }
+        }, config.SECRET_AUTH),
+        refresh_token: randomstring.generate(128)
+    };
+
+    return this.access_token;
+}
+
+schema.methods.addEmailConfirmationHandle = function(email, mailer)
+{
+    this.email_confirmations.push({ email });
+
+    //sending email
+    mailer.send(__dirname + "/../../views/emails/confirmation-email", {
+        to: email,
+        subject: "Oliver James Email Verification",
+        emailConfirmation: this.email_confirmations.slice().pop(),
+        config: config,
+        paths: paths
+    }, (error) => console.log(error));
+}
+
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been taken.' });
 schema.plugin(mongoosePaginate);
 
 module.exports.schema = mongoose.model("User", schema);
-module.exports.accessTokenExpirationDays = accessTokenExpirationDays;
-module.exports.statuses = statuses;
