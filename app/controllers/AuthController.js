@@ -118,7 +118,7 @@ module.exports = {
     {
         const userTypes = ["carer", "care_home"];
         let query = {};
-        userTypes.indexOf(req.body.userType) != -1 ? query[req.body["userType"]] =  { $exists: true } : query["carer"] =  { $exists: true };
+        userTypes.indexOf(req.body["userType"]) != -1 ? query[req.body["userType"]] =  { $exists: true } : query["carer"] =  { $exists: true };
 
         //login with credentials and refresh token handle
         if(req.body.email && req.body.password)
@@ -138,16 +138,16 @@ module.exports = {
             if(!user.blockingHandle())
                 return res.status(403).json(Utils.parseStringError("Blocked account", "user"));
 
-            //password verification
+            //refresh token login
             if(query["access_token.refresh_token"])
             {
+                //generating tokens, updating user and sending response
                 user.generateAccessTokens();
                 user.save().catch( error =>  console.log(error));
 
-                //generating tokens, updating user and sending response
-                let returnedUser = (({ _id, email, access_token}) => ({ _id, email, access_token}))(user);
-                return res.json({ user: returnedUser });
+                return res.json({ user: prepareLoginResponse(user) });
             }
+            //password verification
             else
             {
                 bcrypt.compare(req.body.password, user.password, (error, status) => {
@@ -156,17 +156,15 @@ module.exports = {
                     if(!status)
                         return res.status(401).json(Utils.parseStringError("Authorization failed", "auth"));
 
+                    //generating tokens, updating user and sending response
                     user.generateAccessTokens();
                     user.save().catch( error =>  console.log(error));
 
-                    //generating tokens, updating user and sending response
-                    let returnedUser = (({ _id, email, access_token}) => ({ _id, email, access_token}))(user);
-                    return res.json({ user: returnedUser });
+                    return res.json({ user: prepareLoginResponse(user) });
                 });
             }
         });
     },
-
     
     remindPassword: function(req, res)
     {
@@ -178,22 +176,9 @@ module.exports = {
 
             //sending response
             res.json({ status: true });
-            
-            //saving password reminder
-            const passwordReminder = {
-                token: randomstring.generate(128)
-            };
 
-            user.password_resets.push(passwordReminder);
+            user.addPasswordRemindHandle(req.app.mailer);
             user.save().catch( error =>  console.log(error));
-
-            //sending email
-            req.app.mailer.send(__dirname + "/../../views/emails/password-reset", {
-                to: user.email,
-                subject: "Oliver James - password reset request",
-                passwordReminder: passwordReminder,
-                config: config
-            }, (error) => console.log(error));
         });
     },
     
@@ -203,7 +188,7 @@ module.exports = {
 
             //user not found
             if(!user)
-                return res.status(404).json(Utils.parseStringError("Token not found", "token"));
+                return res.status(404).json(Utils.parseStringError("User not found", "user"));
 
             const passwordReset = user.password_resets.find((password_reset) => password_reset.token == req.body.token);
 
@@ -227,4 +212,31 @@ module.exports = {
                 .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
         });
     }
+}
+
+function prepareLoginResponse(user)
+{
+    let response = {
+        _id: user._id,
+        email: user.email,
+        access_token: user.access_token
+    };
+
+    if(user.carer)
+    {
+        response["carer"] = {
+            first_name: user.carer.first_name,
+            middle_name: user.carer.middle_name,
+            surname: user.carer.surname,
+        };
+    }
+    else if(user.care_home)
+    {
+        response["care_home"] = {
+            name: user.care_home.name,
+            care_service_name: user.care_home.care_service_name,
+        };
+    }
+
+    return response;
 }

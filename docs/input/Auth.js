@@ -57,42 +57,42 @@
 
 /**
  * @api {post} /login Login
- * @apiSampleRequest http://35.167.196.64:8100/api/login    
- * @apiVersion 0.3.1
- * @apiName Login 
+ * @apiSampleRequest /login
+ * @apiVersion 0.0.1
+ * @apiName Login
  * @apiGroup Auth
  *
  * @apiParam {String} email Email address.
  * @apiParam {String} password User password.
+ * @apiParam {String} [refresh_token] Token required to handle auth refresh.
  *
  * @apiSuccess (Success 200){String} token Access token.
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "token" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MDQ3ODExNzksImRhdGEiOnsiX2lkIjoiNTlhN2QwOWJjOTNiYTYwNmYwMDI5NzQ0IiwiYWNjZXNzX3Rva2VuIjoiIiwiZW1haWwiOiJhZHJpYW4ubWFzbGVyekByZWFkeTRzLnBsbCIsInBhc3N3b3JkIjoiJDJhJDEwJDZqOGFkZU94c213azVYVDdBZm01ck9VQjF3dFpnd2hUYnVac1h3SVpMdFdjNGJ4M0x0RW5tIiwiY291bnRyeSI6IlBvbGFuZCIsImpvYl90aXRsZSI6IlByb2dyYW1tZXIiLCJmaXJzdF9uYW1lIjoiQWRyaWFuIiwic3VybmFtZSI6Ik1hxZtsZXJ6IiwiX192IjowLCJ1cGRhdGVkIjoiMjAxNy0wOC0zMVQwOTowMjowMy4zMzBaIiwiY3JlYXRlZCI6IjIwMTctMDgtMzFUMDk6MDI6MDMuMzMwWiIsInBhc3N3b3JkX3Jlc2V0cyI6W119LCJpYXQiOjE1MDQxNzYzNzl9.30rt445vUkUrZfnkbIQHhfENgrdXlrdZw2RcYU0mgII",
- *       "admin" : false  
+ *       "user": {
+                "_id": "5a5de32f5bb5952104a5d156",
+                "email": "test.test@test.com",
+                "access_token": {
+                    "refresh_token": "a2Rdz6xpAi38CRzxorPuHZRqshL1pfgm5qvQAQm16jbGSAZgHpfVaY1DzOJyeRk22Nebv8fuIl4H8sT3y9EKjRpMb56oY6OeeYsBkle6oZfYo6oObEz7vNFWzq2OnUHF",
+                    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MTY3ODgyMTQsImRhdGEiOnsiX2lkIjoiNWE1ZGUzMmY1YmI1OTUyMTA0YTVkMTU2IiwiZW1haWwiOiJhZHJpYW4ubWFzbGVyekByZWFkeTRzLnBsIn0sImlhdCI6MTUxNjE4MzQxNH0.ny_lRr-1SO8LXyJWtGxS1DqZJaV-nbXoSYwbf5rCA2o"
+                },
+                "carer": {
+                    "first_name": "Test",
+                    "middle_name": "Test",
+                    "surname": "Test"
+                }
+            }
  *     }
  *
- * @apiError WrongPassword Wrong password.
+ * @apiError AuthorizationFailed Authorization failed.
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 406 Wrong password
+ *     HTTP/1.1 401 Authorization failed
  *     {
  *          "errors": [
  *              {
- *                   "field": "user",
- *                   "message": "Wrong password"
- *              }
- *          ]
- *      }
- *      
- * @apiError NotFound User not found.
- * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 User not found
- *     {
- *          "errors": [
- *              {
- *                   "field": "user",
- *                   "message": "User not found"
+ *                   "field": "auth",
+ *                   "message": "Authorization failed"
  *              }
  *          ]
  *      }
@@ -111,8 +111,8 @@
 
 /**
  * @api {post} /password/remind Forgot password
- * @apiSampleRequest http://35.167.196.64:8100/api/password/remind    
- * @apiVersion 0.3.1
+ * @apiSampleRequest /password/remind
+ * @apiVersion 0.0.1
  * @apiName Forgot password 
  * @apiGroup Auth
  *
@@ -141,8 +141,8 @@
 
 /**
  * @api {put} /password/remind/change Forgot password change
- * @apiSampleRequest http://35.167.196.64:8100/api/password/remind/change    
- * @apiVersion 0.3.1
+ * @apiSampleRequest /password/remind/change
+ * @apiVersion 0.0.1
  * @apiName Forgot password change 
  * @apiGroup Auth
  *
@@ -155,15 +155,15 @@
  *     {
  *       "status" : true
  *     }
- *      
- * @apiError NotFound Token not found.
+ *
+ * @apiError NotFound User not found.
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 404 Token not found
+ *     HTTP/1.1 404 User not found
  *     {
  *          "errors": [
  *              {
- *                   "field": "token",
- *                   "message": "Token not found"
+ *                   "field": "user",
+ *                   "message": "User not found"
  *              }
  *          ]
  *      }

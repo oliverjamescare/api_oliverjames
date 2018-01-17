@@ -20,5 +20,6 @@ function getConnectionLink()
 
 mongoose.connect(getConnectionLink(), { useMongoClient: true });
 mongoose.Promise = global.Promise;
+mongoose.set('debug', true);
 
 module.exports = mongoose;

@@ -15,7 +15,6 @@ router.post('/register', AuthController.register);
 router.post('/login', AuthController.login);
 router.post('/password/remind', AuthController.remindPassword);
 router.put('/password/remind/change', AuthController.remindPasswordChange);
-//
 
 //User
 router.get('/user/uniqueness', UsersController.checkUniqueness);

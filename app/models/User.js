@@ -105,7 +105,7 @@ const schema = mongoose.Schema({
         default: Date.now()
     },
 
-});
+}, { usePushEach: true });
 //middlewares
 schema.pre("save", function(next)
 {
@@ -156,6 +156,19 @@ schema.methods.blockingHandle = function()
     return this.status != statuses.BLOCKED;
 }
 
+schema.methods.addPasswordRemindHandle = function(mailer)
+{
+    this.password_resets.push({ _id: mongoose.Types.ObjectId()});
+
+    //sending email
+    mailer.send(__dirname + "/../../views/emails/password-reset", {
+        to: this.email,
+        subject: "Oliver James - password reset request",
+        passwordReminder: this.password_resets.slice().pop(),
+        config: config,
+        paths: paths
+    }, (error) => console.log(error));
+}
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been taken.' });
 schema.plugin(mongoosePaginate);

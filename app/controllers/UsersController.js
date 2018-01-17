@@ -29,7 +29,7 @@ module.exports = {
 
             //user not found
             if(!user)
-                return res.status(404).json(Utils.parseStringError("Token not found", "token"));
+                return res.status(404).json(Utils.parseStringError("User not found", "user"));
 
             //getting email confirmation
             const emailConfirmation = user.email_confirmations.find((email_confirmation) => email_confirmation.token == req.body.token);
@@ -49,6 +49,7 @@ module.exports = {
             user.save().catch(error => console.log(error));
         });
     },
+
     profile: function(req, res)
     {
         User.findOne({"_id": req.user._id}, {"email": 1, "first_name": 1, "surname": 1, "owned_accounts": 1, "membered_accounts":1,  "job_title": 1, "country": 1})

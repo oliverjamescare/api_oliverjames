@@ -5,10 +5,10 @@ define({ "api": [
     "title": "Forgot password",
     "sampleRequest": [
       {
-        "url": "http://35.167.196.64:8100/api/password/remind"
+        "url": "http://api.oliver-james.ready4s.it/api/password/remind"
       }
     ],
-    "version": "0.3.1",
+    "version": "0.0.1",
     "name": "Forgot_password",
     "group": "Auth",
     "parameter": {
@@ -72,10 +72,10 @@ define({ "api": [
     "title": "Forgot password change",
     "sampleRequest": [
       {
-        "url": "http://35.167.196.64:8100/api/password/remind/change"
+        "url": "http://api.oliver-james.ready4s.it/api/password/remind/change"
       }
     ],
-    "version": "0.3.1",
+    "version": "0.0.1",
     "name": "Forgot_password_change",
     "group": "Auth",
     "parameter": {
@@ -125,7 +125,7 @@ define({ "api": [
             "group": "Error 4xx",
             "optional": false,
             "field": "NotFound",
-            "description": "<p>Token not found.</p>"
+            "description": "<p>User not found.</p>"
           },
           {
             "group": "Error 4xx",
@@ -144,7 +144,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "HTTP/1.1 404 Token not found\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Token not found\"\n         }\n     ]\n }",
+          "content": "HTTP/1.1 404 User not found\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"User not found\"\n         }\n     ]\n }",
           "type": "json"
         },
         {
@@ -168,10 +168,10 @@ define({ "api": [
     "title": "Login",
     "sampleRequest": [
       {
-        "url": "http://35.167.196.64:8100/api/login"
+        "url": "http://api.oliver-james.ready4s.it/api/login"
       }
     ],
-    "version": "0.3.1",
+    "version": "0.0.1",
     "name": "Login",
     "group": "Auth",
     "parameter": {
@@ -190,6 +190,13 @@ define({ "api": [
             "optional": false,
             "field": "password",
             "description": "<p>User password.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "refresh_token",
+            "description": "<p>Token required to handle auth refresh.</p>"
           }
         ]
       }
@@ -209,7 +216,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n  \"token\" : \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MDQ3ODExNzksImRhdGEiOnsiX2lkIjoiNTlhN2QwOWJjOTNiYTYwNmYwMDI5NzQ0IiwiYWNjZXNzX3Rva2VuIjoiIiwiZW1haWwiOiJhZHJpYW4ubWFzbGVyekByZWFkeTRzLnBsbCIsInBhc3N3b3JkIjoiJDJhJDEwJDZqOGFkZU94c213azVYVDdBZm01ck9VQjF3dFpnd2hUYnVac1h3SVpMdFdjNGJ4M0x0RW5tIiwiY291bnRyeSI6IlBvbGFuZCIsImpvYl90aXRsZSI6IlByb2dyYW1tZXIiLCJmaXJzdF9uYW1lIjoiQWRyaWFuIiwic3VybmFtZSI6Ik1hxZtsZXJ6IiwiX192IjowLCJ1cGRhdGVkIjoiMjAxNy0wOC0zMVQwOTowMjowMy4zMzBaIiwiY3JlYXRlZCI6IjIwMTctMDgtMzFUMDk6MDI6MDMuMzMwWiIsInBhc3N3b3JkX3Jlc2V0cyI6W119LCJpYXQiOjE1MDQxNzYzNzl9.30rt445vUkUrZfnkbIQHhfENgrdXlrdZw2RcYU0mgII\",\n  \"admin\" : false  \n}",
+          "content": "HTTP/1.1 200 OK\n{\n  \"user\": {\n            \"_id\": \"5a5de32f5bb5952104a5d156\",\n            \"email\": \"test.test@test.com\",\n            \"access_token\": {\n                \"refresh_token\": \"a2Rdz6xpAi38CRzxorPuHZRqshL1pfgm5qvQAQm16jbGSAZgHpfVaY1DzOJyeRk22Nebv8fuIl4H8sT3y9EKjRpMb56oY6OeeYsBkle6oZfYo6oObEz7vNFWzq2OnUHF\",\n                \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MTY3ODgyMTQsImRhdGEiOnsiX2lkIjoiNWE1ZGUzMmY1YmI1OTUyMTA0YTVkMTU2IiwiZW1haWwiOiJhZHJpYW4ubWFzbGVyekByZWFkeTRzLnBsIn0sImlhdCI6MTUxNjE4MzQxNH0.ny_lRr-1SO8LXyJWtGxS1DqZJaV-nbXoSYwbf5rCA2o\"\n            },\n            \"carer\": {\n                \"first_name\": \"Test\",\n                \"middle_name\": \"Test\",\n                \"surname\": \"Test\"\n            }\n        }\n}",
           "type": "json"
         }
       ]
@@ -220,14 +227,8 @@ define({ "api": [
           {
             "group": "Error 4xx",
             "optional": false,
-            "field": "WrongPassword",
-            "description": "<p>Wrong password.</p>"
-          },
-          {
-            "group": "Error 4xx",
-            "optional": false,
-            "field": "NotFound",
-            "description": "<p>User not found.</p>"
+            "field": "AuthorizationFailed",
+            "description": "<p>Authorization failed.</p>"
           },
           {
             "group": "Error 4xx",
@@ -240,12 +241,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Error-Response:",
-          "content": "HTTP/1.1 406 Wrong password\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Wrong password\"\n         }\n     ]\n }",
-          "type": "json"
-        },
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 404 User not found\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"User not found\"\n         }\n     ]\n }",
+          "content": "HTTP/1.1 401 Authorization failed\n{\n     \"errors\": [\n         {\n              \"field\": \"auth\",\n              \"message\": \"Authorization failed\"\n         }\n     ]\n }",
           "type": "json"
         },
         {
@@ -499,5 +495,168 @@ define({ "api": [
     },
     "filename": "docs/input/Auth.js",
     "groupTitle": "Auth"
+  },
+  {
+    "type": "get",
+    "url": "/user/uniqueness",
+    "title": "Check uniqueness",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/user/uniqueness"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Check_uniqueness",
+    "group": "User",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "email",
+            "description": "<p>Email to check is already used.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "phone_number",
+            "description": "<p>Phone number to check is already used.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "exists",
+            "description": "<p>Status of existance.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n  \"exists\" : false\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "NotAcceptable",
+            "description": "<p>Wrong parameters.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 406 Wrong parameters\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Invalid param.\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/User.js",
+    "groupTitle": "User"
+  },
+  {
+    "type": "put",
+    "url": "/user/confirm-email",
+    "title": "Confirm email",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/user/confirm-email"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Confirm_email",
+    "group": "User",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "token",
+            "description": "<p>Email confirm token.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n  \"status\" : true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "NotAcceptable",
+            "description": "<p>Wrong parameters.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "NotFound",
+            "description": "<p>User not found.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 406 Wrong parameters\n{\n     \"errors\": [\n         {\n              \"field\": \"email\",\n              \"message\": \"This email cannot be confirmed from this link.\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 404 User not found\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"User not found\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/User.js",
+    "groupTitle": "User"
   }
 ] });
