@@ -12,15 +12,14 @@ const config = process.env;
 
 module.exports = {
 
-    checkUniqueness: function(req, res)
+    checkUniqueness: async function(req, res)
     {
-        const paramValue = req.query.email || req.query.phone_number;
-        const paramKey = req.query.email ? "email" : req.query.phone_number ? "phone_number" : null;
-
-        if(!paramKey)
+        if(req.query.email)
+            res.json({ exists: Boolean(await User.findOne({ email: req.query.email }))});
+        else if(req.query.phone_number)
+            res.json({ exists: Boolean(await User.findOne({ phone_number: req.query.phone_number }))});
+        else
             return res.status(406).json(Utils.parseStringError("Invalid param", "user"));
-
-        User.findOne({ paramKey: paramValue }, (error, user) => res.json({ exists: Boolean(user) }));
     },
 
     confirmEmail: function(req, res)

@@ -62,9 +62,9 @@
  * @apiName Login
  * @apiGroup Auth
  *
- * @apiParam {String} email Email address.
- * @apiParam {String} password User password.
- * @apiParam {String} [refresh_token] Token required to handle auth refresh.
+ * @apiParam {String} [email] Email address. Required with password.
+ * @apiParam {String} [password] User password. Required with email.
+ * @apiParam {String} [refresh_token] Token required to handle auth refresh. Required when email and password  is not sent.
  *
  * @apiSuccess (Success 200){String} token Access token.
  * @apiSuccessExample Success-Response:

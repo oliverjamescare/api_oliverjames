@@ -43,7 +43,7 @@ const schema = mongoose.Schema({
         required: validators.required_if_not("status", statuses.WAITING_LIST),
         validate: {
             validator: value => (/^\$2/.test(value) && value.length >= 50)? true : passwordRegExp.test(value),
-            message: "Password must have at least 6 characters and contain at least one letter and number"
+            message: "Password must have at least 6 characters and contain at least one letter and number."
         }
     },
     access_token: {
