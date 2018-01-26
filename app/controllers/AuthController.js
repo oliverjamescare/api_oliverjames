@@ -26,7 +26,7 @@ module.exports = {
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             "application/pdf"
         ], 10, (req) => req.body.first_name && req.body.surname) //only if this is carer registration request
-        .then(() => req.body["location_id"]? locationHandler.getLocationById(req, res) : locationHandler.getCustomLocation(req, res))
+        .then(() => locationHandler.getCustomLocation(req))
         .then((address) => {
 
             //user
@@ -52,16 +52,16 @@ module.exports = {
             //carer
             else if(req.body.first_name && req.body.surname)
             {
-                try { var eligibleRoles = JSON.parse(req.body.eligible_roles).map((role) => eligibleRolesArray.indexOf(role) != -1 ? eligibleRolesArray.indexOf(role) : null ) }
+                try { var eligibleRoles = JSON.parse(req.body.eligible_roles) }
                 catch (error) { var eligibleRoles = [] }
 
+                console.log(eligibleRoles);
                 user.set({
                     carer: {
                         first_name: req.body.first_name,
                         surname: req.body.surname,
                         middle_name: req.body.middle_name,
                         date_of_birth: req.body.date_of_birth,
-                        eligible_roles: eligibleRoles,
                         address: address,
                         cv: req.file ? req.file.path : null,
                         q_a_form: {
@@ -91,6 +91,8 @@ module.exports = {
                         }
                     }
                 });
+
+                eligibleRoles.forEach(role => user.carer.eligible_roles.push(role));
             }
             else
                 return res.status(406).json(Utils.parseStringError("You have to provide all carer or care home fields", "user_type"))

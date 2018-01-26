@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validators = require('./../../services/validators');
+const Address = require('./Address');
 
 const homeTypes = [
     "Residential",
@@ -26,11 +27,7 @@ module.exports.schema = mongoose.Schema({
         validate: validators.alpha,
         maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
     },
-    address: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Address',
-        required: [ true, "{PATH} field is required." ]
-    },
+    address: Address.address,
     blocked_carers: [
         {
             type: mongoose.Schema.Types.ObjectId,

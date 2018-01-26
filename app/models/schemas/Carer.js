@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validators = require('./../../services/validators');
+const Address = require('./Address');
 
 const eligibleRoles = [
     "Carer",
@@ -67,19 +68,15 @@ module.exports.schema =  mongoose.Schema({
         type: Number,
         default: 1 // this means more than one year
     },
-    address: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Address',
-        required: [ true, "{PATH} field is required." ]
-    },
+    address: Address.address,
     cv: {
         type: String,
         required: [true, "{PATH} field is required."]
     },
     eligible_roles: [{
-        type: Number,
+        type: String,
         required: [true, "{PATH} field is required."],
-        enum: Object.keys(eligibleRoles).map(role => parseInt(role))
+        enum: eligibleRoles
     }],
     q_a_form: {
         criminal_record: radioText([0,1]),
