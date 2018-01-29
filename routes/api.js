@@ -5,6 +5,8 @@ const router = express.Router();
 //controllers
 const UsersController = require('../app/controllers/UsersController');
 const AuthController = require('../app/controllers/AuthController');
+const ContactController = require('../app/controllers/ContactController');
+const CarersController = require('../app/controllers/CarersController');
 
 
 //middlewares
@@ -12,6 +14,7 @@ const authenticate = require('../app/middlewares/authenticate');
 
 //Auth
 router.post('/register', AuthController.register);
+router.post('/care-home/waiting-list', AuthController.addUserToCareHomeWaitingList);
 router.post('/login', AuthController.login);
 router.post('/password/remind', AuthController.remindPassword);
 router.put('/password/remind/change', AuthController.remindPasswordChange);
@@ -20,6 +23,11 @@ router.put('/password/remind/change', AuthController.remindPasswordChange);
 router.get('/user/uniqueness', UsersController.checkUniqueness);
 router.put('/user/confirm-email', UsersController.confirmEmail);
 
+//Contact
+router.post('/contact', ContactController.sendContactMessage);
+
+//Carer
+router.get('/carers/nearby', CarersController.checkCarersNearArea);
 
 
 //router.get('/user/profile', UsersController.profile);

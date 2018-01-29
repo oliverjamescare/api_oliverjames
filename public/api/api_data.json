@@ -1,6 +1,115 @@
 [
   {
     "type": "post",
+    "url": "/care-home/waiting-list",
+    "title": "Add care home to waiting list",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/care-home/waiting-list"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Add_care_home_to_waiting_list",
+    "group": "Auth",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "email",
+            "description": "<p>Valid email address.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "name",
+            "description": "<p>For care home registration - Care home owner name.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "postal_code",
+            "description": "<p>Postal code.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "company",
+            "description": "<p>Company name.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "address_line_1",
+            "description": "<p>First line of address string.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "address_line_2",
+            "description": "<p>Second line of address string.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "city",
+            "description": "<p>City - required when location Id is not present.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 201 OK\n{\n  \"status\" : true,\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "NotAcceptable",
+            "description": "<p>Wrong parameters.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 406 Wrong parameters\n{\n     \"errors\": [\n         {\n              \"field\": \"email\",\n              \"message\": \"The email has already been taken.\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/Auth.js",
+    "groupTitle": "Auth"
+  },
+  {
+    "type": "post",
     "url": "/password/remind",
     "title": "Forgot password",
     "sampleRequest": [
@@ -180,23 +289,23 @@
           {
             "group": "Parameter",
             "type": "String",
-            "optional": false,
+            "optional": true,
             "field": "email",
-            "description": "<p>Email address.</p>"
+            "description": "<p>Email address. Required with password.</p>"
           },
           {
             "group": "Parameter",
             "type": "String",
-            "optional": false,
+            "optional": true,
             "field": "password",
-            "description": "<p>User password.</p>"
+            "description": "<p>User password. Required with email.</p>"
           },
           {
             "group": "Parameter",
             "type": "String",
             "optional": true,
             "field": "refresh_token",
-            "description": "<p>Token required to handle auth refresh.</p>"
+            "description": "<p>Token required to handle auth refresh. Required when email and password  is not sent.</p>"
           }
         ]
       }
@@ -419,35 +528,35 @@
           {
             "group": "Parameter",
             "type": "String",
-            "optional": true,
-            "field": "location_id",
-            "description": "<p>Location Id.</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": true,
+            "optional": false,
             "field": "postal_code",
-            "description": "<p>Postal code - required when location Id is not present.</p>"
+            "description": "<p>Postal code.</p>"
           },
           {
             "group": "Parameter",
             "type": "String",
             "optional": true,
+            "field": "company",
+            "description": "<p>Company name.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
             "field": "address_line_1",
-            "description": "<p>First line of address string - required when location Id is not present.</p>"
+            "description": "<p>First line of address string.</p>"
           },
           {
             "group": "Parameter",
             "type": "String",
             "optional": true,
             "field": "address_line_2",
-            "description": "<p>Second line of address string - fully optional.</p>"
+            "description": "<p>Second line of address string.</p>"
           },
           {
             "group": "Parameter",
             "type": "String",
-            "optional": true,
+            "optional": false,
             "field": "city",
             "description": "<p>City - required when location Id is not present.</p>"
           }
@@ -495,6 +604,101 @@
     },
     "filename": "docs/input/Auth.js",
     "groupTitle": "Auth"
+  },
+  {
+    "type": "post",
+    "url": "/contact",
+    "title": "Send contact message",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/contact"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Send_contact_email",
+    "group": "Contact",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "email",
+            "description": "<p>Valid email address.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "name",
+            "description": "<p>Sender name. Max 50 characters.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "subject",
+            "description": "<p>Message subject. Max 100 characters.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "message",
+            "description": "<p>Message content. Max 200 characters.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "_id",
+            "description": "<p>User id.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 201 OK\n{\n  \"status\" : true,\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "NotAcceptable",
+            "description": "<p>Wrong parameters.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 406 Wrong parameters\n{\n     \"errors\": [\n         {\n              \"field\": \"email\",\n              \"message\": \"The email is required.\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/Contact.js",
+    "groupTitle": "Contact"
   },
   {
     "type": "get",

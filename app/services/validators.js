@@ -83,6 +83,7 @@ module.exports.not_equal = function (field)
     }
 }
 
+
 // module.exports.futureDate = {
 //     validator: value => !value || value.getTime() >= new Date().getTime(),
 //     message: "{PATH} must be greater than current date"

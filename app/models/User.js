@@ -9,6 +9,7 @@ const config = process.env;
 //custom
 const validators = require('./../services/validators');
 const paths = require('./../../config/paths');
+const permissions = require('./../../config/permissions');
 const careHomeSchema = require("./schemas/CareHome").schema;
 const carerSchema = require('./schemas/Carer').schema;
 
@@ -96,6 +97,23 @@ const schema = mongoose.Schema({
     }],
     care_home: careHomeSchema,
     carer: carerSchema,
+    roles: [{
+        role:{
+            type: String,
+            required: true,
+            enum: permissions.roles.map(role => role.role)
+        },
+        permissions:[{
+            type: String,
+            required: true,
+            enum: permissions.permissions
+        }]
+    }],
+    permissions:[{
+        type: String,
+        required: true,
+        enum: permissions.permissions
+    }],
     created: {
         type: Date,
         default: Date.now()
@@ -105,7 +123,10 @@ const schema = mongoose.Schema({
         default: Date.now()
     },
 
-}, { usePushEach: true });
+}, { usePushEach: true })
+.index({ "carer.address.location": "2dsphere" })
+.index( { "care_home.address.location": "2dsphere" });
+
 //middlewares
 schema.pre("save", function(next)
 {

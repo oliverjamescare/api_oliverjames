@@ -29,11 +29,46 @@
  * @apiParam {String} [name] For care home registration - Care home owner name.
  * @apiParam {String} [type_of_home] For care home registration - Type of home. Available types: Residential, Nursing, Learning disabilit, Supported living
  *
- * @apiParam {String} [location_id] Location Id.
- * @apiParam {String} [postal_code] Postal code - required when location Id is not present.
- * @apiParam {String} [address_line_1] First line of address string - required when location Id is not present.
- * @apiParam {String} [address_line_2] Second line of address string - fully optional.
- * @apiParam {String} [city] City - required when location Id is not present.
+ * @apiParam {String} postal_code Postal code.
+ * @apiParam {String} [company] Company name.
+ * @apiParam {String} address_line_1 First line of address string.
+ * @apiParam {String} [address_line_2] Second line of address string.
+ * @apiParam {String} city City.
+
+ * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *       "status" : true,
+ *     }
+ *
+ * @apiError NotAcceptable Wrong parameters.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 406 Wrong parameters
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "email",
+ *                   "message": "The email has already been taken."
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {post} /care-home/waiting-list Add care home to waiting list
+ * @apiSampleRequest /care-home/waiting-list
+ * @apiVersion 0.0.1
+ * @apiName Add care home to waiting list
+ * @apiGroup Auth
+ *
+ * @apiParam {String} email Valid email address.
+ * @apiParam {String} name For care home registration - Care home owner name.
+ * @apiParam {String} postal_code Postal code.
+ * @apiParam {String} [company] Company name.
+ * @apiParam {String} address_line_1 First line of address string.
+ * @apiParam {String} [address_line_2] Second line of address string.
+ * @apiParam {String} city City name.
 
  * @apiSuccess (Success 201){Boolean} status Operation status.
  * @apiSuccessExample Success-Response:

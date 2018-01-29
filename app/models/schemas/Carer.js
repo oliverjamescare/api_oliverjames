@@ -68,6 +68,10 @@ module.exports.schema =  mongoose.Schema({
         type: Number,
         default: 1 // this means more than one year
     },
+    max_job_distance: {
+        type: Number,
+        default: 5
+    },
     address: Address.address,
     cv: {
         type: String,
