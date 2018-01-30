@@ -175,6 +175,7 @@ module.exports = {
             //password verification
             else
             {
+                console.log("pw");
                 bcrypt.compare(req.body.password, user.password, (error, status) =>
                 {
 
