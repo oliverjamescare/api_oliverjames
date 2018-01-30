@@ -61,7 +61,7 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "city",
-            "description": "<p>City - required when location Id is not present.</p>"
+            "description": "<p>City name.</p>"
           }
         ]
       }
@@ -558,7 +558,7 @@ define({ "api": [
             "type": "String",
             "optional": false,
             "field": "city",
-            "description": "<p>City - required when location Id is not present.</p>"
+            "description": "<p>City.</p>"
           }
         ]
       }
@@ -604,6 +604,82 @@ define({ "api": [
     },
     "filename": "docs/input/Auth.js",
     "groupTitle": "Auth"
+  },
+  {
+    "type": "get",
+    "url": "/carers/nearby",
+    "title": "Checks carers near point",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/carers/nearby"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Checks_carers_near_point",
+    "group": "Carer",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "postal_code",
+            "description": "<p>Postal code.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "company",
+            "description": "<p>Company name.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "address_line_1",
+            "description": "<p>First line of address string.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "address_line_2",
+            "description": "<p>Second line of address string.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "city",
+            "description": "<p>City.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "exists",
+            "description": "<p>Existance status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 201 OK\n{\n  \"exists\" : true,\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/Carer.js",
+    "groupTitle": "Carer"
   },
   {
     "type": "post",

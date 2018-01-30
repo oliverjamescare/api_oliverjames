@@ -44,6 +44,7 @@ module.exports = {
                 }
 
                 console.log(address);
+                console.log(body);
                 resolve(address);
             });
         });

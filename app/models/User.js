@@ -124,8 +124,7 @@ const schema = mongoose.Schema({
     },
 
 }, { usePushEach: true })
-.index({ "carer.address.location": "2dsphere" })
-.index( { "care_home.address.location": "2dsphere" });
+.index([{ "carer.address.location": "2dsphere" }, { "care_home.address.location": "2dsphere" }]);
 
 //middlewares
 schema.pre("save", function(next)

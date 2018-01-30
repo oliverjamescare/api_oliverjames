@@ -13,20 +13,35 @@ module.exports = {
         locationHandler.getCustomLocation(req)
             .then((address) =>
             {
-                let exists = Boolean(address.location.coordinates.length);
-                if (!exists)
+                if (!address.location || !address.location.coordinates.length)
                     return res.json({ exists: false });
 
-                console.log(address.location);
+                //finding carers near area
                 User.aggregate([
                     {
-                        $project: { a: 1, b: 1 }
+                         $geoNear: {
+	                         near:  address.location.coordinates,
+                              distanceField: "distance",
+	                         distanceMultiplier: 3963.2,
+                              limit: 1,
+                              spherical: true,
+	                         query: {
+	                             carer: { $exists: true }
+	                         }
+                         }
+                    },
+                    {
+                        $project: {
+                           "carer.max_job_distance": 1,
+                           "distance": 1,
+                           "distanceArea": {"$subtract": ["$carer.max_job_distance", "$distance"]},
+                        }
+                    },
+                    {
+                        $match: { "distanceArea": { $gte: 0 } }
                     }
-                ]);
-
+                ]).then((results) => res.json({ exists: Boolean(results.length) }));
             });
-
-        ;
     }
 }
 
