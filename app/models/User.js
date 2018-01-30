@@ -98,16 +98,9 @@ const schema = mongoose.Schema({
     care_home: careHomeSchema,
     carer: carerSchema,
     roles: [{
-        role:{
-            type: String,
-            required: true,
-            enum: permissions.roles.map(role => role.role)
-        },
-        permissions:[{
-            type: String,
-            required: true,
-            enum: permissions.permissions
-        }]
+        type: String,
+        required: true,
+        enum: permissions.roles.map(role => role.role)
     }],
     permissions:[{
         type: String,

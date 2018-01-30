@@ -4,46 +4,60 @@
  * and open the template in the editor.
  */
 
-var JWT = require('jsonwebtoken');
-var User = require("./../models/User").schema;
-var Utils = require('./../services/utils');
-var config = process.env;
+const JWT = require('jsonwebtoken');
+const User = require("./../models/User").schema;
+const Utils = require('./../services/utils');
+const config = process.env;
+const async = require('async');
 
-module.exports = function(options)
+module.exports = function(req, res, next)
 {
-    return function(req, res, next)
-    {
-        if(options.skippedRoutes.indexOf(req.url) != -1) //handle of non protected routes
-            next();
-        else
-        {
-            
-            //getting token
-            var token = req.body["access-token"] || req.query["access-token"] || req.headers['x-access-token'];
-            
-            //token verification
-            JWT.verify(token, config.SECRET_AUTH , (error) => {
-                //error handle
-                if(error)
-                {
-                    if(error.name == "TokenExpiredError")
-                        return res.status(410).json(Utils.parseStringError("Access token expired", "user")); 
+    //getting token
+    const token = req.headers['x-access-token'] || req.query["access-token"] || req.body["access-token"];
 
-                    return res.status(401).json(Utils.parseStringError("Access Denied", "user"));
-                }
-                
-                //checking if token still is assigned to user
-                User.findOne({access_token: token}, (error, user) => {
-                    
-                    if(!user)
+    async.parallel([
+        {
+            //token verification
+            token: (callback) => {
+                JWT.verify(token, config.SECRET_AUTH , (error) => {
+                    //error handle
+                    if(error && !res.headersSent)
+                    {
+                        if(error.name == "TokenExpiredError")
+                            return res.status(410).json(Utils.parseStringError("Access token expired", "user"));
+
+                        return res.status(401).json(Utils.parseStringError("Access Denied", "user"));
+                    }
+
+                    callback(null);
+                });
+            }
+        },
+
+        //checking if token is assigned to user
+        {
+            user: (callback) => {
+                User.findOne({ "access_token.token": token }, (error, user) => {
+
+                    if(!user && !res.headersSent)
                         return res.status(401).json(Utils.parseStringError("Access Denied", "user"));
 
-                    req.user = user;
-                    next();
+                    //blocked account and unblocking handle
+                    if (!user.blockingHandle())
+                        return res.status(403).json(Utils.parseStringError("Blocked account", "user"));
+
+                    callback(null, user)
                 });
-            });
+            }
         }
-    }
+    ], (error, result) => {
+
+        if(!res.headersSent)
+        {
+            req.user = result.user;
+            next();
+        }
+    });
 }
 
     

@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt-nodejs');
 
 //services
 const Utils = require('./../services/utils');
-const permissions = require('./../../config/permissions');
 const locationHandler = require('../services/locationHandler');
 const fileHandler = require("../services/fileHandler");
 
@@ -44,7 +43,7 @@ module.exports = {
                         }
                     });
 
-                    user.roles.push(permissions.roles.find(role => role.role == "CARE_HOME"));
+                    user.roles.push("CARE_HOME");
                 }
 
                 //carer
@@ -95,7 +94,7 @@ module.exports = {
                         }
                     });
 
-                    user.roles.push(permissions.roles.find(role => role.role == "CARER"));
+                    user.roles.push("CARER");
                     eligibleRoles.forEach(role => user.carer.eligible_roles.push(role));
                 }
                 else
@@ -214,7 +213,6 @@ module.exports = {
     {
         User.findOne({ "password_resets.token": req.body.token }, (error, user) =>
         {
-
             //user not found
             if (!user)
                 return res.status(404).json(Utils.parseStringError("User not found", "user"));

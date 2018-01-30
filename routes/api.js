@@ -8,9 +8,9 @@ const AuthController = require('../app/controllers/AuthController');
 const ContactController = require('../app/controllers/ContactController');
 const CarersController = require('../app/controllers/CarersController');
 
-
 //middlewares
 const authenticate = require('../app/middlewares/authenticate');
+const security = require('../app/middlewares/security');
 
 //Auth
 router.post('/register', AuthController.register);

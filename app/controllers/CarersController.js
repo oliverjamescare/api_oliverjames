@@ -11,30 +11,29 @@ module.exports = {
     checkCarersNearArea: function (req, res)
     {
         locationHandler.getCustomLocation(req)
-            .then((address) =>
-            {
+            .then((address) => {
                 if (!address.location || !address.location.coordinates.length)
                     return res.json({ exists: false });
 
                 //finding carers near area
                 User.aggregate([
                     {
-                         $geoNear: {
-	                         near:  address.location.coordinates,
-                              distanceField: "distance",
-	                         distanceMultiplier: 3963.2,
-                              limit: 1,
-                              spherical: true,
-	                         query: {
-	                             carer: { $exists: true }
-	                         }
-                         }
+                        $geoNear: {
+                            near: address.location.coordinates,
+                            distanceField: "distance",
+                            distanceMultiplier: 3963.2,
+                            limit: 1,
+                            spherical: true,
+                            query: {
+                                carer: { $exists: true }
+                            }
+                        }
                     },
                     {
                         $project: {
-                           "carer.max_job_distance": 1,
-                           "distance": 1,
-                           "distanceArea": {"$subtract": ["$carer.max_job_distance", "$distance"]},
+                            "carer.max_job_distance": 1,
+                            "distance": 1,
+                            "distanceArea": { "$subtract": [ "$carer.max_job_distance", "$distance" ] },
                         }
                     },
                     {

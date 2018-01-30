@@ -49,4 +49,4 @@ schema.pre("save", function (next)
 });
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been added.' });
-module.exports.schema = mongoose.model("CareHomeWaitingUser", schema);
+module.exports.schema = mongoose.model("care_home_waiting_user", schema);
