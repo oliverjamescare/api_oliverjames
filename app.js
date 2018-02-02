@@ -5,7 +5,8 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-var routes = require('./routes/api');
+var apiRoutes = require('./routes/api');
+var adminRoutes = require('./routes/admin');
 var expressValidator = require('express-validator');
 var cors = require('cors');
 var app = express();
@@ -37,7 +38,8 @@ require("./config/database");
 app = require("./config/mailer").configure(app);
 
 //ROUTES CONFIG
-app.use('/api', routes); // API routes
+app.use('/api', apiRoutes); // API routes
+app.use('/admin', adminRoutes); // ADMIN routes
 
 //homepage
 app.get('/', (req, res, next) => {
