@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validators = require('./../../services/validators');
 const Address = require('./Address');
+const GeneralGuidance = require('./GeneralGuidance');
 
 const homeTypes = [
     "Residential",
@@ -34,30 +35,13 @@ module.exports.schema = mongoose.Schema({
             ref: 'User'
         }
     ],
-    general_guidance: {
-        superior: {
-            type: String,
-            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
-        },
-        report_contact: {
-            type: String,
-            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
-        },
-        emergency_guidance: {
-            type: String,
-            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
-        },
-        notes_for_carers: {
-            type: String,
-            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
-        },
-        parking: {
-            type: String,
-            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
-        },
-        florplan: {
-            type: String,
-            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+    general_guidance: GeneralGuidance.general_guidance(),
+
+    //references
+    jobs: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Job"
         }
-    }
+    ],
 });

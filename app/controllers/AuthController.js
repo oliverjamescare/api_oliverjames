@@ -9,11 +9,6 @@ const fileHandler = require("../services/fileHandler");
 //models
 const User = require("./../models/User").schema;
 const CareHomeWaitingUser = require("./../models/CareHomeWaitingUser").schema;
-const config = process.env;
-
-//custom
-const validators = require('./../services/validators');
-const paths = require('./../../config/paths');
 
 module.exports = {
     register: function (req, res)
@@ -180,10 +175,8 @@ module.exports = {
             //password verification
             else
             {
-                console.log("pw");
                 bcrypt.compare(req.body.password, user.password, (error, status) =>
                 {
-
                     //wrong password
                     if (!status)
                         return res.status(401).json(Utils.parseStringError("Authorization failed", "auth"));

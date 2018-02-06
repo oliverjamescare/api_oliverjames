@@ -115,7 +115,6 @@ const schema = mongoose.Schema({
         type: Date,
         default: Date.now()
     },
-
 }, { usePushEach: true })
 .index([{ "carer.address.location": "2dsphere" }, { "care_home.address.location": "2dsphere" }]);
 
@@ -181,6 +180,21 @@ schema.methods.addPasswordRemindHandle = function(mailer)
         config: config,
         paths: paths
     }, (error) => console.log(error));
+}
+
+schema.methods.hasValidGeneralGuidance = function ()
+{
+    let valid = false;
+    if(this.care_home.general_guidance)
+    {
+        valid = true;
+        Object.keys(this.care_home.general_guidance).forEach(property => {
+            if(!this.care_home.general_guidance[property])
+                valid = false;
+        });
+    }
+
+    return valid;
 }
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been taken.' });

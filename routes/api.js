@@ -7,6 +7,7 @@ const UsersController = require('../app/controllers/UsersController');
 const AuthController = require('../app/controllers/AuthController');
 const ContactController = require('../app/controllers/ContactController');
 const CarersController = require('../app/controllers/CarersController');
+const JobsController = require('../app/controllers/JobsController');
 
 //middlewares
 const authenticate = require('../app/middlewares/authenticate');
@@ -29,6 +30,8 @@ router.post('/contact', ContactController.sendContactMessage);
 //Carer
 router.get('/carers/nearby', CarersController.checkCarersNearArea);
 
+//Jobs
+router.post('/jobs', authenticate, security(["CARE_HOME_SAVE"]), JobsController.addJobs);
 
 //router.get('/user/profile', UsersController.profile);
 // router.put('/user/profile', UsersController.updateProfile);
