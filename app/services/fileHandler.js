@@ -22,6 +22,7 @@ module.exports = function(req, res)
 
                 upload(req, res,
                     (error) => {
+
                         if(error)
                         {
                             if(error.code == "LIMIT_FILE_SIZE")

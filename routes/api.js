@@ -29,9 +29,14 @@ router.post('/contact', ContactController.sendContactMessage);
 
 //Carer
 router.get('/carers/nearby', CarersController.checkCarersNearArea);
+router.get('/carer/availability', authenticate, security(["CARER_READ"]), CarersController.getAvailabilityCalendar);
+router.put('/carer/availability', authenticate, security(["CARER_UPDATE"]), CarersController.updateAvailability);
 
 //Jobs
 router.post('/jobs', authenticate, security(["CARE_HOME_SAVE"]), JobsController.addJobs);
+
+
+//Carer availability
 
 //router.get('/user/profile', UsersController.profile);
 // router.put('/user/profile', UsersController.updateProfile);

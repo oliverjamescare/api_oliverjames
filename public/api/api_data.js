@@ -607,6 +607,98 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/carer/availability",
+    "title": "Carer availability calendar",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/carer/availability"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Carer_availability_calendar",
+    "group": "Carer",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "week",
+            "description": "<p>Week number. Default is 0 - general availablility. 1 means current week. Maximum 5 weeks forward.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "    HTTP/1.1 200 OK\n    {\n     \"type\": \"general\",\n     \"availability\": {\n         \"monday\": {\n             \"am_shift\": true,\n\t            \"pm_shift\": false,\n\t            \"night_shift\": false\n         },\n\t        \"tuesday\": {\n\t            \"am_shift\": false,\n\t            \"pm_shift\": true,\n\t            \"night_shift\": true\n\t        },\n\t        \"wednesday\": {\n\t            \"am_shift\": true,\n\t            \"pm_shift\": true,\n\t            \"night_shift\": true\n\t        },\n\t        \"thursday\": {\n\t            \"am_shift\": true,\n\t            \"pm_shift\": true,\n\t            \"night_shift\": true\n\t        },\n\t        \"friday\": {\n\t            \"am_shift\": true,\n\t            \"pm_shift\": true,\n\t            \"night_shift\": true\n\t        },\n\t        \"saturday\": {\n\t            \"am_shift\": true,\n\t            \"pm_shift\": true,\n\t            \"night_shift\": true\n\t        },\n\t        \"sunday\": {\n\t            \"am_shift\": true,\n\t            \"pm_shift\": true,\n\t            \"night_shift\": true\n\t        }\n      }\n   }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/Carer.js",
+    "groupTitle": "Carer"
+  },
+  {
+    "type": "put",
+    "url": "/carer/availability",
+    "title": "Carer availability calendar update",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/carer/availability"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Carer_availability_calendar_update",
+    "group": "Carer",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "week",
+            "description": "<p>Week number. Default is 0 - general availablility. 1 means current week. Maximum 5 weeks forward.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Request-Example:",
+          "content": "    {\n     \"type\": \"general\",\n     \"availability\": {\n         \"monday\": {\n             \"am_shift\": true,\n\t            \"pm_shift\": false,\n\t            \"night_shift\": false\n         },\n\t        \"tuesday\": {\n\t            \"am_shift\": false,\n\t            \"pm_shift\": true,\n\t            \"night_shift\": true\n\t        },\n\t        \"wednesday\": {\n\t            \"am_shift\": true,\n\t            \"pm_shift\": true,\n\t            \"night_shift\": true\n\t        },\n\t        \"thursday\": {\n\t            \"am_shift\": true,\n\t            \"pm_shift\": true,\n\t            \"night_shift\": true\n\t        },\n\t        \"friday\": {\n\t            \"am_shift\": true,\n\t            \"pm_shift\": true,\n\t            \"night_shift\": true\n\t        },\n\t        \"saturday\": {\n\t            \"am_shift\": true,\n\t            \"pm_shift\": true,\n\t            \"night_shift\": true\n\t        },\n\t        \"sunday\": {\n\t            \"am_shift\": true,\n\t            \"pm_shift\": true,\n\t            \"night_shift\": true\n\t        }\n      }\n   }",
+          "type": "json"
+        }
+      ]
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/Carer.js",
+    "groupTitle": "Carer"
+  },
+  {
+    "type": "get",
     "url": "/carers/nearby",
     "title": "Checks carers near point",
     "sampleRequest": [
@@ -673,7 +765,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 201 OK\n{\n  \"exists\" : true,\n}",
+          "content": "HTTP/1.1 200 OK\n{\n  \"exists\" : true,\n}",
           "type": "json"
         }
       ]

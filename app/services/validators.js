@@ -94,7 +94,7 @@ module.exports.futureDate = {
 module.exports.dateGreaterThanDateField = function (field)
 {
     return {
-        validator: function(value) { return !value || value.getTime() >= this[field].getTime() },
+        validator: function(value) { return !value || value.getTime() > this[field].getTime() },
         message: "{PATH} must be greater than " + field + "."
     }
 }
@@ -102,10 +102,7 @@ module.exports.dateGreaterThanDateField = function (field)
 module.exports.maxDateRangeAccordingToField = function (field, range)
 {
     return {
-        validator: function(value)
-        {
-            return !value || (value.getTime() + range) >= this[field].getTime()
-        },
+        validator: function(value) { return !value || value.getTime() < (this[field].getTime()  + range) },
         message: "{PATH} has too wide range according to " + field + " field."
     }
 }

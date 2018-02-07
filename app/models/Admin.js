@@ -1,32 +1,13 @@
 //core
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
-const mongoosePaginate = require('mongoose-paginate');
 const randomstring = require("randomstring");
-const JWT = require('jsonwebtoken');
-const config = process.env;
 
 //custom
 const validators = require('./../services/validators');
-const paths = require('./../../config/paths');
-const permissions = require('./../../config/permissions');
-const careHomeSchema = require("./schemas/CareHome").schema;
-const carerSchema = require('./schemas/Carer').schema;
 
 //settings
 const passwordRegExp = /^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]{6,}$/;
-const settings =  {
-    emailConfirmationExpirationDays: 7,
-    accessTokenExpirationDays: 7,
-    passwordResetExpirationDays: 7
-};
-
-const statuses = {
-    CREATED: 0,
-    CONFIRMED: 1,
-    BLOCKED: 2,
-    WAITING_LIST: 3
-};
 
 const schema = mongoose.Schema({
     email: {
