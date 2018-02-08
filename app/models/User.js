@@ -182,7 +182,7 @@ schema.methods.addPasswordRemindHandle = function(mailer)
     }, (error) => console.log(error));
 }
 
-schema.methods.hasValidGeneralGuidance = function ()
+schema.methods.hasValidGeneralGuidance = function()
 {
     let valid = false;
     if(this.care_home.general_guidance)
@@ -196,6 +196,8 @@ schema.methods.hasValidGeneralGuidance = function ()
 
     return valid;
 }
+
+
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been taken.' });
 schema.plugin(mongoosePaginate);

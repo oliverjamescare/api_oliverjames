@@ -34,6 +34,10 @@ router.put('/carer/availability', authenticate, security(["CARER_UPDATE"]), Care
 
 //Jobs
 router.post('/jobs', authenticate, security(["CARE_HOME_SAVE"]), JobsController.addJobs);
+router.get('/carer/my-jobs', authenticate, security(["CARER_READ"]), JobsController.getMyJobs);
+router.get('/jobs/:id', authenticate, JobsController.getJobDetails);
+router.put('/jobs/:id/accept', authenticate, security(["CARER_UPDATE"]), JobsController.acceptJob);
+router.put('/jobs/:id/withdraw', authenticate, security(["CARER_UPDATE"]), JobsController.withdrawJob);
 
 
 //Carer availability

@@ -11,6 +11,32 @@ const async = require('async');
 const moment = require('moment');
 
 module.exports = {
+	//all
+    getJobDetails: function(req, res)
+    {
+        Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 })
+            .populate("care_home",{
+                "email": 1,
+                "phone_number": 1,
+                "care_home": 1,
+                "care_home.care_service_name": 1,
+                "care_home.type_of_home": 1,
+                "care_home.address": 1,
+                "care_home.name": 1
+            })
+            .lean()
+            .exec((error, job) => {
+
+                if(!job)
+                    return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+                let link = job.general_guidance.floor_plan.substr(job.general_guidance.floor_plan.indexOf("\\") + 1).replace(/\\/g,"/");
+                job.general_guidance.floor_plan = `http://${req.headers.host}/${link}`;
+                res.json({ job: job });
+            });
+    },
+
+	//only care home methods
 	addJobs: function (req, res)
 	{
 		//floor plan upload
@@ -72,6 +98,7 @@ module.exports = {
 					}),
 					(errors, results) => {
 
+					    console.log(new Date().getTime())
 						if (!res.headersSent && results)
 						{
 							//sending response
@@ -91,6 +118,44 @@ module.exports = {
 					}
 				);
 			});
-	}
+	},
+
+	//only carer methods
+    getMyJobs: function(req, res)
+    {
+        res.json({ status: req.user.carer.checkAvailabilityForDateRange(new Date("2018-02-08 10:00:00"), new Date("2018-02-09 09:00:00")) });
+    },
+
+    acceptJob: function(req, res)
+    {
+        Job.findOne({ _id: req.params._id }, (error, job) => {
+
+        	//not found
+            if(!job)
+                return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+            //accepted job
+			if(job.assignment.carer)
+                return res.status(409).json(Utils.parseStringError("This job has already been accepted", "job"));
+
+			// //
+			// Job.find({ })
+
+
+            res.json({ status: true });
+
+		})
+    },
+
+    withdrawJob: function(req, res)
+    {
+        Job.findOne({ _id: req.params._id }, (error, job) => {
+
+            //not forund
+            if(!job)
+                return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+        })
+    }
 }
 

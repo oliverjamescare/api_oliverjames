@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const validators = require('./../../services/validators');
+const moment = require('moment');
+
 const Address = require('./Address');
 
 const eligibleRoles = [
@@ -53,7 +55,7 @@ const shifts = {
 	}
 }
 
-const daysAvailablility = {
+const daysAvailability = {
 	monday: shifts,
 	tuesday: shifts,
 	wednesday: shifts,
@@ -63,8 +65,22 @@ const daysAvailablility = {
 	sunday: shifts
 }
 
+const shiftsRanges = {
+    am_shift: {
+    	start: 300,
+    	end: 720,
+	},
+    pm_shift: {
+        start: 720,
+        end: 1140,
+    },
+    night_shift: {
+        start: 1140,
+        end: 300,
+    }
+}
 
-module.exports.schema = mongoose.Schema({
+const schema = mongoose.Schema({
 	first_name: {
 		type: String,
 		required: [ true, "{PATH} field is required." ],
@@ -119,7 +135,7 @@ module.exports.schema = mongoose.Schema({
 		serve_lunch_meals: radio([ 0, 1, 2 ])
 	},
 	availability: {
-		general: daysAvailablility,
+		general: daysAvailability,
 		special_weeks: [
 			{
 				from: {
@@ -130,10 +146,54 @@ module.exports.schema = mongoose.Schema({
 					type: String,
 					required: [ true, "{PATH} field is required." ]
 				},
-				days: daysAvailablility
+				days: daysAvailability
 			}
 		]
-	}
+	},
+	job_declines: [
+		{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Job",
+		}
+	],
+    job_withdrawals: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Job_withdrawal",
+        }
+    ]
 });
 
+schema.methods.checkAvailabilityForDateRange = function(start, end)
+{
+	let startDay = moment(start.getTime());
+	let endDay = moment(end.getTime());
+	let days = [ startDay.format("YYYY-MM-DD") ];
+
+	while(startDay.format("YYYY-MM-DD") != endDay.format("YYYY-MM-DD"))
+	{
+        startDay.add(1, "days");
+        days.push(startDay.format("YYYY-MM-DD"));
+	}
+
+	return days;
+}
+
+schema.methods.getAvailabilitySetForDay = function(date)
+{
+	//getting dates range
+	const weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+    const startOffset = date.getDay() - 1 > -1 ? date.getDay() - 1 : 6;
+    const start = moment(date.getTime()).add( -startOffset, "days").format("YYYY-MM-DD");
+    const end = moment(date.getTime()).add((6 - startOffset), "days").format("YYYY-MM-DD");
+
+    const specialWeek = this.availability.special_weeks.find( special_week => special_week.from == start && special_week.to == end);
+
+    //getting day availability set
+    return !specialWeek ? this.availability.general[weekdays[startOffset]] : specialWeek.days[weekdays[startOffset]];
+}
+
+
+module.exports.schema = schema;
 module.exports.eligibleRoles = eligibleRoles;
+module.exports.shiftRanges = shiftsRanges;

@@ -47,6 +47,18 @@ const schema = mongoose.Schema({
 		default: null
 	},
 	general_guidance: GeneralGuidance.general_guidance(true),
+    withdrawals: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Job_withdrawal",
+        }
+    ],
+    declines: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        }
+    ],
 	created: {
 		type: Date,
 		default: Date.now()
@@ -63,6 +75,12 @@ schema.pre("save", function (next)
 {
 	this.updated = new Date();
 	next();
+});
+
+schema.post("findOne", function (job)
+{
+    job.start_date = job.start_date.getTime();
+    job.end_date = job.end_date.getTime();
 });
 
 schema.plugin(mongoosePaginate);
