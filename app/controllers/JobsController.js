@@ -121,14 +121,35 @@ module.exports = {
 	},
 
 	//only carer methods
-    getMyJobs: function(req, res)
+    getMyJobs: async function(req, res)
     {
-        res.json({ status: req.user.carer.checkAvailabilityForDateRange(new Date("2018-02-08 10:00:00"), new Date("2018-02-09 09:00:00")) });
+        const options = {
+            select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 },
+            populate: [
+                {
+                	path: "care_home",
+					select: {
+                        "email": 1,
+                        "phone_number": 1,
+                        "care_home": 1,
+                        "care_home.care_service_name": 1,
+                        "care_home.type_of_home": 1,
+                        "care_home.address": 1,
+                        "care_home.name": 1
+                    }
+                }
+            ],
+            lean: true,
+            leanWithId: false
+        };
+
+    	const jobs = await Utils.paginate(Job, { query: { _id: { $in: req.user.carer.jobs }}, options: options }, req);
+		res.json(Utils.parsePaginatedResults(jobs));
     },
 
     acceptJob: function(req, res)
     {
-        Job.findOne({ _id: req.params._id }, (error, job) => {
+        Job.findOne({ _id: req.params.id }, (error, job) => {
 
         	//not found
             if(!job)
@@ -138,12 +159,26 @@ module.exports = {
 			if(job.assignment.carer)
                 return res.status(409).json(Utils.parseStringError("This job has already been accepted", "job"));
 
-			// //
-			// Job.find({ })
+			//availability failure
+			if(!req.user.carer.checkAvailabilityForDateRange(job.start_date, job.end_date))
+                return res.status(409).json(Utils.parseStringError("You're not available during this job. Check your availability.", "job"));
 
+			//finding my jobs in this time
+			Job.count({ $and: [{_id: { $in: req.user.carer.jobs }}, { start_date: { $lte: job.end_date }},  { end_date: { $gte: job.end_date }} ]})
+				.then(amount => {
+					if(Boolean(amount))
+                        return res.status(409).json(Utils.parseStringError("Conflict! You already have job in this time.", "job"));
 
-            res.json({ status: true });
+					//sending response
+                    res.json({ status: true });
 
+					//saving assignment
+					job.assignment.carer = req.user;
+					job.save().catch(error => console.log(error))
+
+                    req.user.carer.jobs.push(job);
+                    req.user.save().catch(error => console.log(error))
+				});
 		})
     },
 

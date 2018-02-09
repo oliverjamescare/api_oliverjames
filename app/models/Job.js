@@ -79,9 +79,24 @@ schema.pre("save", function (next)
 
 schema.post("findOne", function (job)
 {
-    job.start_date = job.start_date.getTime();
-    job.end_date = job.end_date.getTime();
+    parseJob(job);
+});
+
+schema.post("find", function (jobs)
+{
+	jobs.map(job => parseJob(job));
 });
 
 schema.plugin(mongoosePaginate);
 module.exports.schema = mongoose.model("Job", schema);
+
+function parseJob(job)
+{
+    if(job)
+    {
+        job.start_date = job.start_date.getTime();
+        job.end_date = job.end_date.getTime();
+    }
+
+    return job;
+}

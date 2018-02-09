@@ -39,7 +39,6 @@ router.get('/jobs/:id', authenticate, JobsController.getJobDetails);
 router.put('/jobs/:id/accept', authenticate, security(["CARER_UPDATE"]), JobsController.acceptJob);
 router.put('/jobs/:id/withdraw', authenticate, security(["CARER_UPDATE"]), JobsController.withdrawJob);
 
-
 //Carer availability
 
 //router.get('/user/profile', UsersController.profile);

@@ -150,6 +150,12 @@ const schema = mongoose.Schema({
 			}
 		]
 	},
+    jobs: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Job",
+        }
+    ],
 	job_declines: [
 		{
             type: mongoose.Schema.Types.ObjectId,
@@ -166,17 +172,96 @@ const schema = mongoose.Schema({
 
 schema.methods.checkAvailabilityForDateRange = function(start, end)
 {
-	let startDay = moment(start.getTime());
-	let endDay = moment(end.getTime());
-	let days = [ startDay.format("YYYY-MM-DD") ];
+	let available = true;
+	const dayShifts = this.getAllDayShiftsInRange(start, end);
+	console.log(dayShifts);
 
-	while(startDay.format("YYYY-MM-DD") != endDay.format("YYYY-MM-DD"))
-	{
-        startDay.add(1, "days");
-        days.push(startDay.format("YYYY-MM-DD"));
-	}
+	dayShifts.forEach(dayShift => {
+		const availability = this.getAvailabilitySetForDay(new Date(dayShift.day + " 00:00:00"));
+		dayShift.shifts.forEach(shift => {
+			if(!availability[shift])
+				available = false;
+		})
+	});
 
-	return days;
+	return available;
+}
+
+schema.methods.getAllDayShiftsInRange = function(start, end)
+{
+    let startDay = moment(start.getTime());
+    let endDay = moment(end.getTime());
+    let startMinutesOffset = (start.getHours() * 60) + start.getMinutes();
+    let endMinutesOffset = (end.getHours() * 60) + end.getMinutes();
+
+    let dayShifts = [];
+
+    do
+    {
+        if(startDay.format("YYYY-MM-DD") == endDay.format("YYYY-MM-DD")) //last day
+        {
+            if((startMinutesOffset >= 0 && startMinutesOffset < shiftsRanges.night_shift.end) || (endMinutesOffset >= 0 && endMinutesOffset < shiftsRanges.night_shift.end))
+            {
+                let prevDate = moment(startDay.toDate());
+                let day = prevDate.add(-1, "days").format("YYYY-MM-DD");
+
+                if(!dayShifts.find(dayShift => dayShift.day == day))
+                {
+                    let shifts = [ "night_shift" ];
+                    dayShifts.push({ day, shifts })
+                }
+            }
+
+            let day = startDay.format("YYYY-MM-DD");
+            let shifts = [];
+
+            if(startMinutesOffset < shiftsRanges.am_shift.end && endMinutesOffset >= shiftsRanges.am_shift.start)
+                shifts.push("am_shift");
+
+            if(startMinutesOffset < shiftsRanges.pm_shift.end && endMinutesOffset >= shiftsRanges.pm_shift.start)
+                shifts.push("pm_shift");
+
+            if(startMinutesOffset < 1440 && endMinutesOffset >= shiftsRanges.night_shift.start)
+                shifts.push("night_shift");
+
+            if(shifts.length)
+                dayShifts.push({ day, shifts });
+        }
+        else
+        {
+            if(startMinutesOffset >= 0 && startMinutesOffset < shiftsRanges.night_shift.end)
+            {
+                let prevDate = moment(startDay.toDate());
+                let day = prevDate.add(-1, "days").format("YYYY-MM-DD");
+
+                if(!dayShifts.find(dayShift => dayShift.day == day))
+                {
+                    let shifts = [ "night_shift" ];
+                    dayShifts.push({ day, shifts })
+                }
+            }
+
+            let day = startDay.format("YYYY-MM-DD");
+            let shifts = [];
+
+            if(startMinutesOffset < shiftsRanges.am_shift.end)
+                shifts.push("am_shift");
+
+            if(startMinutesOffset < shiftsRanges.pm_shift.end)
+                shifts.push("pm_shift");
+
+            if(startMinutesOffset < 1440)
+                shifts.push("night_shift");
+
+            if(shifts.length)
+                dayShifts.push({ day, shifts });
+
+            startMinutesOffset = 0;
+        }
+    }
+    while(startDay.format("YYYY-MM-DD") != endDay.format("YYYY-MM-DD") && startDay.add(1, "days"));
+
+    return dayShifts;
 }
 
 schema.methods.getAvailabilitySetForDay = function(date)

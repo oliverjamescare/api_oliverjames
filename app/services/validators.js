@@ -87,7 +87,10 @@ module.exports.adult = {
 };
 
 module.exports.futureDate = {
-    validator: value => !value || value.getTime() >= new Date().getTime(),
+    validator: function(value)
+    {
+        return !this.isNew ? true : !value || value.getTime() >= new Date().getTime();
+    },
     message: "{PATH} must be greater than current date."
 };
 
