@@ -100,6 +100,8 @@
  * @apiGroup Job
  *
  * @apiHeader {String} X-access-token Access token
+ * @apiParam {Number} [page] Page number.
+ * @apiParam {Number} [results] Results per page. Default 10.
  *
  * @apiSuccess (Success 200){Object} results Pagination results.
  * @apiSuccessExample Success-Response:

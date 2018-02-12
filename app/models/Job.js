@@ -135,6 +135,9 @@ schema.statics.parseJob = function(job, req)
             let link = job.general_guidance.floor_plan.substr(job.general_guidance.floor_plan.indexOf("\\") + 1).replace(/\\/g,"/");
             job.general_guidance.floor_plan = `http://${req.headers.host}/${link}`;
 		}
+
+		job["author"] = job.care_home;
+        delete job.care_home;
     }
 
     return job;

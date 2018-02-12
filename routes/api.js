@@ -31,16 +31,17 @@ router.post('/contact', ContactController.sendContactMessage);
 router.get('/carers/nearby', CarersController.checkCarersNearArea);
 router.get('/carer/availability', authenticate, security(["CARER_READ"]), CarersController.getAvailabilityCalendar);
 router.put('/carer/availability', authenticate, security(["CARER_UPDATE"]), CarersController.updateAvailability);
+router.get('/carer/calendar', authenticate, security(["CARER_READ"]), CarersController.getCalendar);
 
 //Jobs
 router.post('/jobs', authenticate, security(["CARE_HOME_SAVE"]), JobsController.addJobs);
+router.get('/carer/jobs', authenticate, security(["CARER_READ"]), JobsController.getCarerAvailableJobs);
 router.get('/carer/my-jobs', authenticate, security(["CARER_READ"]), JobsController.getMyJobs);
 router.get('/jobs/:id', authenticate, JobsController.getJobDetails);
 router.put('/jobs/:id/accept', authenticate, security(["CARER_UPDATE"]), JobsController.acceptJob);
 router.put('/jobs/:id/withdraw', authenticate, security(["CARER_UPDATE"]), JobsController.withdrawJob);
 router.put('/jobs/:id/decline', authenticate, security(["CARER_UPDATE"]), JobsController.declineJob);
 
-//Carer availability
 
 //router.get('/user/profile', UsersController.profile);
 // router.put('/user/profile', UsersController.updateProfile);

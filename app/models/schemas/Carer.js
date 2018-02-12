@@ -170,6 +170,15 @@ const schema = mongoose.Schema({
     ]
 });
 
+//middlewares
+schema.pre("save", function(next)
+{
+    if(!this.address.location.coordinates.length)
+    	this.address.location = undefined;
+
+    next();
+});
+
 schema.methods.checkAvailabilityForDateRange = function(start, end)
 {
 	let available = true;

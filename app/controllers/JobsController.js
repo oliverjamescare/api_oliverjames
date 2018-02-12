@@ -152,6 +152,37 @@ module.exports = {
 		res.json(paginated);
     },
 
+    getCarerAvailableJobs: async function(req, res)
+    {
+        const options = {
+            select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 },
+            populate: [
+                {
+                    path: "care_home",
+                    select: {
+                        "email": 1,
+                        "phone_number": 1,
+                        "care_home": 1,
+                        "care_home.care_service_name": 1,
+                        "care_home.type_of_home": 1,
+                        "care_home.address": 1,
+                        "care_home.name": 1
+                    }
+                }
+            ],
+            sort: { start_date: 1 },
+            lean: true,
+            leanWithId: false
+        };
+
+        const  query = { };
+        const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
+        let paginated = Utils.parsePaginatedResults(jobs);
+        paginated.results.map(job => Job.parseJob(job, req));
+
+        res.json(paginated);
+    },
+
     acceptJob: function(req, res)
     {
         Job.findOne({ _id: req.params.id }, (error, job) => {

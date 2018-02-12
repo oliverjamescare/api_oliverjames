@@ -40,7 +40,8 @@ module.exports = {
                         coordinates: [
                             body["results"][0]["geometry"]["location"]["lat"],
                             body["results"][0]["geometry"]["location"]["lng"]
-                        ]};
+                        ],
+                    };
                 }
 
                 console.log(address);

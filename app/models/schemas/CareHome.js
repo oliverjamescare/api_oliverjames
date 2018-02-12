@@ -10,7 +10,7 @@ const homeTypes = [
     "Supported living"
 ];
 
-module.exports.schema = mongoose.Schema({
+const schema = mongoose.Schema({
     care_service_name: {
         type: String,
         required: [ true, "{PATH} field is required." ],
@@ -45,3 +45,14 @@ module.exports.schema = mongoose.Schema({
         }
     ],
 });
+
+//middlewares
+schema.pre("save", function(next)
+{
+    if(!this.address.location.coordinates.length)
+        this.address.location = undefined;
+
+    next();
+});
+
+module.exports.schema = schema;
