@@ -5,6 +5,7 @@
  */
 
 const Job = require("./../models/Job").schema;
+const JobWithdrawal = require("./../models/JobWithdrawal").schema;
 const fileHandler = require("../services/fileHandler");
 const Utils = require("../services/utils");
 const async = require('async');
@@ -30,9 +31,7 @@ module.exports = {
                 if(!job)
                     return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-                let link = job.general_guidance.floor_plan.substr(job.general_guidance.floor_plan.indexOf("\\") + 1).replace(/\\/g,"/");
-                job.general_guidance.floor_plan = `http://${req.headers.host}/${link}`;
-                res.json({ job: job });
+                res.json({ job: Job.parseJob(job, req) });
             });
     },
 
@@ -139,12 +138,18 @@ module.exports = {
                     }
                 }
             ],
+			sort: { start_date: 1 },
             lean: true,
             leanWithId: false
         };
 
-    	const jobs = await Utils.paginate(Job, { query: { _id: { $in: req.user.carer.jobs }}, options: options }, req);
-		res.json(Utils.parsePaginatedResults(jobs));
+        const  query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { summary_sheet: { $exists: false } } ]};
+
+    	const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
+    	let paginated = Utils.parsePaginatedResults(jobs);
+    	paginated.results.map(job => Job.parseJob(job, req));
+
+		res.json(paginated);
     },
 
     acceptJob: function(req, res)
@@ -158,6 +163,7 @@ module.exports = {
             //accepted job
 			if(job.assignment.carer)
                 return res.status(409).json(Utils.parseStringError("This job has already been accepted", "job"));
+
 
 			//availability failure
 			if(!req.user.carer.checkAvailabilityForDateRange(job.start_date, job.end_date))
@@ -174,6 +180,7 @@ module.exports = {
 
 					//saving assignment
 					job.assignment.carer = req.user;
+					job.assignment.created = new Date();
 					job.save().catch(error => console.log(error))
 
                     req.user.carer.jobs.push(job);
@@ -182,14 +189,64 @@ module.exports = {
 		})
     },
 
-    withdrawJob: function(req, res)
-    {
-        Job.findOne({ _id: req.params._id }, (error, job) => {
+	declineJob: function (req, res)
+	{
+        Job.findOne({ _id: req.params.id }, (error, job) => {
 
-            //not forund
+            //not found
             if(!job)
                 return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
+            if(job.assignment.carer == req.user.id)
+                return res.status(409).json(Utils.parseStringError("You can't decline previously accepted job", "job"));
+
+            //sending response
+            res.json({ status: true });
+
+            //adding job decline if not exists
+            if(req.user.carer.job_declines.indexOf(job._id) == -1 && job.declines.indexOf(req.user._id) == -1)
+            {
+				req.user.carer.job_declines.push(job);
+                req.user.save().catch(error => console.log(error));
+
+                job.declines.push(req.user);
+                job.save().catch(error => console.log(error));
+            }
+        })
+	},
+
+    withdrawJob: function(req, res)
+    {
+    	//validation
+        let errors;
+        req.check("message").notEmpty().withMessage('Message field is required.').isLength({ max: 200 }).withMessage('Message cannot be longer than 200 characters.');
+
+        if (errors = req.validationErrors())
+            return res.status(406).json({ errors: errors });
+
+        Job.findOne({ _id: req.params.id }, (error, job) => {
+
+            //not found
+            if(!job)
+                return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+            if(job.assignment.carer != req.user.id)
+                return res.status(409).json(Utils.parseStringError("You are not assigned to this job", "job"));
+
+            if(job.start_date.getTime() < new Date().getTime())
+                return res.status(409).json(Utils.parseStringError("You can't withdraw from a job which already started", "job"));
+
+            //sending response
+            res.json({ status: true });
+
+            //adding new withdrawal
+            JobWithdrawal.findOne({ carer: req.user._id , job: job._id }, (error,  withdrawal) => {
+            	if(!withdrawal)
+				{
+					let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job, message: req.body.message });
+                    jobWithdrawal.save().catch(error => console.log(error));
+				}
+			});
         })
     }
 }

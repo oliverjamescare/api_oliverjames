@@ -38,6 +38,7 @@ router.get('/carer/my-jobs', authenticate, security(["CARER_READ"]), JobsControl
 router.get('/jobs/:id', authenticate, JobsController.getJobDetails);
 router.put('/jobs/:id/accept', authenticate, security(["CARER_UPDATE"]), JobsController.acceptJob);
 router.put('/jobs/:id/withdraw', authenticate, security(["CARER_UPDATE"]), JobsController.withdrawJob);
+router.put('/jobs/:id/decline', authenticate, security(["CARER_UPDATE"]), JobsController.declineJob);
 
 //Carer availability
 

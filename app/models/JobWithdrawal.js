@@ -34,13 +34,17 @@ schema.pre("save", function (next)
 	{
 		User.findOne({ _id: withdrawal.carer }).then(user => {
 			user.carer.job_withdrawals.push(withdrawal);
+			user.carer.jobs.pull(withdrawal.job);
+
 			user.save().catch(error => console.log(error));
         });
 
         Job.findOne({ _id: withdrawal.job }).then(job => {
             job.withdrawals.push(withdrawal);
+            job.assignment.carer = undefined;
+
             job.save().catch(error => console.log(error));
-        })
+        });
 	}
 
 	this.updated = new Date();

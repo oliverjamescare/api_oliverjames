@@ -30,6 +30,37 @@ const schema = mongoose.Schema({
 		income: {
 			type: Number,
 			default: 0
+		},
+		created: Date,
+		summary_sheet: {
+			signature: {
+				type: String,
+				required: validators.required_if_present("assignment.summary_sheet")
+            },
+            name: {
+                type: String,
+                required: validators.required_if_present("assignment.summary_sheet"),
+                maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+            },
+            position: {
+                type: String,
+                required: validators.required_if_present("assignment.summary_sheet"),
+                maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+            },
+            notes: {
+                type: String,
+                maxlength: [ 500, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+            },
+			start_date: {
+				type: Date,
+                required: validators.required_if_present("assignment.summary_sheet.end_date"),
+                validate: validators.dateGreaterThanDateField("start_date")
+			},
+            end_date: {
+                type: Date,
+                required: validators.required_if_present("assignment.summary_sheet.start_date"),
+                validate: validators.dateGreaterThanDateField("start_date")
+            }
 		}
 	},
 	role: {
@@ -74,29 +105,40 @@ const schema = mongoose.Schema({
 schema.pre("save", function (next)
 {
 	this.updated = new Date();
+	if(!this.isNew && this.assignment.carer)
+	{
+		//removing decline
+		this.declines.pull(this.assignment.carer);
+		const job = this;
+
+		const User = require('./User').schema;
+		User.findOne({ _id: job.assignment.carer }, (error, user) => {
+			user.carer.jobs.pull(job._id);
+			user.save().catch(error => console.log(error));
+		});
+	}
+
 	next();
 });
 
-schema.post("findOne", function (job)
-{
-    parseJob(job);
-});
-
-schema.post("find", function (jobs)
-{
-	jobs.map(job => parseJob(job));
-});
-
-schema.plugin(mongoosePaginate);
-module.exports.schema = mongoose.model("Job", schema);
-
-function parseJob(job)
+//statics
+schema.statics.parseJob = function(job, req)
 {
     if(job)
     {
         job.start_date = job.start_date.getTime();
         job.end_date = job.end_date.getTime();
+
+        //guidance link
+        if(job.general_guidance)
+		{
+            let link = job.general_guidance.floor_plan.substr(job.general_guidance.floor_plan.indexOf("\\") + 1).replace(/\\/g,"/");
+            job.general_guidance.floor_plan = `http://${req.headers.host}/${link}`;
+		}
     }
 
     return job;
 }
+
+schema.plugin(mongoosePaginate);
+module.exports.schema = mongoose.model("Job", schema);
