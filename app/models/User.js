@@ -107,6 +107,40 @@ const schema = mongoose.Schema({
         required: true,
         enum: permissions.permissions
     }],
+    address: {
+        postal_code: {
+            type: String,
+            required: [ true, "{PATH} field is required." ],
+            maxlength: [ 30, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        },
+        company: {
+            type: String,
+            maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ],
+            default: null
+        },
+        address_line_1: {
+            type: String,
+            required: [ true, "{PATH} field is required." ],
+            maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        },
+        address_line_2: {
+            type: String,
+            maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ],
+            default: null
+        },
+        city: {
+            type: String,
+            required: [ true, "{PATH} field is required." ],
+            maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        },
+        location: {
+            type: {
+                type: String,
+                default: "Point"
+            },
+            coordinates: [ Number ]
+        }
+    },
     created: {
         type: Date,
         default: Date.now()
@@ -116,12 +150,15 @@ const schema = mongoose.Schema({
         default: Date.now()
     },
 }, { usePushEach: true })
-.index([{ "carer.address.location": "2dsphere" }, { "care_home.address.location": "2dsphere" }]);
+.index([{ "address.location": "2dsphere" }]);
 
 //middlewares
 schema.pre("save", function(next)
 {
     this.updated = new Date();
+    if(!this.address.location.coordinates.length)
+        this.address.location = undefined;
+
     next();
 });
 

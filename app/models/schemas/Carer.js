@@ -2,8 +2,6 @@ const mongoose = require('mongoose');
 const validators = require('./../../services/validators');
 const moment = require('moment');
 
-const Address = require('./Address');
-
 const eligibleRoles = [
 	"Carer",
 	"Senior Carer"
@@ -115,7 +113,6 @@ const schema = mongoose.Schema({
 		type: Number,
 		default: 5
 	},
-	address: Address.address,
 	cv: {
 		type: String,
 		required: [ true, "{PATH} field is required." ]
@@ -170,15 +167,7 @@ const schema = mongoose.Schema({
     ]
 });
 
-//middlewares
-schema.pre("save", function(next)
-{
-    if(!this.address.location.coordinates.length)
-    	this.address.location = undefined;
-
-    next();
-});
-
+//methods
 schema.methods.checkAvailabilityForDateRange = function(start, end)
 {
 	let available = true;

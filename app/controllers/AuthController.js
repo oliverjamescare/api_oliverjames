@@ -28,7 +28,8 @@ module.exports = {
                 let user = new User({
                     email: req.body.email,
                     password: req.body.password,
-                    phone_number: req.body.phone_number
+                    phone_number: req.body.phone_number,
+                    address: address
                 });
 
                 //care home
@@ -38,8 +39,7 @@ module.exports = {
                         care_home: {
                             care_service_name: req.body.care_service_name,
                             type_of_home: req.body.type_of_home,
-                            name: req.body.name,
-                            address: address
+                            name: req.body.name
                         }
                     });
 
@@ -64,7 +64,6 @@ module.exports = {
                             surname: req.body.surname,
                             middle_name: req.body.middle_name,
                             date_of_birth: req.body.date_of_birth,
-                            address: address,
                             cv: req.file ? req.file.path : null,
                             q_a_form: {
                                 criminal_record: {
@@ -102,15 +101,13 @@ module.exports = {
 
                 user
                     .validate()
-                    .then(() =>
-                    {
+                    .then(() => {
 
                         //sending response
                         res.status(201).json({ status: true });
 
                         //hashing password, sending email verification and saving user
-                        bcrypt.hash(user.password, null, null, (error, hash) =>
-                        {
+                        bcrypt.hash(user.password, null, null, (error, hash) => {
                             user.addEmailConfirmationHandle(user.email, req.app.mailer);
                             user.password = hash;
 

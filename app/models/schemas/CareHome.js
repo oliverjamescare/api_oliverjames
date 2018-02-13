@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const validators = require('./../../services/validators');
-const Address = require('./Address');
 const GeneralGuidance = require('./GeneralGuidance');
 
 const homeTypes = [
@@ -28,7 +27,6 @@ const schema = mongoose.Schema({
         validate: validators.alpha,
         maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
     },
-    address: Address.address,
     blocked_carers: [
         {
             type: mongoose.Schema.Types.ObjectId,
@@ -44,15 +42,6 @@ const schema = mongoose.Schema({
             ref: "Job"
         }
     ],
-});
-
-//middlewares
-schema.pre("save", function(next)
-{
-    if(!this.address.location.coordinates.length)
-        this.address.location = undefined;
-
-    next();
 });
 
 module.exports.schema = schema;

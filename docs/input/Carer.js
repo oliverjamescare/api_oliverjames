@@ -158,24 +158,24 @@
                             "care_home": {
                                 "care_service_name": "Test care home",
                                 "type_of_home": "Nursing",
-                                "name": "Test Test",
-                                "address": {
-                                    "postal_code": "Ex8 2el",
-                                    "city": "Exmouth",
-                                    "address_line_1": "Elwyn Rd, Exmouth EX8 2E",
-                                    "location": {
-                                        "coordinates": [
-                                            50.7583820,
-                                            19.005533
-                                        ],
-                                        "type": "Point"
-                                    },
-                                    "address_line_2": null,
-                                    "company": null
-                                }
+                                "name": "Test Test"
                             },
                             "email": "test.test@test.com",
-                            "phone_number": "123456788777"
+                            "phone_number": "123456788777",
+                            "address": {
+                                "postal_code": "Ex8 2el",
+                                "city": "Exmouth",
+                                "address_line_1": "Elwyn Rd, Exmouth EX8 2E",
+                                "location": {
+                                    "coordinates": [
+                                        50.7583820,
+                                        19.005533
+                                    ],
+                                    "type": "Point"
+                                },
+                                "address_line_2": null,
+                                "company": null
+                            }
                         }
                     }
                 ]

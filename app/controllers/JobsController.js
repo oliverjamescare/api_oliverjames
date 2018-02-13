@@ -4,12 +4,17 @@
  * and open the template in the editor.
  */
 
+//core
+const moment = require('moment');
+const async = require('async');
+
+//custom
 const Job = require("./../models/Job").schema;
+const User = require("./../models/User").schema;
 const JobWithdrawal = require("./../models/JobWithdrawal").schema;
+
 const fileHandler = require("../services/fileHandler");
 const Utils = require("../services/utils");
-const async = require('async');
-const moment = require('moment');
 
 module.exports = {
 	//all
@@ -19,10 +24,10 @@ module.exports = {
             .populate("care_home",{
                 "email": 1,
                 "phone_number": 1,
+                "address": 1,
                 "care_home": 1,
                 "care_home.care_service_name": 1,
                 "care_home.type_of_home": 1,
-                "care_home.address": 1,
                 "care_home.name": 1
             })
             .lean()
@@ -130,10 +135,10 @@ module.exports = {
 					select: {
                         "email": 1,
                         "phone_number": 1,
+                        "address": 1,
                         "care_home": 1,
                         "care_home.care_service_name": 1,
                         "care_home.type_of_home": 1,
-                        "care_home.address": 1,
                         "care_home.name": 1
                     }
                 }
@@ -154,33 +159,62 @@ module.exports = {
 
     getCarerAvailableJobs: async function(req, res)
     {
-        const options = {
-            select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 },
-            populate: [
-                {
-                    path: "care_home",
-                    select: {
-                        "email": 1,
-                        "phone_number": 1,
-                        "care_home": 1,
-                        "care_home.care_service_name": 1,
-                        "care_home.type_of_home": 1,
-                        "care_home.address": 1,
-                        "care_home.name": 1
-                    }
+        User.aggregate([
+            {
+                $geoNear: {
+                    near: [49.8490119, 20.005533],
+                    distanceField: "distance",
+                    distanceMultiplier: 3963.2,
+                    spherical: true,
+                    // query: {
+                    //     care_home: { $exists: true }
+                    // }
                 }
-            ],
-            sort: { start_date: 1 },
-            lean: true,
-            leanWithId: false
-        };
+            },
+            {
+                $project: {
+                    "distance": 1,
 
-        const  query = { };
-        const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
-        let paginated = Utils.parsePaginatedResults(jobs);
-        paginated.results.map(job => Job.parseJob(job, req));
+                    care_home: 1
+                }
+            },
+            // {
+            //     $match: { "distanceArea": { $gte: 0 } }
+            // }
+        ])
+        .then((results) => res.json({ exists: results }));
+        // const jobs = await Job.find({
+        //
+        //             })
+        //             .exec();
 
-        res.json(paginated);
+        // const options = {
+        //     select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 },
+        //     populate: [
+        //         {
+        //             path: "care_home",
+        //             select: {
+        //                 "email": 1,
+        //                 "phone_number": 1,
+        //                 "care_home": 1,
+        //                 "care_home.care_service_name": 1,
+        //                 "care_home.type_of_home": 1,
+        //                 "care_home.address": 1,
+        //                 "care_home.name": 1
+        //             }
+        //         }
+        //     ],
+        //     sort: { start_date: 1 },
+        //     lean: true,
+        //     leanWithId: false
+        // };
+        //
+        // const  query = { };
+        // const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
+        // let paginated = Utils.parsePaginatedResults(jobs);
+        // paginated.results.map(job => Job.parseJob(job, req));
+
+        // res.json(jobs);
     },
 
     acceptJob: function(req, res)
@@ -279,6 +313,40 @@ module.exports = {
 				}
 			});
         })
+    },
+
+    getJobs: async function (req, res)
+    {
+
+        const options = {
+            select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 },
+            populate: [
+                {
+                    path: "care_home",
+                    select: {
+                        "email": 1,
+                        "phone_number": 1,
+                        "address": 1,
+                        "care_home": 1,
+                        "care_home.care_service_name": 1,
+                        "care_home.type_of_home": 1,
+                        "care_home.name": 1
+                    }
+                }
+            ],
+            sort: { start_date: 1 },
+            lean: true,
+            leanWithId: false
+        };
+
+        const  query = { };
+
+        const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
+        let paginated = Utils.parsePaginatedResults(jobs);
+        paginated.results.map(job => Job.parseJob(job, req));
+
+        res.json(paginated);
     }
+
 }
 

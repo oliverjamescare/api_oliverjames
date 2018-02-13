@@ -4,7 +4,6 @@ const uniqueValidator = require('mongoose-unique-validator');
 
 //custom
 const validators = require('./../services/validators');
-const Address = require('./schemas/Address');
 const User = require('./User').schema;
 
 const schema = mongoose.Schema({
@@ -24,7 +23,40 @@ const schema = mongoose.Schema({
         ],
         unique: true
     },
-    address: Address.address,
+    address: {
+        postal_code: {
+            type: String,
+            required: [ true, "{PATH} field is required." ],
+            maxlength: [ 30, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        },
+        company: {
+            type: String,
+            maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ],
+            default: null
+        },
+        address_line_1: {
+            type: String,
+            required: [ true, "{PATH} field is required." ],
+            maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        },
+        address_line_2: {
+            type: String,
+            maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ],
+            default: null
+        },
+        city: {
+            type: String,
+            required: [ true, "{PATH} field is required." ],
+            maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        },
+        location: {
+            type: {
+                type: String,
+                default: "Point"
+            },
+            coordinates: [ Number ]
+        }
+    },
     name: {
         type: String,
         required: [ true, "{PATH} field is required." ],
@@ -45,6 +77,9 @@ const schema = mongoose.Schema({
 schema.pre("save", function (next)
 {
     this.updated = new Date();
+    if(!this.address.location.coordinates.length)
+        this.address.location = undefined;
+
     next();
 });
 

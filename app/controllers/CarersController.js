@@ -126,10 +126,10 @@ module.exports = {
 					.populate("care_home",{
 						"email": 1,
 						"phone_number": 1,
+                        "address": 1,
 						"care_home": 1,
 						"care_home.care_service_name": 1,
 						"care_home.type_of_home": 1,
-						"care_home.address": 1,
 						"care_home.name": 1
 					})
 					.lean()
