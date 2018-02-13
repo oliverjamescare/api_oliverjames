@@ -607,6 +607,30 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/care-home/calendar",
+    "title": "Care home jobs calendar",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/care-home/calendar"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Care_home_jobs_calendar",
+    "group": "Care_Home",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n   {\n       \"calendar\": [\n           {\n               \"day\": \"2018-02-12\",\n               \"jobs\": [\n                   {\n                       \"_id\": \"5a814b8deb5cee1dc0720128\",\n                       \"start_date\": 1518422931942,\n                       \"end_date\": 1518425101942,\n                       \"role\": \"Senior Carer\",\n                       \"author\": {\n                           \"_id\": \"5a71b2834f1f26305c6abf2a\",\n                           \"care_home\": {\n                               \"care_service_name\": \"Test care home\",\n                               \"type_of_home\": \"Nursing\",\n                               \"name\": \"Test Test\",\n                               \"address\": {\n                                   \"postal_code\": \"Ex8 2el\",\n                                   \"city\": \"Exmouth\",\n                                   \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                                   \"location\": {\n                                       \"coordinates\": [\n                                           50.7583820,\n                                           19.005533\n                                       ],\n                                       \"type\": \"Point\"\n                                   },\n                                   \"address_line_2\": null,\n                                   \"company\": null\n                               }\n                           },\n                           \"email\": \"test.test@test.com\",\n                           \"phone_number\": \"123456788777\"\n                       }\n                   }\n               ]\n           },\n           {\n               \"day\": \"2018-02-13\",\n               \"jobs\": []\n           }\n       ]\n   }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/CareHome.js",
+    "groupTitle": "Care_Home"
+  },
+  {
+    "type": "get",
     "url": "/carer/availability",
     "title": "Carer availability calendar",
     "sampleRequest": [
@@ -690,6 +714,30 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "HTTP/1.1 200 OK\n{\n   \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/Carer.js",
+    "groupTitle": "Carer"
+  },
+  {
+    "type": "get",
+    "url": "/carer/calendar",
+    "title": "Carer jobs calendar",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/carer/calendar"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Carer_jobs_calendar",
+    "group": "Carer",
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n   {\n       \"calendar\": [\n           {\n               \"day\": \"2018-02-12\",\n               \"jobs\": [\n                   {\n                       \"_id\": \"5a814b8deb5cee1dc0720128\",\n                       \"start_date\": 1518422931942,\n                       \"end_date\": 1518425101942,\n                       \"role\": \"Senior Carer\",\n                       \"author\": {\n                           \"_id\": \"5a71b2834f1f26305c6abf2a\",\n                           \"care_home\": {\n                               \"care_service_name\": \"Test care home\",\n                               \"type_of_home\": \"Nursing\",\n                               \"name\": \"Test Test\",\n                               \"address\": {\n                                   \"postal_code\": \"Ex8 2el\",\n                                   \"city\": \"Exmouth\",\n                                   \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                                   \"location\": {\n                                       \"coordinates\": [\n                                           50.7583820,\n                                           19.005533\n                                       ],\n                                       \"type\": \"Point\"\n                                   },\n                                   \"address_line_2\": null,\n                                   \"company\": null\n                               }\n                           },\n                           \"email\": \"test.test@test.com\",\n                           \"phone_number\": \"123456788777\"\n                       }\n                   }\n               ]\n           },\n           {\n               \"day\": \"2018-02-13\",\n               \"jobs\": []\n           }\n       ]\n   }",
           "type": "json"
         }
       ]
@@ -1197,7 +1245,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n     {\n         \"results\": [\n             {\n                \"_id\": \"5a814b8deb5cee1dc0720128\",\n                \"start_date\": 1518422931942,\n                \"end_date\": 1518425101942,\n                \"care_home\": {\n                    \"_id\": \"5a71b2834f1f26305c6abf2a\",\n                    \"care_home\": {\n                        \"care_service_name\": \"Test care home\",\n                        \"type_of_home\": \"Nursing\",\n                        \"name\": \"Test Test\",\n                        \"address\": {\n                            \"postal_code\": \"Ex8 2el\",\n                            \"city\": \"Exmouth\",\n                            \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                            \"location\": {\n                                \"coordinates\": [\n                                    50.7583820,\n                                    19.005533\n                                ],\n                                \"type\": \"Point\"\n                            },\n                            \"address_line_2\": null,\n                            \"company\": null\n                        }\n                    },\n                    \"email\": \"test.test@test.com\",\n                    \"phone_number\": \"123456788777\"\n                },\n                \"role\": \"Senior Carer\",\n                \"general_guidance\": {\n                    \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012.floor_plan.docx\",\n                    \"parking\": \"test\",\n                    \"notes_for_carers\": \"test\",\n                    \"emergency_guidance\": \"test\",\n                    \"report_contact\": \"test\",\n                    \"superior_contact\": \"test\"\n                },\n                \"notes\": null\n            }\n         ],\n         \"pages\": 1,\n         \"total\": 3\n     }",
+          "content": "HTTP/1.1 200 OK\n     {\n         \"results\": [\n             {\n                \"_id\": \"5a814b8deb5cee1dc0720128\",\n                \"start_date\": 1518422931942,\n                \"end_date\": 1518425101942,\n                \"author\": {\n                    \"_id\": \"5a71b2834f1f26305c6abf2a\",\n                    \"care_home\": {\n                        \"care_service_name\": \"Test care home\",\n                        \"type_of_home\": \"Nursing\",\n                        \"name\": \"Test Test\",\n                        \"address\": {\n                            \"postal_code\": \"Ex8 2el\",\n                            \"city\": \"Exmouth\",\n                            \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                            \"location\": {\n                                \"coordinates\": [\n                                    50.7583820,\n                                    19.005533\n                                ],\n                                \"type\": \"Point\"\n                            },\n                            \"address_line_2\": null,\n                            \"company\": null\n                        }\n                    },\n                    \"email\": \"test.test@test.com\",\n                    \"phone_number\": \"123456788777\"\n                },\n                \"role\": \"Senior Carer\",\n                \"general_guidance\": {\n                    \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012.floor_plan.docx\",\n                    \"parking\": \"test\",\n                    \"notes_for_carers\": \"test\",\n                    \"emergency_guidance\": \"test\",\n                    \"report_contact\": \"test\",\n                    \"superior_contact\": \"test\"\n                },\n                \"notes\": null\n            }\n         ],\n         \"pages\": 1,\n         \"total\": 3\n     }",
           "type": "json"
         }
       ]

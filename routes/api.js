@@ -7,6 +7,7 @@ const UsersController = require('../app/controllers/UsersController');
 const AuthController = require('../app/controllers/AuthController');
 const ContactController = require('../app/controllers/ContactController');
 const CarersController = require('../app/controllers/CarersController');
+const CareHomeControler = require('../app/controllers/CareHomeController');
 const JobsController = require('../app/controllers/JobsController');
 
 //middlewares
@@ -32,6 +33,10 @@ router.get('/carers/nearby', CarersController.checkCarersNearArea);
 router.get('/carer/availability', authenticate, security(["CARER_READ"]), CarersController.getAvailabilityCalendar);
 router.put('/carer/availability', authenticate, security(["CARER_UPDATE"]), CarersController.updateAvailability);
 router.get('/carer/calendar', authenticate, security(["CARER_READ"]), CarersController.getCalendar);
+
+//Care Home
+router.get('/care-home/calendar', authenticate, security(["CARE_HOME_READ"]), CareHomeControler.getCalendar);
+
 
 //Jobs
 router.post('/jobs', authenticate, security(["CARE_HOME_SAVE"]), JobsController.addJobs);

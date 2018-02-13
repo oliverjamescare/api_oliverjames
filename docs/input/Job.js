@@ -112,7 +112,7 @@
                     "_id": "5a814b8deb5cee1dc0720128",
                     "start_date": 1518422931942,
                     "end_date": 1518425101942,
-                    "care_home": {
+                    "author": {
                         "_id": "5a71b2834f1f26305c6abf2a",
                         "care_home": {
                             "care_service_name": "Test care home",

@@ -1,3 +1,6 @@
+//core
+const moment = require("moment");
+
 module.exports.parseValidatorErrors = function(error)
 {
     var errorMessages = [];
@@ -53,4 +56,16 @@ module.exports.parsePaginatedResults = function(paginatorResponse)
         pages: paginatorResponse.pages,
         total: paginatorResponse.total
     }
+}
+
+module.exports.getDatesRange = function(week = 0)
+{
+    const today = new Date();
+    today.setDate(today.getDate() + (7 * week));
+
+    const startOffset = today.getDay() - 1 > -1 ? today.getDay() - 1 : 6;
+    const start = moment(today.getTime()).add( -startOffset, "days").format("YYYY-MM-DD");
+    const end = moment(today.getTime()).add((6 - startOffset), "days").format("YYYY-MM-DD");
+
+    return { from: start, to: end };
 }
