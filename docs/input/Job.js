@@ -13,7 +13,6 @@
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *       "job": {
             "_id": "5a814b8deb5cee1dc0720128",
             "start_date": 1518422931942,
             "end_date": 1518425101942,
@@ -51,7 +50,6 @@
                 "superior_contact": "test"
             },
             "notes": null
-        }
  *     }
  *
  * @apiError NotFound Job not found.

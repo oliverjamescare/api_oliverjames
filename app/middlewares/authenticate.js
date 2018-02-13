@@ -39,8 +39,8 @@ module.exports = function(req, res, next)
                 if(!user && !res.headersSent)
                     return res.status(401).json(Utils.parseStringError("Access Denied", "user"));
 
-                // //blocked account and unblocking handle
-                if (!user.blockingHandle())
+                //blocked account and unblocking handle
+                if (!res.headersSent && !user.blockingHandle())
                     return res.status(403).json(Utils.parseStringError("Blocked account", "user"));
 
                 callback(null, user)

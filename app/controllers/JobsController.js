@@ -36,7 +36,7 @@ module.exports = {
                 if(!job)
                     return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-                res.json({ job: Job.parseJob(job, req) });
+                res.json(Job.parseJob(job, req));
             });
     },
 
@@ -159,30 +159,80 @@ module.exports = {
 
     getCarerAvailableJobs: async function(req, res)
     {
-        User.aggregate([
-            {
-                $geoNear: {
-                    near: [49.8490119, 20.005533],
-                    distanceField: "distance",
-                    distanceMultiplier: 3963.2,
-                    spherical: true,
-                    // query: {
-                    //     care_home: { $exists: true }
-                    // }
-                }
-            },
-            {
-                $project: {
-                    "distance": 1,
+        const users = await User.find({ care_home: { $exists: true }, 'address.location': { $geoWithin: { $centerSphere: [ req.user.address.location.coordinates,  parseInt(req.user.carer.max_job_distance) / 3963.2 ]} }}, { _id: 1 }).lean().exec();
 
-                    care_home: 1
-                }
-            },
-            // {
-            //     $match: { "distanceArea": { $gte: 0 } }
-            // }
-        ])
-        .then((results) => res.json({ exists: results }));
+        const calendarStart = Utils.getDatesRange().from;
+        const calendarEnd = Utils.getDatesRange(4).to;
+        const myCalendarJobs = await Job.find({ _id: { $in: req.user.carer.jobs }, 'assignment.summary_sheet': { $exists: false }}).lean().exec();
+        let calendarJobsQuery = { $or: []}
+
+        for(let i = 0; i < myCalendarJobs.length; i++)
+        {
+            if(i == 0 && myCalendarJobs.length == 1)
+                calendarJobsQuery.$or.push({ $and: [ { start_date: { $lt: myCalendarJobs[i].start_date }}, { end_date: { $lt: myCalendarJobs[i].start_date }} ]})
+
+        }
+
+
+        
+        return res.json(myCalendarJobs.map(job => {
+            const object = {
+                start_date: { $lt: job.end_date },
+                end_date: { $gt: job.start_date }
+            }
+
+            return object;
+        }));
+
+        const jobs = await Job.find(
+                {
+                    care_home: { $in: users.map(user => user._id) }, //only from care homes within max distance area
+                    _id : { $not: { $in: req.user.carer.job_declines }}, // not declined
+                    'assignment.carer': { $exists : false }, //not accepted
+
+                },
+                { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 }
+            )
+            // .populate({
+            //     path: "care_home",
+            //     match: { 'address.location': { $geoWithin: { $centerSphere: [ req.user.address.location.coordinates,  parseInt(req.user.carer.max_job_distance) / 3963.2 ]} } },
+            //     select: {
+            //         "email": 1,
+            //         "phone_number": 1,
+            //         "address": 1,
+            //         "care_home": 1,
+            //         "care_home.care_service_name": 1,
+            //         "care_home.type_of_home": 1,
+            //         "care_home.name": 1
+            //     }
+            // })
+            .exec();
+
+
+        // User.aggregate([
+        //     {
+        //         $geoNear: {
+        //             near: req.user.address.location.coordinates,
+        //             distanceField: "distance",
+        //             distanceMultiplier: 3963.2,
+        //             maxDistance: parseInt(req.user.carer.max_job_distance) / 3963.2,
+        //             spherical: true,
+        //             query: {
+        //                 care_home: { $exists: true }
+        //             }
+        //         }
+        //     },
+        //     {
+        //         $project: {
+        //             "distance": 1,
+        //             address: 1
+        //         }
+        //     },
+        //     // {
+        //     //     $match: { "distanceArea": { $gte: 0 } }
+        //     // }
+        // ])
+        // .then((results) => res.json({ exists: results }));
         // const jobs = await Job.find({
         //
         //             })
@@ -214,7 +264,7 @@ module.exports = {
         // let paginated = Utils.parsePaginatedResults(jobs);
         // paginated.results.map(job => Job.parseJob(job, req));
 
-        // res.json(jobs);
+
     },
 
     acceptJob: function(req, res)
