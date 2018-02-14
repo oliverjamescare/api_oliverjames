@@ -1187,6 +1187,136 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/carer/jobs",
+    "title": "Carer available jobs",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/carer/jobs"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Carer_available_jobs",
+    "group": "Job",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page",
+            "description": "<p>Page number.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "results",
+            "description": "<p>Results per page. Default 10.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "dont_meet_criteria",
+            "description": "<p>Filter which disables availability checking. Available options 1 - enabled, 0(default) - disabled.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "distance",
+            "description": "<p>Filter by distance.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "sort",
+            "description": "<p>Sort parameter. Available options: roleASC - by role ascending, roleDESC - by role descending, startDESC - by start date descending, startASC(default) - by start date ascending, endDESC - by end date descending, endASC - by end date ascending</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "results",
+            "description": "<p>Pagination results.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "   HTTP/1.1 200 OK\n{\n    \"results\": [\n        {\n           \"_id\": \"5a814b8deb5cee1dc0720128\",\n           \"start_date\": 1518422931942,\n           \"end_date\": 1518425101942,\n           \"author\": {\n               \"_id\": \"5a71b2834f1f26305c6abf2a\",\n               \"care_home\": {\n                   \"care_service_name\": \"Test care home\",\n                   \"type_of_home\": \"Nursing\",\n                   \"name\": \"Test Test\",\n               },\n               \"email\": \"test.test@test.com\",\n               \"phone_number\": \"123456788777\",\n               \"address\": {\n                   \"postal_code\": \"Ex8 2el\",\n                   \"city\": \"Exmouth\",\n                   \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                   \"location\": {\n                       \"coordinates\": [\n                           50.7583820,\n                           19.005533\n                       ],\n                       \"type\": \"Point\"\n                   },\n                   \"address_line_2\": null,\n                   \"company\": null,\n                   \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n               },\n               \"distance\": 4.25\n           },\n           \"role\": \"Senior Carer\",\n           \"conflict\": false\n       }\n    ],\n    \"pages\": 1,\n    \"total\": 3\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/Job.js",
+    "groupTitle": "Job"
+  },
+  {
+    "type": "get",
     "url": "/carer/my-jobs",
     "title": "Carer my jobs",
     "sampleRequest": [
@@ -1245,7 +1375,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n     {\n         \"results\": [\n             {\n                \"_id\": \"5a814b8deb5cee1dc0720128\",\n                \"start_date\": 1518422931942,\n                \"end_date\": 1518425101942,\n                \"author\": {\n                    \"_id\": \"5a71b2834f1f26305c6abf2a\",\n                    \"care_home\": {\n                        \"care_service_name\": \"Test care home\",\n                        \"type_of_home\": \"Nursing\",\n                        \"name\": \"Test Test\",\n                    },\n                    \"email\": \"test.test@test.com\",\n                    \"phone_number\": \"123456788777\",\n                    \"address\": {\n                        \"postal_code\": \"Ex8 2el\",\n                        \"city\": \"Exmouth\",\n                        \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                        \"location\": {\n                            \"coordinates\": [\n                                50.7583820,\n                                19.005533\n                            ],\n                            \"type\": \"Point\"\n                        },\n                        \"address_line_2\": null,\n                        \"company\": null\n                    }\n                },\n                \"role\": \"Senior Carer\",\n                \"general_guidance\": {\n                    \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012.floor_plan.docx\",\n                    \"parking\": \"test\",\n                    \"notes_for_carers\": \"test\",\n                    \"emergency_guidance\": \"test\",\n                    \"report_contact\": \"test\",\n                    \"superior_contact\": \"test\"\n                },\n                \"notes\": null\n            }\n         ],\n         \"pages\": 1,\n         \"total\": 3\n     }",
+          "content": "HTTP/1.1 200 OK\n     {\n         \"results\": [\n             {\n                \"_id\": \"5a814b8deb5cee1dc0720128\",\n                \"start_date\": 1518422931942,\n                \"end_date\": 1518425101942,\n                \"author\": {\n                    \"_id\": \"5a71b2834f1f26305c6abf2a\",\n                    \"care_home\": {\n                        \"care_service_name\": \"Test care home\",\n                        \"type_of_home\": \"Nursing\",\n                        \"name\": \"Test Test\",\n                    },\n                    \"email\": \"test.test@test.com\",\n                    \"phone_number\": \"123456788777\",\n                    \"address\": {\n                        \"postal_code\": \"Ex8 2el\",\n                        \"city\": \"Exmouth\",\n                        \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                        \"location\": {\n                            \"coordinates\": [\n                                50.7583820,\n                                19.005533\n                            ],\n                            \"type\": \"Point\"\n                        },\n                        \"address_line_2\": null,\n                        \"company\": null,\n                        \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n                    }\n                },\n                \"role\": \"Senior Carer\"\n            }\n         ],\n         \"pages\": 1,\n         \"total\": 3\n     }",
           "type": "json"
         }
       ]
@@ -1461,7 +1591,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n        \"_id\": \"5a814b8deb5cee1dc0720128\",\n        \"start_date\": 1518422931942,\n        \"end_date\": 1518425101942,\n        \"care_home\": {\n            \"_id\": \"5a71b2834f1f26305c6abf2a\",\n            \"care_home\": {\n                \"care_service_name\": \"Test care home\",\n                \"type_of_home\": \"Nursing\",\n                \"name\": \"Test Test\"\n            },\n            \"email\": \"test.test@test.com\",\n            \"phone_number\": \"123456788777\",\n            \"address\": {\n                    \"postal_code\": \"Ex8 2el\",\n                    \"city\": \"Exmouth\",\n                    \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                    \"location\": {\n                        \"coordinates\": [\n                            50.7583820,\n                            19.005533\n                        ],\n                        \"type\": \"Point\"\n                    },\n                    \"address_line_2\": null,\n                    \"company\": null\n                }\n        },\n        \"role\": \"Senior Carer\",\n        \"general_guidance\": {\n            \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012.floor_plan.docx\",\n            \"parking\": \"test\",\n            \"notes_for_carers\": \"test\",\n            \"emergency_guidance\": \"test\",\n            \"report_contact\": \"test\",\n            \"superior_contact\": \"test\"\n        },\n        \"notes\": null\n}",
+          "content": "HTTP/1.1 200 OK\n{\n        \"_id\": \"5a814b8deb5cee1dc0720128\",\n        \"start_date\": 1518422931942,\n        \"end_date\": 1518425101942,\n        \"care_home\": {\n            \"_id\": \"5a71b2834f1f26305c6abf2a\",\n            \"care_home\": {\n                \"care_service_name\": \"Test care home\",\n                \"type_of_home\": \"Nursing\",\n                \"name\": \"Test Test\"\n            },\n            \"email\": \"test.test@test.com\",\n            \"phone_number\": \"123456788777\",\n            \"address\": {\n                    \"postal_code\": \"Ex8 2el\",\n                    \"city\": \"Exmouth\",\n                    \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                    \"location\": {\n                        \"coordinates\": [\n                            50.7583820,\n                            19.005533\n                        ],\n                        \"type\": \"Point\"\n                    },\n                    \"address_line_2\": null,\n                    \"company\": null,\n                    \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n                }\n        },\n        \"role\": \"Senior Carer\",\n        \"general_guidance\": {\n            \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012.floor_plan.docx\",\n            \"parking\": \"test\",\n            \"notes_for_carers\": \"test\",\n            \"emergency_guidance\": \"test\",\n            \"report_contact\": \"test\",\n            \"superior_contact\": \"test\"\n        },\n        \"notes\": null\n}",
           "type": "json"
         }
       ]

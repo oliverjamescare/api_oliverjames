@@ -37,7 +37,8 @@
                             "type": "Point"
                         },
                         "address_line_2": null,
-                        "company": null
+                        "company": null,
+                        "link": "https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533"
                     }
             },
             "role": "Senior Carer",
@@ -131,24 +132,110 @@
                                 "type": "Point"
                             },
                             "address_line_2": null,
-                            "company": null
+                            "company": null,
+                            "link": "https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533"
                         }
                     },
-                    "role": "Senior Carer",
-                    "general_guidance": {
-                        "floor_plan": "http://localhost:8000/uploads/users/151808246323012.floor_plan.docx",
-                        "parking": "test",
-                        "notes_for_carers": "test",
-                        "emergency_guidance": "test",
-                        "report_contact": "test",
-                        "superior_contact": "test"
-                    },
-                    "notes": null
+                    "role": "Senior Carer"
                 }
              ],
              "pages": 1,
              "total": 3
          }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {get} /carer/jobs Carer available jobs
+ * @apiSampleRequest /carer/jobs
+ * @apiVersion 0.0.1
+ * @apiName Carer available jobs
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {Number} [page] Page number.
+ * @apiParam {Number} [results] Results per page. Default 10.
+ * @apiParam {Number} [dont_meet_criteria] Filter which disables availability checking. Available options 1 - enabled, 0(default) - disabled.
+ * @apiParam {Number} [distance] Filter by distance.
+ * @apiParam {String} [sort] Sort parameter. Available options: roleASC - by role ascending, roleDESC - by role descending, startDESC - by start date descending, startASC(default) - by start date ascending, endDESC - by end date descending, endASC - by end date ascending
+ *
+ * @apiSuccess (Success 200){Object} results Pagination results.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ {
+     "results": [
+         {
+            "_id": "5a814b8deb5cee1dc0720128",
+            "start_date": 1518422931942,
+            "end_date": 1518425101942,
+            "author": {
+                "_id": "5a71b2834f1f26305c6abf2a",
+                "care_home": {
+                    "care_service_name": "Test care home",
+                    "type_of_home": "Nursing",
+                    "name": "Test Test",
+                },
+                "email": "test.test@test.com",
+                "phone_number": "123456788777",
+                "address": {
+                    "postal_code": "Ex8 2el",
+                    "city": "Exmouth",
+                    "address_line_1": "Elwyn Rd, Exmouth EX8 2E",
+                    "location": {
+                        "coordinates": [
+                            50.7583820,
+                            19.005533
+                        ],
+                        "type": "Point"
+                    },
+                    "address_line_2": null,
+                    "company": null,
+                    "link": "https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533"
+                },
+                "distance": 4.25
+            },
+            "role": "Senior Carer",
+            "conflict": false
+        }
+     ],
+     "pages": 1,
+     "total": 3
+ }
  *
  * @apiError AccessDenied Access Denied.
  * @apiErrorExample Error-Response:

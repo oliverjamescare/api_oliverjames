@@ -37,24 +37,24 @@ module.exports.parseStringError = function(message, field = "general")
 }
 
 //pagination
-module.exports.paginate = function(model, params, request)
+module.exports.paginate = function(model, params, request, aggregate = false)
 {
-    var page = parseInt(request.query.page) > 0 ? parseInt(request.query.page) : 1;
-    var results = parseInt(request.query.results) > 0 ? parseInt(request.query.results) : 10;
+    const page = parseInt(request.query.page) > 0 ? parseInt(request.query.page) : 1;
+    const results = parseInt(request.query.results) > 0 ? parseInt(request.query.results) : 10;
     
     params.options.limit = results;
     params.options.page = page;
     
-    return model.paginate(params.query, params.options);
+    return aggregate ? model.aggregatePaginate(params.query, params.options) : model.paginate(params.query, params.options);
 }
 
 
 module.exports.parsePaginatedResults = function(paginatorResponse)
 {
     return {
-        results: paginatorResponse.docs,
-        pages: paginatorResponse.pages,
-        total: paginatorResponse.total
+        results: paginatorResponse.docs || paginatorResponse.data,
+        pages: paginatorResponse.pages || paginatorResponse.pageCount,
+        total: paginatorResponse.total || paginatorResponse.totalCount
     }
 }
 

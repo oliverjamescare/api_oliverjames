@@ -1,6 +1,7 @@
 //core
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate');
+const mongooseAggregatePaginate = require('mongoose-aggregate-paginate');
 
 //custom
 const validators = require('./../services/validators');
@@ -136,6 +137,14 @@ schema.statics.parseJob = function(job, req)
             job.general_guidance.floor_plan = `http://${req.headers.host}/${link}`;
 		}
 
+		//distance
+		if(job.care_home.distance != undefined)
+            job.care_home.distance = parseFloat(job.care_home.distance.toFixed(2));
+
+        //address link
+        if(job.care_home.address && job.care_home.address.location)
+            job.care_home.address["link"] = `https://www.google.com/maps/search/?api=1&query=${job.care_home.address.location.coordinates[0]},${job.care_home.address.location.coordinates[1]}`;
+
 		job["author"] = job.care_home;
         delete job.care_home;
     }
@@ -144,4 +153,6 @@ schema.statics.parseJob = function(job, req)
 }
 
 schema.plugin(mongoosePaginate);
+schema.plugin(mongooseAggregatePaginate);
+
 module.exports.schema = mongoose.model("Job", schema);
