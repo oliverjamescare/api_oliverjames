@@ -36,6 +36,7 @@ router.get('/carer/calendar', authenticate, security(["CARER_READ"]), CarersCont
 
 //Care Home
 router.get('/care-home/calendar', authenticate, security(["CARE_HOME_READ"]), CareHomeControler.getCalendar);
+router.get('/care-home/carers/search', authenticate, security(["CARE_HOME_READ"]), CareHomeControler.getCarersSearch);
 
 //Jobs
 router.post('/jobs', authenticate, security(["CARE_HOME_SAVE"]), JobsController.addJobs);

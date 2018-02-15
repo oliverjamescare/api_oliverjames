@@ -9,6 +9,7 @@ const moment = require("moment");
 
 //custom
 const Job = require("./../models/Job").schema;
+const User = require("./../models/User").schema;
 const Utils = require("../services/utils");
 
 module.exports = {
@@ -51,5 +52,25 @@ module.exports = {
 		calendar.forEach(day => day["jobs"] = jobs.filter(job => moment(job.start_date).format("YYYY-MM-DD") == day.day));
 
         res.json({ calendar });
-	}
+	},
+
+	getCarersSearch: async function (req, res)
+    {
+    	//getting carers which worked on your jobs previously
+		const jobs = await Job.find({ _id : { $in: req.user.care_home.jobs }, 'assignment.summary_sheet': { $exists: true } }, { assignment: 1} ).exec();
+		const lastCarers = jobs.map(job => job.assignment.carer );
+
+		//params
+    	const search = req.query.search || "";
+    	const pattern = new RegExp("^.*" + search + ".*$");
+
+    	const carers = await User.find(
+				{ carer: { $exists: true }, _id: { $in: lastCarers }, $or: [ { 'carer.first_name': { $regex: pattern, $options: "x" } }, {'carer.surname': { $regex: pattern, $options: "x" }} ]},
+				{ 'carer.first_name': 1, 'carer.surname': 1 }
+			)
+			.limit(10)
+			.exec();
+
+		res.json({ carers });
+    }
 }
