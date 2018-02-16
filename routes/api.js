@@ -24,6 +24,7 @@ router.put('/password/remind/change', AuthController.remindPasswordChange);
 //User
 router.get('/user/uniqueness', UsersController.checkUniqueness);
 router.put('/user/confirm-email', UsersController.confirmEmail);
+router.get('/user/profile', UsersController.profile);
 
 //Contact
 router.post('/contact', ContactController.sendContactMessage);

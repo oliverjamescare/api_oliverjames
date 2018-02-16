@@ -1,4 +1,4 @@
-/* 
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -128,7 +128,7 @@ module.exports = {
     getMyJobs: async function(req, res)
     {
         const options = {
-            select: { start_date: 1, end_date: 1, care_home: 1, role: 1},
+            select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 },
             populate: [
                 {
                 	path: "care_home",
@@ -205,7 +205,7 @@ module.exports = {
             if(!withDontMeetCriteria)
                 query["_id"] = { $not: { $in: req.user.carer.job_declines }} // not declined
 
-             if(results.calendarJobsQuery.length)
+             if(results.calendarJobsQuery[0].length)
                  query['$or'] = results.calendarJobsQuery[0]; //exclude calendar conflicts
 
             //availability handle

@@ -51,27 +51,7 @@ module.exports = {
 
     profile: function(req, res)
     {
-        User.findOne({"_id": req.user._id}, {"email": 1, "first_name": 1, "surname": 1, "owned_accounts": 1, "membered_accounts":1,  "job_title": 1, "country": 1})
-            .populate("owned_accounts",{"name":1, "members": 1})
-            .populate({
-                path: "membered_accounts",
-                select: {permissions: 1, _id: 0, account: 1},
-                populate: {
-                    path: "account",
-                    select: {name: 1}
-                }
-            })
-            .lean()
-            .then(user => {
-                //parsing owned accounts
-                user.owned_accounts.map((account) => {
-                   account['members_amount'] = account.members.length;
-                   delete account.members;
-                });
-
-                //sending reponse
-                res.json(user);
-            }).catch(err => console.log(err));
+        return res.json(req.user);
     },
 
     updateProfile: function(req, res)
