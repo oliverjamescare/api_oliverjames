@@ -136,7 +136,16 @@
                             "link": "https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533"
                         }
                     },
-                    "role": "Senior Carer"
+                    "role": "Senior Carer",
+                    "general_guidance": {
+                        "floor_plan": "http://localhost:8000/uploads/users/151808246323012.floor_plan.docx",
+                        "parking": "test",
+                        "notes_for_carers": "test",
+                        "emergency_guidance": "test",
+                        "report_contact": "test",
+                        "superior_contact": "test"
+                    },
+                    "notes": null
                 }
              ],
              "pages": 1,

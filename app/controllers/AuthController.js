@@ -21,8 +21,7 @@ module.exports = {
             "application/pdf"
         ], 10, (req) => req.body.first_name && req.body.surname) //only if this is carer registration request
             .then(() => locationHandler.getCustomLocation(req))
-            .then((address) =>
-            {
+            .then((address) => {
 
                 //user
                 let user = new User({

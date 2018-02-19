@@ -24,30 +24,37 @@ module.exports = {
             };
             const googleUrl = googleEndpoint + encodeUrlParams(googleParams);
 
-            request.get(googleUrl, { json: true }, (error, response, body) => {
+            let address = {
+                postal_code: req.body.postal_code || req.query.postal_code,
+                city: req.body.city || req.query.city,
+                company: req.body.company || req.query.company ? (req.body.company || req.query.company) : null,
+                address_line_1: req.body.address_line_1 || req.query.address_line_1,
+                address_line_2: req.body.address_line_2 || req.query.address_line_2 ? (req.body.address_line_2 || req.query.address_line_2) : null
+            };
 
-                let address = {
-                    postal_code: req.body.postal_code || req.query.postal_code,
-                    city: req.body.city || req.query.city,
-                    company: req.body.company || req.query.company ? (req.body.company || req.query.company) : null,
-                    address_line_1: req.body.address_line_1 || req.query.address_line_1,
-                    address_line_2: req.body.address_line_2 || req.query.address_line_2 ? (req.body.address_line_2 || req.query.address_line_2) : null
-                };
+            if(address.postal_code && address.city && address.address_line_1)
+            {
+                request.get(googleUrl, { json: true }, (error, response, body) => {
 
-                if(body["status"] == "OK" && body["results"].length)
-                {
-                    address["location"] = {
-                        coordinates: [
-                            body["results"][0]["geometry"]["location"]["lat"],
-                            body["results"][0]["geometry"]["location"]["lng"]
-                        ],
-                    };
-                }
+                    if(body["status"] == "OK" && body["results"].length)
+                    {
+                        address["location"] = {
+                            type: "Point",
+                            coordinates: [
+                                body["results"][0]["geometry"]["location"]["lat"],
+                                body["results"][0]["geometry"]["location"]["lng"]
+                            ],
+                        };
+                    }
 
-                console.log(address);
-                console.log(body);
+                    console.log(address);
+                    console.log(body);
+                    resolve(address);
+                });
+            }
+            else
                 resolve(address);
-            });
+
         });
     }
 }

@@ -4,11 +4,16 @@
  * and open the template in the editor.
  */
 
+//core
 const bcrypt = require('bcrypt-nodejs');
 const randomstring = require("randomstring");
+const config = process.env;
+
+//custom
 const User = require("./../models/User").schema;
 const Utils = require('./../services/utils');
-const config = process.env;
+const fileHandler = require("../services/fileHandler");
+const locationHandler = require('../services/locationHandler');
 
 module.exports = {
 
@@ -51,278 +56,161 @@ module.exports = {
 
     profile: function(req, res)
     {
-        return res.json(req.user);
+        //general user properties
+        let user = {
+            _id: req.user._id,
+            email: req.user.email,
+            phone_number: req.user.phone_number,
+            email_verified: req.user.email_verified,
+            address: req.user.address
+        };
+
+        //carer properties
+        if(req.user.carer)
+        {
+            user["carer"] = {
+                first_name: req.user.carer.first_name,
+                surname: req.user.carer.surname,
+                middle_name: req.user.carer.middle_name,
+                profile_image: req.user.carer.profile_image,
+                max_job_distance: req.user.carer.max_job_distance,
+                eligible_roles: req.user.carer.eligible_roles
+            }
+
+            if(user["carer"].profile_image)
+            {
+                let link = user["carer"].profile_image.substr(user["carer"].profile_image.indexOf("\\") + 1).replace(/\\/g,"/");
+                user["carer"].profile_image = `http://${req.headers.host}/${link}`;
+            }
+        }
+
+        //care home properties
+        if(req.user.care_home)
+        {
+            user["care_home"] = {
+                name: req.user.care_home.name,
+                care_service_name: req.user.care_home.care_service_name,
+                type_of_home: req.user.care_home.type_of_home,
+                blocked_carers: req.user.care_home.blocked_carers
+            }
+        }
+
+        return res.json(user);
     },
 
-    updateProfile: function(req, res)
+    changePassword: function(req, res)
     {
-        var user = req.user;
-        var beginingEmail = user.email;
+        bcrypt.compare(req.body["old_password"], req.user.password, (error, status) =>
+        {
+            //wrong password
+            if (!status)
+                return res.status(406).json(Utils.parseStringError("Wrong old password", "password"));
 
-        //setting values
-        user.set({
-            first_name: (req.body.first_name)? req.body.first_name : user.first_name,
-            surname: (req.body.surname)? req.body.surname : user.surname,
-            job_title: (req.body.job_title)? req.body.job_title : user.job_title,
-            email: (req.body.email)? req.body.email : user.email
+            req.user.password = req.body["new_password"];
+            req.user
+                .validate()
+                .then(() => {
+
+                    //sending response
+                    res.status(200).json({ status: true });
+
+                    //hashing password and saving user
+                    bcrypt.hash(req.user.password, null, null, (error, hash) => {
+                        req.user.password = hash;
+                        req.user.save().catch(error => console.log(error));
+                    });
+                })
+                .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
         });
+    },
 
-        user.validate()
+    updateProfileImage: function(req, res)
+    {
+        //profile image upload
+        const uploader = fileHandler(req, res);
+        uploader.singleUpload("profile_image", "users", [
+            "image/jpeg",
+            "image/jpg",
+            "image/png"
+        ], 5).then(() => {
+
+           //saving new profile image
+           if(req.file)
+           {
+               req.user.carer.profile_image =  req.file.path;
+               req.user.save().catch(error => console.log(error));
+           }
+
+           //sending response
+           res.json({ status: true });
+        });
+    },
+
+    changeEmail: function (req, res)
+    {
+        const email = req.user.email;
+        req.user.email = req.body.email;
+        req.user.email_verified = false;
+
+        req.user
+            .validate()
             .then(() => {
 
                 //sending response
-                res.send({ status: true });
+                res.json({ status: true });
 
-                //if email changed then create email revert
-                if(beginingEmail != user.email)
+                //sending verification and saving user
+                if(req.user.email != email)
                 {
-                    var expiration = new Date();
-                    expiration.setDate(expiration.getDate() + 2);
-
-                    //email restore
-                    var emailRestore = {
-                        email: beginingEmail,
-                        token:   randomstring.generate(128),
-                        expiration: expiration
-                    };
-                    user.email_restores.push(emailRestore);
-
-                    //sending email
-                    req.app.mailer.send(__dirname + "/../../views/emails/email-restore", {
-                        to: beginingEmail,
-                        subject: "Email restore",
-                        user: user,
-                        email_restore: emailRestore,
-                        config: config
-                    }, (error) => console.log(error) );
-
-                    //email confirmation
-                    var emailConfirmation = {
-                        token: randomstring.generate(128),
-                        email: user.email
-                    };
-
-                    user.email_confirmations.push(emailConfirmation);
-
-                    //sending email
-                    req.app.mailer.send(__dirname + "/../../views/emails/confirmation-email", {
-                        to: user.email,
-                        subject: "Email confirmation",
-                        user: user,
-                        emailConfirmation: emailConfirmation,
-                        config: config
-                    }, (error) => console.log(error) );
+                    req.user.addEmailConfirmationHandle(req.user.email, req.app.mailer);
+                    req.user.save().catch(error => console.log(error));
                 }
-
-                //updating object
-                user.save().catch( error =>  console.log(error));
-
             })
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },
 
-    restoreEmail: function(req, res)
+    resendEmailVerification: function (req, res)
     {
-        User.findOne({"email_restores.token": req.body.token}, (error, user) => {
+        if(req.user.email_verified)
+            return res.status(409).json(Utils.parseStringError("This email is already verified", "email"));
 
-            //user not found
-            if(!user)
-                return res.status(404).json(Utils.parseStringError("Token not found", "token"));
+        //sending response
+        res.json({ status: true });
 
-            //getting email restore
-            var emailRestore = user.email_restores.find((email_restore) => {
-                if(email_restore.token == req.body.token)
-                    return email_restore;
-            });
-
-            //token expired
-            if(emailRestore.expiration < new Date())
-                return res.status(410).json(Utils.parseStringError("Token expired", "token"));
-
-
-            //removing expired email restores and current one
-            user.email_restores.forEach((email_restore) => {
-                if(email_restore.token == req.body.token || email_restore.expiration < new Date())
-                    user.email_restores.pull(email_restore._id);
-            });
-
-            //validation and restoring email
-            user.email = emailRestore.email;
-            user.save()
-                .then(() => res.send({ status: true }))
-                .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
-        });
+        //sending verification and saving user
+        req.user.addEmailConfirmationHandle(req.user.email, req.app.mailer);
+        req.user.save().catch(error => console.log(error));
     },
 
-
-    changePassword: function(req, res)
+    updateCarerDetails: function(req, res)
     {
-        var user = req.user; 
-    
-        //checking old password
-        bcrypt.compare(req.body.old_password, user.password, (error, status) => {
+        locationHandler.getCustomLocation(req)
+            .then(address => {
 
-            if(!status)
-                return res.status(406).json(Utils.parseStringError("Wrong old password", "user"));
-
-            //validation and saving new password
-            user.password = req.body.new_password;
-            user.validate()
-                .then(() => {
-                    //sending response
-                    res.send({ status: true });
-
-                    //hashing password
-                    bcrypt.hash(user.password, null, null, (error, hash) => {
-                        user.password = hash;
-                        user.save().catch( error =>  console.log(error));
-                    });
-
-                    //sending email
-                    req.app.mailer.send(__dirname + "/../../views/emails/password-change-success", {
-                        to: user.email,
-                        subject: "Password reset success",
-                        user: user
-                    }, (error) => console.log(error) );
-                    
-                })
-                .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
-        });
-    },
-    
-    getAllUsers: function(req, res)
-    {
-        //checking for global admin permissions
-        if(!req.user.global_admin)
-            return res.status(403).json(Utils.parseStringError("Permission denied", "permission"));
-        
-        var options = {
-            select: "first_name surname email login_time job_title country owned_accounts membered_accounts",
-            populate: [
-                {path: "owned_accounts", select: "name members"}, 
+                //updating values
+                try
                 {
-                    path: "membered_accounts",
-                    select: {permissions: 1, _id: 0, account: 1},
-                    populate: {
-                        path: "account",
-                        select: {name: 1}
-                    }
+                    var eligibleRoles = JSON.parse(req.body.eligible_roles);
                 }
-            ],
-            lean: true,
-            leanWithId: false
-        };
+                catch (error)
+                {
+                    var eligibleRoles = []
+                }
 
-        //sort
-        switch(req.query.sort)
-        {
-            case "surname":
-            {
-                options.sort = {"surname" : 1};
-                break;
-            }
-            case "email":
-            {
-                options.sort = {"email" : 1};
-                break;
-            }
-            case "login_time":
-            {
-                options.sort = {"login_time" : -1};
-                break;
-            }
-            default:
-            {
-                options.sort = {"first_name" : 1};
-                break;
-            }
-        }
+                req.user.phone_number = req.body.phone_number || req.user.phone_number;
+                req.user.carer.max_job_distance = req.body.max_job_distance || req.user.carer.max_job_distance;
+                req.user.carer.eligible_roles = eligibleRoles.length ? eligibleRoles : req.user.carer.eligible_roles;
 
-        //pagination and parsing
-        Utils.paginate(User, {options: options, query: {}}, req)
-            .then(results => {
-                var paginated = Utils.parsePaginatedResults(results);
+                if(req.body.address_line_1 && req.body.city && req.body.postal_code) //if required fields are not present then don't update address
+                    req.user.address = address;
 
-                paginated.results.map((user) => {
-                    if(user.owned_accounts)
-                    {
-                        user.owned_accounts.map((account) => {
-                            account['members_amount'] = account.members.length;
-                            delete account.members;
-                        });
-                    }
-                    
-                });
-                
-                res.json(paginated);
-            });
-    },
-    
-    updateUser: function(req, res)
-    {
-        //checking for global admin permissions
-        if(!req.user.global_admin)
-            return res.status(403).json(Utils.parseStringError("Permission denied", "permission"));
-        
-        User.findOne({"_id": req.params.userId}, (error, user) => {
-            
-            //user not found
-            if(!user)
-                return res.status(404).json(Utils.parseStringError("User not found", "user"));
-            
-            
-            var beginningEmail = user.email;
-            var beginningPassword = user.password;
-            
-            //updating 
-            user.set({
-                first_name: req.body.first_name || user.first_name,
-                surname: req.body.surname || user.surname,
-                job_title: req.body.job_title || user.job_title,
-                email: req.body.email || user.email,
-                country: req.body.country || user.country,
-                password: req.body.password || user.password
-            });
-            
-            user.validate()
-                .then(() => {
-                    
-                    //sending response
-                    res.json({status: true});
-                    
-                    //changing email handle
-                    if(user.email != beginningEmail)
-                    {
-                        
-                        var confirmation = user.email_confirmations.filter(confirmation => confirmation.email == user.email).pop();
-                        if(confirmation)
-                            user.email_confirmations.id(confirmation._id).status = true;
-                        else
-                        {
-                            //email confirmation
-                            var emailConfirmation = {
-                                token: randomstring.generate(128),
-                                email: user.email,
-                                status: true
-                            };
-
-                            user.email_confirmations.push(emailConfirmation);
-                        }
-                    }
-                    
-                    if(user.password  == beginningPassword)
-                        user.save().catch(error => console.log(error));
-                    else
-                    {
-                        //hashing password
-                        bcrypt.hash(user.password, null, null, (error, hash) => {
-                            user.password = hash;
-                            user.save().catch(error =>  console.log(error));
-                        });
-                    }
-                })
-                .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
-        });
+                console.log(req.user.address);
+                //saving user and sending response
+                req.user
+                    .save()
+                    .then(user => res.json({ status: true }))
+                    .catch(error => console.log(error));
+            })
     }
 }
 

@@ -1682,7 +1682,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n     {\n         \"results\": [\n             {\n                \"_id\": \"5a814b8deb5cee1dc0720128\",\n                \"start_date\": 1518422931942,\n                \"end_date\": 1518425101942,\n                \"author\": {\n                    \"_id\": \"5a71b2834f1f26305c6abf2a\",\n                    \"care_home\": {\n                        \"care_service_name\": \"Test care home\",\n                        \"type_of_home\": \"Nursing\",\n                        \"name\": \"Test Test\",\n                    },\n                    \"email\": \"test.test@test.com\",\n                    \"phone_number\": \"123456788777\",\n                    \"address\": {\n                        \"postal_code\": \"Ex8 2el\",\n                        \"city\": \"Exmouth\",\n                        \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                        \"location\": {\n                            \"coordinates\": [\n                                50.7583820,\n                                19.005533\n                            ],\n                            \"type\": \"Point\"\n                        },\n                        \"address_line_2\": null,\n                        \"company\": null,\n                        \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n                    }\n                },\n                \"role\": \"Senior Carer\"\n            }\n         ],\n         \"pages\": 1,\n         \"total\": 3\n     }",
+          "content": "HTTP/1.1 200 OK\n     {\n         \"results\": [\n             {\n                \"_id\": \"5a814b8deb5cee1dc0720128\",\n                \"start_date\": 1518422931942,\n                \"end_date\": 1518425101942,\n                \"author\": {\n                    \"_id\": \"5a71b2834f1f26305c6abf2a\",\n                    \"care_home\": {\n                        \"care_service_name\": \"Test care home\",\n                        \"type_of_home\": \"Nursing\",\n                        \"name\": \"Test Test\",\n                    },\n                    \"email\": \"test.test@test.com\",\n                    \"phone_number\": \"123456788777\",\n                    \"address\": {\n                        \"postal_code\": \"Ex8 2el\",\n                        \"city\": \"Exmouth\",\n                        \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                        \"location\": {\n                            \"coordinates\": [\n                                50.7583820,\n                                19.005533\n                            ],\n                            \"type\": \"Point\"\n                        },\n                        \"address_line_2\": null,\n                        \"company\": null,\n                        \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n                    }\n                },\n                \"role\": \"Senior Carer\",\n                \"general_guidance\": {\n                    \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012.floor_plan.docx\",\n                    \"parking\": \"test\",\n                    \"notes_for_carers\": \"test\",\n                    \"emergency_guidance\": \"test\",\n                    \"report_contact\": \"test\",\n                    \"superior_contact\": \"test\"\n                },\n                \"notes\": null\n            }\n         ],\n         \"pages\": 1,\n         \"total\": 3\n     }",
           "type": "json"
         }
       ]
@@ -2085,6 +2085,476 @@
     "groupTitle": "Job"
   },
   {
+    "type": "put",
+    "url": "/user/carer",
+    "title": "Change carer profile",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/user/carer"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Change_carer_profile",
+    "group": "User",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "max_job_distance",
+            "description": "<p>Max job distance. Takes part in available jobs algorithm.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "city",
+            "description": "<p>City. Required in changing address process.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "postal_code",
+            "description": "<p>Postal code. Required in changing address process.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "address_line_1",
+            "description": "<p>Address first line. Required in changing address process.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "address_line_2",
+            "description": "<p>Address second line.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "company",
+            "description": "<p>Company address name.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "phone_number",
+            "description": "<p>Phone number.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "eligible_roles",
+            "description": "<p>Array of encoded to string eligible roles. E.g. [&quot;Carer&quot;, &quot;Senior Carer&quot;]</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n    \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "WrongParameters",
+            "description": "<p>Wrong parameters.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 406 Wrong Parameters\n{\n     \"errors\": [\n         {\n              \"field\": \"phone_number\",\n              \"message\": \"This phone number has already been taken\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/User.js",
+    "groupTitle": "User"
+  },
+  {
+    "type": "put",
+    "url": "/user/email",
+    "title": "Change email",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/user/email"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Change_email",
+    "group": "User",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "email",
+            "description": "<p>New email.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n    \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "WrongParameters",
+            "description": "<p>Wrong parameters.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 406 Wrong Parameters\n{\n     \"errors\": [\n         {\n              \"field\": \"email\",\n              \"message\": \"This email has already been taken\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/User.js",
+    "groupTitle": "User"
+  },
+  {
+    "type": "put",
+    "url": "/user/password",
+    "title": "Change password",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/user/password"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Change_password",
+    "group": "User",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "old_password",
+            "description": "<p>Old password.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "new_password",
+            "description": "<p>New password.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n    \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "WrongParameters",
+            "description": "<p>Wrong parameters.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 406 Wrong Parameters\n{\n     \"errors\": [\n         {\n              \"field\": \"password\",\n              \"message\": \"Wrong password\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/User.js",
+    "groupTitle": "User"
+  },
+  {
+    "type": "put",
+    "url": "/user/profile-image",
+    "title": "Change profile image",
+    "version": "0.0.1",
+    "name": "Change_profile_image",
+    "group": "User",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "File",
+            "optional": false,
+            "field": "profile_image",
+            "description": "<p>Profile image file.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n    \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/User.js",
+    "groupTitle": "User"
+  },
+  {
     "type": "get",
     "url": "/user/uniqueness",
     "title": "Check uniqueness",
@@ -2240,6 +2710,173 @@
         {
           "title": "Error-Response:",
           "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/User.js",
+    "groupTitle": "User"
+  },
+  {
+    "type": "post",
+    "url": "/user/email/verification",
+    "title": "Resend email verification",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/user/email/verification"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Resend_email_verification",
+    "group": "User",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n    \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "Conflict",
+            "description": "<p>Email is already confirmed.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 409 Email is already confirmed\n{\n     \"errors\": [\n         {\n              \"field\": \"email\",\n              \"message\": \"Email is already confirmed\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/User.js",
+    "groupTitle": "User"
+  },
+  {
+    "type": "get",
+    "url": "/user/profile",
+    "title": "User profile",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/user/profile"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "User_profile",
+    "group": "User",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "user",
+            "description": "<p>User properties.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n     \"_id\": \"5a6b1413599b6f3c8c7eaa8b\",\n        \"email\": \"test.test@test.com\",\n        \"phone_number\": \"9876543211\",\n        \"email_verified\": false,\n        \"address\": {\n            \"postal_code\": \"Ex8 2el\",\n            \"city\": \"Exmouth\",\n            \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n            \"location\": {\n                \"coordinates\": [\n                    50.7583820,\n                    19.005533\n                ],\n                \"type\": \"Point\"\n            },\n            \"address_line_2\": null,\n            \"company\": null\n        },\n        \"carer\": {\n            \"first_name\": \"Test\",\n            \"surname\": \"Test\",\n            \"middle_name\": \"Test\",\n            \"profile_image\": \"http://localhost:8000/uploads/users/1519038810982test.jpg\",\n            \"max_job_distance\": 15,\n            \"eligible_roles\": [\n                \"Carer\",\n                \"Senior Carer\"\n            ]\n        }\n    }",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
           "type": "json"
         }
       ]

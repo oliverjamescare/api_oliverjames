@@ -24,7 +24,12 @@ router.put('/password/remind/change', AuthController.remindPasswordChange);
 //User
 router.get('/user/uniqueness', UsersController.checkUniqueness);
 router.put('/user/confirm-email', UsersController.confirmEmail);
-router.get('/user/profile', UsersController.profile);
+router.get('/user/profile', authenticate, UsersController.profile);
+router.put('/user/password', authenticate, UsersController.changePassword);
+router.put('/user/email', authenticate, UsersController.changeEmail);
+router.post('/user/email/verification', authenticate, UsersController.resendEmailVerification);
+router.put('/user/profile-image', authenticate, security(["CARER_UPDATE"]), UsersController.updateProfileImage);
+router.put('/user/carer', authenticate, security(["CARER_UPDATE"]), UsersController.updateCarerDetails);
 
 //Contact
 router.post('/contact', ContactController.sendContactMessage);
