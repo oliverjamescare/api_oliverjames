@@ -124,6 +124,38 @@ module.exports = {
 			});
 	},
 
+    checkCarersToContact: function(req, res)
+    {
+        //getting job objects
+        let jobs = [], jobsObjects = [];
+        const gender = req.query.gender;
+
+        try {
+            jobsObjects = Array.isArray(JSON.parse(req.query["jobs"])) ? JSON.parse(req.query["jobs"]) : [];
+        }
+        catch (error) {}
+
+        jobsObjects.forEach(jobObject => {
+           if(jobObject._id && jobObject.start_date && jobObject.end_date && jobObject.role)
+           {
+                const job = {
+                    _id: jobObject._id,
+                    start_date: jobObject.start_date,
+                    end_date: jobObject.end_date,
+                    amount: jobObject.amount || 1,
+                    role: jobObject.role,
+                    notes: jobObject.notes || "",
+                    priority_carers: jobObject.priority_carers || [],
+                    carersToContact: 10
+                }
+
+                jobs.push(job);
+           }
+        });
+
+        return res.json({ jobs });
+    },
+
 	//only carer methods
     getMyJobs: async function(req, res)
     {

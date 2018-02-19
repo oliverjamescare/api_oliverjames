@@ -540,6 +540,7 @@
  *
  * @apiHeader {String} X-access-token Access token
  * @apiParam {String} jobs Parsed to string job objects e.g [{ "start_date": 1518436800000, "end_date": 1518436900000, "amount" : 1, "role": "Carer" },{ "start_date": 1518436800000, "end_date": 1518436900000, "role": "Senior Carer"}]
+ * @apiParam {String} [gender] Gender preference. Available options: male, female, no preference(default)
  * @apiParam {File} [floor_plan] Floor plan file. Required if not already exists.
  * @apiParam {String} [parking] Description about parking. Required if not already exists.
  * @apiParam {String} [notes_for_carers] Notes for carers. Required if not already exists.
@@ -586,6 +587,82 @@
  *              {
  *                   "field": "start_date",
  *                   "message": "Start date is required"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {get} /jobs/carers Check carers to contact with
+ * @apiSampleRequest /jobs/carers
+ * @apiVersion 0.0.1
+ * @apiName Check carers to contact with
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} jobs Parsed to string job objects e.g [{ "_id": "72837ydasdasd", "start_date": 1518436800000, "end_date": 1518436900000, "amount" : 1, "role": "Carer" },{ "_id": "72837ydasdasd", "start_date": 1518436800000, "end_date": 1518436900000, "role": "Senior Carer"}]
+ * @apiParam {String} [gender] Gender preference. Available options: male, female, no preference(default)
+ *
+ * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *   HTTP/1.1 200 OK
+ {
+     "jobs": [
+        {
+            "_id": "sasdasda",
+            "start_date": 1521126000000,
+            "end_date": 1521127000000,
+            "amount": 10,
+            "role": "Carer",
+            "notes": "",
+            "priority_carers": [],
+            "carersToContact": 10
+        },
+        {
+            "_id": "sasdasda",
+            "start_date": 1521127000000,
+            "end_date": 1521128000000,
+            "amount": 1,
+            "role": "Senior Carer",
+            "notes": "",
+            "priority_carers": [],
+            "carersToContact": 10
+        }
+    ]
+ }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
  *              }
  *          ]
  *      }
