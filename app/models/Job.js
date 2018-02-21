@@ -136,7 +136,7 @@ schema.statics.parseJob = function(job, req)
         //guidance link
         if(job.general_guidance)
 		{
-            let link = job.general_guidance.floor_plan.substr(job.general_guidance.floor_plan.indexOf("\\") + 1).replace(/\\/g,"/");
+            let link = job.general_guidance.floor_plan.substr(job.general_guidance.floor_plan.indexOf("/") + 1).replace(/\\/g,"/");
             job.general_guidance.floor_plan = `http://${req.headers.host}/${link}`;
 		}
 
