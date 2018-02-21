@@ -54,6 +54,7 @@ router.get('/jobs/:id', authenticate, JobsController.getJobDetails);
 router.put('/jobs/:id/accept', authenticate, security(["CARER_UPDATE"]), JobsController.acceptJob);
 router.put('/jobs/:id/withdraw', authenticate, security(["CARER_UPDATE"]), JobsController.withdrawJob);
 router.put('/jobs/:id/decline', authenticate, security(["CARER_UPDATE"]), JobsController.declineJob);
+router.post('/jobs/:id/summary', authenticate, security(["CARER_SAVE"]), JobsController.sendSummarySheet);
 
 
 //router.get('/user/profile', UsersController.profile);

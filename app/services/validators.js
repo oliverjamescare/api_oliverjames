@@ -51,10 +51,29 @@ module.exports.required_if_not = function (field, conditionValue)
     ];
 }
 
-module.exports.required_if_present = function (field)
+module.exports.required_if_present = function (path)
 {
     return [
-        function() { return this[field] !== undefined },
+        function() {
+
+            if(/\./.test(path))
+            {
+                const fields = path.split(".");
+                let required = true;
+                let field = this;
+
+                fields.forEach(fieldname => {
+
+                    field = field[fieldname];
+                    if(field == undefined)
+                        required = false;
+                })
+
+                return required;
+            }
+
+            return this[path] !== undefined
+        },
         "{PATH} is required."
     ];
 }

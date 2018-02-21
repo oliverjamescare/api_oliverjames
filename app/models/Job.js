@@ -114,8 +114,11 @@ schema.pre("save", function (next)
 
 		const User = require('./User').schema;
 		User.findOne({ _id: job.assignment.carer }, (error, user) => {
-			user.carer.jobs.pull(job._id);
-			user.save().catch(error => console.log(error));
+			if(user.carer.jobs.indexOf(job._id) == -1)
+			{
+				user.carer.jobs.push(job);
+				user.save().catch(error => console.log(error));
+			}
 		});
 	}
 

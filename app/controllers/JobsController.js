@@ -463,9 +463,53 @@ module.exports = {
         })
     },
 
+    sendSummarySheet: async function(req, res)
+    {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
+
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+        //not your job
+        if(!req.user.carer.jobs.find(carerJobId => carerJobId == job._id.toString()))
+            return res.status(409).json(Utils.parseStringError("You're not assigned to this job", "job"));
+
+        //summary sheet already sent
+        if(job.assignment.summary_sheet && job.assignment.summary_sheet.signature)
+            return res.status(409).json(Utils.parseStringError("This job already has summary sheet", "job"));
+
+        //signature upload
+        const uploader = fileHandler(req, res);
+        uploader.singleUpload("signature", "jobs", [
+            "image/jpeg",
+            "image/jpg",
+            "image/png"
+        ], 10)
+        .then(() => {
+
+            job.assignment["summary_sheet"] = {
+                signature: req.file ? req.file.path : null,
+                name: req.body.name,
+                position: req.body.position,
+                notes: req.body.notes || null,
+                start_date: req.body.start_date,
+                end_date: req.body.end_date
+            };
+
+            //saving signature and sending response
+            job
+                .save()
+                .then(() => res.json({ status: true }))
+                .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+        })
+
+
+    },
+
     getJobs: async function (req, res)
     {
-
         const options = {
             select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 },
             populate: [
