@@ -61,7 +61,33 @@ const schema = mongoose.Schema({
                 type: Date,
                 required: validators.required_if_present("assignment.summary_sheet.start_date"),
                 validate: validators.dateGreaterThanDateField("start_date")
+            },
+            created: {
+                type: Date,
+                required: validators.required_if_present("assignment.summary_sheet")
             }
+		},
+		review: {
+			rate: {
+				type: Number,
+				min: [1, "Rate cannot be lower than 1."],
+				max: [5, "Rate cannot be greater than 5."],
+				validate: validators.integer
+			},
+			description: {
+				type: String,
+                maxlength: [ 500, "{PATH} can't be longer than {MAXLENGTH} characters." ],
+				required: validators.required_if_present("assignment.review")
+			},
+			status: {
+				type: String,
+				enum: ["pending", "accepted", "rejected"],
+				default: "pending"
+			},
+			created: {
+				type: Date,
+                required: validators.required_if_present("assignment.review")
+			}
 		}
 	},
 	role: {
@@ -91,6 +117,11 @@ const schema = mongoose.Schema({
             ref: "User",
         }
     ],
+    status: {
+        type: String,
+        enum: ["active", "", "rejected"],
+        default: "active"
+    },
 	created: {
 		type: Date,
 		default: Date.now()

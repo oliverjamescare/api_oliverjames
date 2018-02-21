@@ -141,6 +141,11 @@ const schema = mongoose.Schema({
             coordinates: [ Number ]
         }
     },
+    notes: {
+        type: String,
+        default: "",
+        maxlength: [ 1000, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+    },
     created: {
         type: Date,
         default: Date.now()
@@ -234,6 +239,21 @@ schema.methods.hasValidGeneralGuidance = function()
     return valid;
 }
 
+//statics
+schema.statics.parseCareHome = function(careHome, req)
+{
+    if(careHome)
+    {
+        //guidance link
+        if(careHome.general_guidance)
+        {
+            let link = careHome.general_guidance.floor_plan.substr(careHome.general_guidance.floor_plan.indexOf("/") + 1).replace(/\\/g,"/");
+            careHome.general_guidance.floor_plan = `http://${req.headers.host}/${link}`;
+        }
+    }
+
+    return careHome;
+}
 
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been taken.' });

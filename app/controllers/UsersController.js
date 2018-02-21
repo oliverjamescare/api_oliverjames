@@ -91,8 +91,11 @@ module.exports = {
                 name: req.user.care_home.name,
                 care_service_name: req.user.care_home.care_service_name,
                 type_of_home: req.user.care_home.type_of_home,
+                general_guidance: req.user.care_home.general_guidance,
                 blocked_carers: req.user.care_home.blocked_carers
             }
+
+            user["care_home"] = User.parseCareHome(user["care_home"], req);
         }
 
         return res.json(user);
@@ -204,7 +207,6 @@ module.exports = {
                 if(req.body.address_line_1 && req.body.city && req.body.postal_code) //if required fields are not present then don't update address
                     req.user.address = address;
 
-                console.log(req.user.address);
                 //saving user and sending response
                 req.user
                     .save()
