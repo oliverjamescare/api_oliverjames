@@ -136,20 +136,31 @@ schema.statics.parseJob = function(job, req)
         //guidance link
         if(job.general_guidance)
 		{
-            let link = job.general_guidance.floor_plan.substr(job.general_guidance.floor_plan.indexOf("\\") + 1).replace(/\\/g,"/");
+            let link = job.general_guidance.floor_plan.substr(job.general_guidance.floor_plan.indexOf("/") + 1).replace(/\\/g,"/");
             job.general_guidance.floor_plan = `http://${req.headers.host}/${link}`;
 		}
 
-		//distance
-		if(job.care_home.distance != undefined)
-            job.care_home.distance = parseFloat(job.care_home.distance.toFixed(2));
+		//care home
+		if(job.care_home)
+		{
+            //distance
+            if(job.care_home.distance != undefined)
+                job.care_home.distance = parseFloat(job.care_home.distance.toFixed(2));
 
-        //address link
-        if(job.care_home.address && job.care_home.address.location)
-            job.care_home.address["link"] = `https://www.google.com/maps/search/?api=1&query=${job.care_home.address.location.coordinates[0]},${job.care_home.address.location.coordinates[1]}`;
+            //address link
+            if(job.care_home.address && job.care_home.address.location)
+                job.care_home.address["link"] = `https://www.google.com/maps/search/?api=1&query=${job.care_home.address.location.coordinates[0]},${job.care_home.address.location.coordinates[1]}`;
 
-		job["author"] = job.care_home;
-        delete job.care_home;
+            job["author"] = job.care_home;
+            delete job.care_home;
+		}
+
+		//carer
+		if(job.assignment)
+		{
+			job["carer"] = job.assignment.carer || null;
+			delete job.assignment;
+		}
     }
 
     return job;
