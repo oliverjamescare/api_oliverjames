@@ -1,5 +1,76 @@
 
 /**
+ * @api {get} /care-home/my-jobs Care home my jobs
+ * @apiSampleRequest /care-home/my-jobs
+ * @apiVersion 0.0.1
+ * @apiName Care home my jobs
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {Number} [page] Page number.
+ * @apiParam {Number} [results] Results per page. Default 10.
+ *
+ * @apiSuccess (Success 200){Object} results Pagination results.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          "results": [
+ *              {
+ *                  "_id": "5a814b8deb5cee1dc0720128",
+ *                  "start_date": 1518422931942,
+ *                  "end_date": 1518425101942,
+ *                  "carer": {
+ *                      "_id": "5a6b1413599b6f3c8c7eaa8b",
+ *                      "carer": {
+ *                          "surname": "m",
+ *                          "first_name": "Adr"
+ *                      }
+ *                  }
+ *              }
+ *           ],
+ *           "pages": 1,
+ *           "total": 3
+ *
+ *      }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
  * @api {get} /jobs/:id Job details
  * @apiSampleRequest off
  * @apiVersion 0.0.1
@@ -514,6 +585,101 @@
  *              {
  *                   "field": "job",
  *                   "message": "You can't decline previously accepted job"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {post} /jobs/:id/summary Add summary sheet
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Add summary sheet
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Job id
+ * @apiParam {File} signature Signature image. Available file extensions: jpg, jpeg, png. Max file size 10MB.
+ * @apiParam {String} name Principals's name.
+ * @apiParam {String} position Principals's position.
+ * @apiParam {Number} [start_date] Start date of job if it was different than original. Cannot be earlier than original start date. Timestamp formatted to UTC timezone.
+ * @apiParam {Number} [end_date] End date of job if it was different than original. Timestamp formatted to UTC timezone.
+ *
+ * @apiSuccess (Success 200){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *       "status": true
+ *   }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Job not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Job not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "Job not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError WrongParameters Wrong parameters.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 406 Wrong parameters
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "name",
+ *                   "message": "Name is required."
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError Conflict You're not assigned to this job.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 409 You're not assigned to this job
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "You're not assigned to this job"
  *              }
  *          ]
  *      }

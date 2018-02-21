@@ -47,9 +47,11 @@ router.get('/care-home/carers/search', authenticate, security(["CARE_HOME_READ"]
 //Jobs
 router.post('/jobs', authenticate, security(["CARE_HOME_SAVE"]), JobsController.addJobs);
 router.get('/jobs/carers', authenticate, security(["CARE_HOME_READ"]), JobsController.checkCarersToContact);
+router.get('/care-home/my-jobs', authenticate, security(["CARE_HOME_READ"]), JobsController.getCareHomeMyJobs);
 router.get('/jobs', JobsController.getJobs);
+
 router.get('/carer/jobs', authenticate, security(["CARER_READ"]), JobsController.getCarerAvailableJobs);
-router.get('/carer/my-jobs', authenticate, security(["CARER_READ"]), JobsController.getMyJobs);
+router.get('/carer/my-jobs', authenticate, security(["CARER_READ"]), JobsController.getCarerMyJobs);
 router.get('/jobs/:id', authenticate, JobsController.getJobDetails);
 router.put('/jobs/:id/accept', authenticate, security(["CARER_UPDATE"]), JobsController.acceptJob);
 router.put('/jobs/:id/withdraw', authenticate, security(["CARER_UPDATE"]), JobsController.withdrawJob);

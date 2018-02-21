@@ -156,8 +156,35 @@ module.exports = {
         return res.json({ jobs });
     },
 
+    getCareHomeMyJobs: async function(req, res)
+    {
+        const options = {
+            select: { start_date: 1, end_date: 1, "assignment.carer": 1},
+            populate: [
+                {
+                    path: "assignment.carer",
+                    select: {
+                        "carer.first_name": 1,
+                        "carer.surname": 1
+                    }
+                }
+            ],
+            sort: { start_date: 1 },
+            lean: true,
+            leanWithId: false
+        };
+
+        const  query = { $and: [ { _id: {  $in: req.user.care_home.jobs } }, { "assignment.summary_sheet": { $exists: false } } ]};
+
+        const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
+        let paginated = Utils.parsePaginatedResults(jobs);
+        paginated.results.map(job => Job.parseJob(job, req));
+
+        res.json(paginated);
+    },
+
 	//only carer methods
-    getMyJobs: async function(req, res)
+    getCarerMyJobs: async function(req, res)
     {
         const options = {
             select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 },
@@ -180,7 +207,7 @@ module.exports = {
             leanWithId: false
         };
 
-        const  query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { summary_sheet: { $exists: false } } ]};
+        const  query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } } ]};
 
     	const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
     	let paginated = Utils.parsePaginatedResults(jobs);
