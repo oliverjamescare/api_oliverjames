@@ -6,6 +6,37 @@ const mongooseAggregatePaginate = require('mongoose-aggregate-paginate');
 //custom
 const validators = require('./../services/validators');
 const GeneralGuidance = require('./schemas/GeneralGuidance');
+const CarerRoles = require('./schemas/Carer').eligibleRoles;
+
+//settings
+const statuses = {
+	POSTED: "POSTED",
+	EXPIRED: "EXPIRED",
+	ACCEPTED: "ACCEPTED",
+	PENDING_SUMMARY_SHEET: "PENDING_SUMMARY_SHEET",
+	SUBMITTED_SUMMARY_SHEET: "SUBMITTED_SUMMARY_SHEET",
+    PENDING_PAYMENT: "PENDING_PAYMENT",
+    CHALLENGED: "CHALLENGED",
+    PAID: "PAID",
+    PAYMENT_REJECTED: "PAYMENT_REJECTED"
+};
+
+const genderPreferences = {
+	MALE: "Male",
+	FEMALE: "Female",
+	NO_PREFERENCE: "No preference"
+}
+
+const reviewStatuses = {
+	PENDING: "PENDING",
+	PUBLISHED: "PUBLISHED",
+	ARCHIVED: "ARCHIVED"
+};
+
+const challengeStatuses = {
+	ACTIVE: "ACTIVE",
+	CANCELLED: "CANCELLED"
+}
 
 const schema = mongoose.Schema({
 	start_date: {
@@ -22,6 +53,10 @@ const schema = mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "User",
 		required: [ true, "{PATH} field is required." ]
+	},
+	manual_booking: {
+		type: Boolean,
+		default: false
 	},
 	assignment: {
 		carer: {
@@ -62,6 +97,12 @@ const schema = mongoose.Schema({
                 required: validators.required_if_present("assignment.summary_sheet.start_date"),
                 validate: validators.dateGreaterThanDateField("start_date")
             },
+            voluntary_deduction: { //number of minutes to deduct
+                type: Number,
+                validate: validators.integer,
+                min: [0, "Voluntary deduction cannot be lower than 0."],
+				default: 0
+            },
             created: {
                 type: Date,
                 required: validators.required_if_present("assignment.summary_sheet")
@@ -70,39 +111,57 @@ const schema = mongoose.Schema({
 		review: {
 			rate: {
 				type: Number,
+                required: validators.required_if_present("assignment.review"),
+				validate: validators.integer,
 				min: [1, "Rate cannot be lower than 1."],
 				max: [5, "Rate cannot be greater than 5."],
-				validate: validators.integer
 			},
 			description: {
 				type: String,
+				required: validators.required_if_present("assignment.review"),
                 maxlength: [ 500, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-				required: validators.required_if_present("assignment.review")
 			},
 			status: {
 				type: String,
-				enum: ["pending", "accepted", "rejected"],
-				default: "pending"
+                required: validators.required_if_present("assignment.review"),
+				enum: Object.values(reviewStatuses),
 			},
 			created: {
 				type: Date,
                 required: validators.required_if_present("assignment.review")
 			}
+		},
+		challenge: {
+			description: {
+                type: String,
+                required: validators.required_if_present("assignment.challenge"),
+                maxlength: [ 1000, "{PATH} can't be longer than {MAXLENGTH} characters." ],
+			},
+            status: {
+                type: String,
+                required: validators.required_if_present("assignment.challenge"),
+                enum: Object.values(challengeStatuses)
+            },
+            created: {
+                type: Date,
+                required: validators.required_if_present("assignment.challenge")
+            }
 		}
 	},
 	role: {
 		type: String,
 		required: [ true, "{PATH} field is required." ],
-		enum: [ "Carer", "Senior Carer" ]
+		enum: Object.values(CarerRoles)
 	},
 	gender_preference: {
 		type: String,
-		enum: [ "Male", "Female" ]
+		enum: Object.values(genderPreferences),
+		default: genderPreferences.NO_PREFERENCE
 	},
 	notes: {
 		type: String,
 		maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-		default: null
+		default: ""
 	},
 	general_guidance: GeneralGuidance.general_guidance(true),
     withdrawals: [
@@ -119,8 +178,8 @@ const schema = mongoose.Schema({
     ],
     status: {
         type: String,
-        enum: ["active", "", "rejected"],
-        default: "active"
+        enum: Object.values(statuses),
+        default: statuses.POSTED
     },
 	created: {
 		type: Date,

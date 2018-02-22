@@ -39,7 +39,7 @@ const schema = mongoose.Schema({
     jobs: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Job"
+            ref: "Job",
         }
     ],
 });

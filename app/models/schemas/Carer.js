@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const validators = require('./../../services/validators');
 const moment = require('moment');
 
-const eligibleRoles = [
-	"Carer",
-	"Senior Carer"
-];
+const eligibleRoles = {
+	CARER: "Carer",
+	SENIOR_CARER: "Senior Carer"
+}
 
 //forms
 const radioText = function (radioAvailableValues)
@@ -127,11 +127,13 @@ const schema = mongoose.Schema({
             required: [ true, "{PATH} field is required." ]
         }
 	],
-	eligible_roles: [ {
-		type: String,
-		required: [ true, "{PATH} field is required." ],
-		enum: eligibleRoles
-	} ],
+	eligible_roles: [
+		{
+			type: String,
+			required: [ true, "{PATH} field is required." ],
+			enum: Object.values(eligibleRoles)
+		}
+	],
 	q_a_form: {
 		criminal_record: radioText([ 0, 1 ]),
 		physical_issues: radio([ 0, 1 ]),
@@ -275,18 +277,21 @@ const schema = mongoose.Schema({
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Job",
+            required: [ true, "{PATH} field is required." ]
         }
     ],
 	job_declines: [
 		{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Job",
+            required: [ true, "{PATH} field is required." ]
 		}
 	],
     job_withdrawals: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Job_withdrawal",
+            required: [ true, "{PATH} field is required." ]
         }
     ]
 });
@@ -401,6 +406,4 @@ schema.methods.getAvailabilitySetForDay = function(date)
 }
 
 
-module.exports.schema = schema;
-module.exports.eligibleRoles = eligibleRoles;
-module.exports.shiftRanges = shiftsRanges;
+module.exports = { schema, eligibleRoles, shiftsRanges };
