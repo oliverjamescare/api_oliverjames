@@ -204,7 +204,7 @@ const schema = mongoose.Schema({
 		},
         other: {
             type: String,
-            default: ""
+            default: null
         },
         photos: [
         	{
@@ -237,7 +237,7 @@ const schema = mongoose.Schema({
 		ref_number: {
 			type: String,
             maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-			default: ""
+			default: null
 		},
 		status: {
 			type: String,

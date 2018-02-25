@@ -34,6 +34,19 @@ module.exports.integer = {
     message: "{PATH} can contain only integer value."
 };
 
+module.exports.filled = {
+	validator: value => value.trim().length,
+	message: "{PATH} cannot be empty."
+};
+
+module.exports.password = function (regexp, message)
+{
+	return {
+		validator: function (value) { return (/^\$2/.test(value) && value.length >= 50) ? true : regexp.test(value) },
+		message: message
+	};
+}
+
 //required
 module.exports.required_if = function (field, conditionValue)
 {

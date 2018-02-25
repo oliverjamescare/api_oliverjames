@@ -43,13 +43,9 @@ require("./config/database");
 app = require("./config/mailer").configure(app);
 
 //ROUTES CONFIG
+app.get('/', (req, res) => res.send("Oliver James API"));
 app.use('/api', apiRoutes); // API routes
 app.use('/admin', adminRoutes); // ADMIN routes
-
-//homepage
-app.get('/', (req, res, next) => {
-    res.send("Oliver James API");
-});
 
 
 // catch 404 and forward to error handler

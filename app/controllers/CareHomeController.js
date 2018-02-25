@@ -28,7 +28,8 @@ module.exports = {
 		}
 
 		//getting care homes jobs for calendar
-		const jobs = await Job.find({
+		const jobs = await Job.find(
+					{
 						start_date: { $gte:  new Date(calendar[0].day + " 00:00:00")},
 						end_date: { $lte: new Date(calendar[34].day + " 23:59:59")},
 						_id: { $in: req.user.care_home.jobs }
@@ -48,7 +49,7 @@ module.exports = {
 					.exec();
 
 		//parsing
-        jobs.map(job => Job.parseJob(job, req));
+        jobs.map(job => Job.parse(job, req));
 		calendar.forEach(day => day["jobs"] = jobs.filter(job => moment(job.start_date).format("YYYY-MM-DD") == day.day));
 
         res.json({ calendar });
@@ -72,5 +73,60 @@ module.exports = {
 			.exec();
 
 		res.json({ carers });
-    }
+    },
+
+	getCareHomeMyJobs: async function(req, res)
+	{
+		const options = {
+			select: { start_date: 1, end_date: 1, "assignment.carer": 1},
+			populate: [
+				{
+					path: "assignment.carer",
+					select: {
+						"carer.first_name": 1,
+						"carer.surname": 1
+					}
+				}
+			],
+			sort: { start_date: 1 },
+			lean: true,
+			leanWithId: false
+		};
+
+		const  query = { $and: [ { _id: {  $in: req.user.care_home.jobs } }, { "assignment.summary_sheet": { $exists: false } } ]};
+
+		const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
+		let paginated = Utils.parsePaginatedResults(jobs);
+		paginated.results.map(job => Job.parse(job, req));
+
+		res.json(paginated);
+	},
+
+	//blocking carers
+	blockCarer: async function(req, res)
+	{
+		const carer = await User.findOne({ _id: req.params.id, carer: { $exists: true } }).exec();
+		if(!carer)
+			return res.status(404).json(Utils.parseStringError("Carer not found", "carer"));
+
+		//sending response
+		res.json({ status: true });
+
+		//if this carer is not already blocked then adding to block list
+		if(!req.user.care_home.blocked_carers.find(carerId => carerId == carer._id.toString() ))
+		{
+			req.user.care_home.blocked_carers.push(carer);
+			req.user.save().catch(error => console.log(error));
+		}
+	},
+
+	unblockCarer: function(req, res)
+	{
+		//sending response
+		res.json({ status: true });
+
+		//removing carer and saving changes
+		req.user.care_home.blocked_carers.pull(req.params.id)
+		req.user.save().catch(error => console.log(error));
+	}
 }

@@ -4,32 +4,32 @@ module.exports.general_guidance = function (required = false)
 		superior_contact: {
 			type: String,
 			maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-			default: ""
+			default: null
 		},
 		report_contact: {
 			type: String,
 			maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-			default: ""
+			default: null
 		},
 		emergency_guidance: {
 			type: String,
 			maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-			default: ""
+			default: null
 		},
 		notes_for_carers: {
 			type: String,
 			maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-			default: ""
+			default: null
 		},
 		parking: {
 			type: String,
 			maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-			default: ""
+			default: null
 		},
 		floor_plan: {
 			type: String,
 			maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-			default: ""
+			default: null
 		}
 	};
 

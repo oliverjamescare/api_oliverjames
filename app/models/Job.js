@@ -161,7 +161,7 @@ const schema = mongoose.Schema({
 	notes: {
 		type: String,
 		maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-		default: ""
+		default: null
 	},
 	general_guidance: GeneralGuidance.general_guidance(true),
     withdrawals: [
@@ -216,39 +216,32 @@ schema.pre("save", function (next)
 });
 
 //statics
-schema.statics.parseJob = function(job, req)
+schema.statics.parse = function(job, req)
 {
     if(job)
     {
+	    const fileHandler = require("../services/fileHandler")(req);
+		const User = require('./User').schema;
+
         job.start_date = job.start_date.getTime();
         job.end_date = job.end_date.getTime();
 
         //guidance link
-        if(job.general_guidance)
-		{
-            let link = job.general_guidance.floor_plan.substr(job.general_guidance.floor_plan.indexOf("/") + 1).replace(/\\/g,"/");
-            job.general_guidance.floor_plan = `http://${req.headers.host}/${link}`;
-		}
+        if(job.general_guidance && job.general_guidance.floor_plan)
+	        job.general_guidance.floor_plan = fileHandler.getFileUrl(job.general_guidance.floor_plan);
 
 		//care home
 		if(job.care_home)
 		{
-            //distance
-            if(job.care_home.distance != undefined)
-                job.care_home.distance = parseFloat(job.care_home.distance.toFixed(2));
-
-            //address link
-            if(job.care_home.address && job.care_home.address.location)
-                job.care_home.address["link"] = `https://www.google.com/maps/search/?api=1&query=${job.care_home.address.location.coordinates[0]},${job.care_home.address.location.coordinates[1]}`;
-
-            job["author"] = job.care_home;
+			job.care_home =  User.parse(job.care_home, req);
+            job.author = job.care_home;
             delete job.care_home;
 		}
 
 		//carer
 		if(job.assignment)
 		{
-			job["carer"] = job.assignment.carer || null;
+			job.carer = job.assignment.carer || null;
 			delete job.assignment;
 		}
     }

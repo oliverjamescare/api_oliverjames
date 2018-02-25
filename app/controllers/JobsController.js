@@ -5,12 +5,10 @@
  */
 
 //core
-const moment = require('moment');
 const async = require('async');
 
 //custom
 const Job = require("./../models/Job").schema;
-const User = require("./../models/User").schema;
 const JobWithdrawal = require("./../models/JobWithdrawal").schema;
 
 const fileHandler = require("../services/fileHandler");
@@ -36,92 +34,99 @@ module.exports = {
                 if(!job)
                     return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-                res.json(Job.parseJob(job, req));
+                res.json(Job.parse(job, req));
             });
     },
 
 	//only care home methods
-	addJobs: function (req, res)
+	addJobs: async function (req, res)
 	{
 		//floor plan upload
 		const uploader = fileHandler(req, res);
-		uploader.singleUpload("floor_plan", "users", [
-				"application/msword",
-				"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-				"application/pdf"
-			], 10)
-			.then(() => {
-
-				//getting job objects
-				let jobs = [], jobsObjects = [], validGeneralGuidance = req.user.hasValidGeneralGuidance();
-				try {
-					jobsObjects = Array.isArray(JSON.parse(req.body[ "jobs" ])) ? JSON.parse(req.body[ "jobs" ]) : [];
-				}
-				catch (error) {
-				}
-
-				//creating job objects
-				jobsObjects.forEach(jobObject => {
-					if (typeof jobObject == "object")
-					{
-						//generating multiple jobs
-						const carersAmount = (parseInt(jobObject[ "amount" ]) || 1) > 1 ? (parseInt(jobObject[ "amount" ]) || 1) : 1;
-						for (let i = 0; i < carersAmount; i++) {
-							let job = new Job({
-								start_date: new Date(jobObject.start_date),
-								end_date: new Date(jobObject.end_date),
-								care_home: req.user._id,
-								role: jobObject.role,
-								notes: jobObject.notes,
-								gender_preference: req.body.gender_preference,
-								general_guidance: {
-									superior_contact: validGeneralGuidance ? req.user.care_home.general_guidance.superior_contact || req.body.superior_contact : req.body.superior_contact,
-									report_contact: validGeneralGuidance ? req.user.care_home.general_guidance.report_contact || req.body.report_contact : req.body.report_contact,
-									emergency_guidance: validGeneralGuidance ? req.user.care_home.general_guidance.emergency_guidance || req.body.emergency_guidance : req.body.emergency_guidance,
-									notes_for_carers: validGeneralGuidance ? req.user.care_home.general_guidance.notes_for_carers || req.body.notes_for_carers : req.body.notes_for_carers,
-									parking: validGeneralGuidance ? req.user.care_home.general_guidance.parking || req.body.parking : req.body.parking,
-									floor_plan: req.file ? req.file.path : validGeneralGuidance ? req.user.care_home.general_guidance.floor_plan : null,
-								}
-							});
-
-							jobs.push(job);
-						}
-					}
-				});
-
-				//validation
-				async.parallel(
-					jobs.map(job => (callback) => {
-						job.validate()
-							.then(() => callback(null))
-							.catch(error => {
-								if (!res.headersSent)
-									res.status(406).json(Utils.parseValidatorErrors(error));
-								callback(error);
-							});
-					}),
-					(errors, results) => {
-
-					    console.log(new Date().getTime())
-						if (!res.headersSent && results)
+		const filePath = await uploader.handleSingleUpload("floor_plan", "users/" + req.user._id,
 						{
-							//sending response
-							res.status(201).json({ status: true });
+							allowedMimeTypes: [
+								"application/msword",
+								"application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+								"application/pdf",
+								"image/png",
+								"image/jpg",
+								"image/jpeg",
+							],
+							maxFileSize: 10
+						});
 
-							//saving jobs
-							jobs.forEach(job => job.save().catch(error => console.log(error)));
 
-							//updating general guidance
-							if (!validGeneralGuidance && jobs.length)
-								req.user.care_home.general_guidance = jobs[ 0 ].general_guidance;
+		//getting job objects
+		let jobs = [], jobsObjects = [], validGeneralGuidance = req.user.care_home.hasValidGeneralGuidance();
+		try {
+			jobsObjects = Array.isArray(JSON.parse(req.body[ "jobs" ])) ? JSON.parse(req.body[ "jobs" ]) : [];
+		}
+		catch (error) {}
 
-							//saving job references
-							jobs.forEach(job => req.user.care_home.jobs.push(job));
-							req.user.save().catch(error => console.log(error));
+		//creating job objects
+		jobsObjects.forEach(jobObject => {
+			if (typeof jobObject == "object")
+			{
+				//generating multiple jobs
+				const carersAmount = (parseInt(jobObject[ "amount" ]) || 1) > 1 ? (parseInt(jobObject[ "amount" ]) || 1) : 1;
+				for (let i = 0; i < carersAmount; i++) {
+					let job = new Job({
+						start_date: new Date(jobObject.start_date),
+						end_date: new Date(jobObject.end_date),
+						care_home: req.user._id,
+						role: jobObject.role,
+						notes: jobObject.notes,
+						gender_preference: req.body.gender_preference,
+						general_guidance: {
+							superior_contact: validGeneralGuidance ? req.body.superior_contact || req.user.care_home.general_guidance.superior_contact : req.body.superior_contact,
+							report_contact: validGeneralGuidance ? req.body.report_contact || req.user.care_home.general_guidance.report_contact : req.body.report_contact,
+							emergency_guidance: validGeneralGuidance ? req.body.emergency_guidance || req.user.care_home.general_guidance.emergency_guidance : req.body.emergency_guidance,
+							notes_for_carers: validGeneralGuidance ?  req.body.notes_for_carers || req.user.care_home.general_guidance.notes_for_carers: req.body.notes_for_carers,
+							parking: validGeneralGuidance ? req.body.parking || req.user.care_home.general_guidance.parking : req.body.parking,
+							floor_plan: filePath ? filePath : validGeneralGuidance ? req.user.care_home.general_guidance.floor_plan : null,
 						}
-					}
-				);
-			});
+					});
+
+					jobs.push(job);
+				}
+			}
+		});
+
+		//validation
+		async.parallel(
+			jobs.map(job => (callback) => {
+				job.validate()
+					.then(() => callback(null))
+					.catch(error => {
+						if (!res.headersSent)
+							res.status(406).json(Utils.parseValidatorErrors(error));
+						callback(error);
+					});
+			}),
+			(errors, results) => {
+
+				console.log(new Date().getTime())
+				if (!res.headersSent && results)
+				{
+					//sending response
+					res.status(201).json({ status: true });
+
+					//saving jobs
+					jobs.forEach(job => job.save().catch(error => console.log(error)));
+
+					//updating general guidance
+					if (!validGeneralGuidance && jobs.length)
+						req.user.care_home.general_guidance = jobs[0].general_guidance;
+
+
+
+					//saving job references
+					jobs.forEach(job => req.user.care_home.jobs.push(job));
+					req.user.save().catch(error => console.log(error));
+				}
+			}
+		);
 	},
 
     checkCarersToContact: function(req, res)
@@ -144,7 +149,7 @@ module.exports = {
                     end_date: jobObject.end_date,
                     amount: jobObject.amount || 1,
                     role: jobObject.role,
-                    notes: jobObject.notes || "",
+                    notes: jobObject.notes || null,
                     priority_carers: jobObject.priority_carers || [],
                     carersToContact: 10
                 }
@@ -156,242 +161,7 @@ module.exports = {
         return res.json({ jobs });
     },
 
-    getCareHomeMyJobs: async function(req, res)
-    {
-        const options = {
-            select: { start_date: 1, end_date: 1, "assignment.carer": 1},
-            populate: [
-                {
-                    path: "assignment.carer",
-                    select: {
-                        "carer.first_name": 1,
-                        "carer.surname": 1
-                    }
-                }
-            ],
-            sort: { start_date: 1 },
-            lean: true,
-            leanWithId: false
-        };
-
-        const  query = { $and: [ { _id: {  $in: req.user.care_home.jobs } }, { "assignment.summary_sheet": { $exists: false } } ]};
-
-        const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
-        let paginated = Utils.parsePaginatedResults(jobs);
-        paginated.results.map(job => Job.parseJob(job, req));
-
-        res.json(paginated);
-    },
-
 	//only carer methods
-    getCarerMyJobs: async function(req, res)
-    {
-        const options = {
-            select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 },
-            populate: [
-                {
-                	path: "care_home",
-					select: {
-                        "email": 1,
-                        "phone_number": 1,
-                        "address": 1,
-                        "care_home": 1,
-                        "care_home.care_service_name": 1,
-                        "care_home.type_of_home": 1,
-                        "care_home.name": 1
-                    }
-                }
-            ],
-			sort: { start_date: 1 },
-            lean: true,
-            leanWithId: false
-        };
-
-        const  query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } } ]};
-
-    	const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
-    	let paginated = Utils.parsePaginatedResults(jobs);
-    	paginated.results.map(job => Job.parseJob(job, req));
-
-		res.json(paginated);
-    },
-
-    getCarerAvailableJobs: function(req, res)
-    {
-        async.parallel({
-            careHomes: (callback) => {
-                User.find({
-                    care_home: { $exists: true },
-                    'address.location': { $geoWithin: { $centerSphere: [ req.user.address.location.coordinates,  parseInt(req.user.carer.max_job_distance) / 3963.2 ]} }
-                },
-                { _id: 1 })
-                .lean()
-                .then(careHomes => callback(null, careHomes.map(careHome => careHome._id)));
-            },
-            calendarJobsQuery: (callback) => {
-                Job.find({ _id: { $in: req.user.carer.jobs }, 'assignment.summary_sheet': { $exists: false }}, { start_date: 1, end_date: 1})
-                    .then(myCalendarJobs => {
-
-                        let calendarJobsQuery = [];
-                        for(let i = 0; i < myCalendarJobs.length; i++)
-                        {
-                            if (i == 0) //first element
-                                calendarJobsQuery.push({ end_date: { $lt: myCalendarJobs[i].start_date } })
-
-                            if (myCalendarJobs[i + 1]) // if next element exists
-                                calendarJobsQuery.push({ $and: [ { start_date: { $gt: myCalendarJobs[i].end_date } }, { end_date: { $lt: myCalendarJobs[i + 1].start_date } } ] })
-
-                            if ((i + 1) == myCalendarJobs.length) //last element
-                                calendarJobsQuery.push({ start_date: { $gt: myCalendarJobs[i].end_date } });
-                        }
-
-                        callback(null, calendarJobsQuery, myCalendarJobs);
-                    });
-            }
-        }, async (error, results) => {
-
-            //params
-            const withDontMeetCriteria = req.query.dont_meet_criteria == 1 ? true : false;
-            const filterDistance = parseFloat(req.query.distance);
-            const sort = req.query.sort;
-
-            //building query
-            let query = {
-                care_home: { $in: results.careHomes }, //only from care homes within max distance area
-                'assignment.carer': { $exists : false } //not accepted
-            };
-
-            if(!withDontMeetCriteria)
-                query["_id"] = { $not: { $in: req.user.carer.job_declines }} // not declined
-
-             if(results.calendarJobsQuery[0].length)
-                 query['$or'] = results.calendarJobsQuery[0]; //exclude calendar conflicts
-
-            //availability handle
-            let filteredJobs = await Job.find(query, { start_date: 1, end_date: 1}).lean().exec();
-            if(!withDontMeetCriteria)
-                filteredJobs = filteredJobs.filter(job => req.user.carer.checkAvailabilityForDateRange(job.start_date, job.end_date));
-
-            filteredJobs = filteredJobs.map(job => job._id);
-
-            //query
-            let aggregateQuery = [
-                {
-                    $match: {
-                        _id: { $in: filteredJobs }
-                    }
-                },
-                {
-                    $project: {
-                        start_date: 1, end_date: 1, care_home: 1, role: 1
-                    }
-                },
-                {
-                    $lookup: {
-                        from: "users",
-                        as: "care_home",
-                        let: { foreignId: "$care_home"},
-                        pipeline: [
-                            {
-                                $geoNear: {
-                                    near: req.user.address.location.coordinates,
-                                    distanceField: "distance",
-                                    distanceMultiplier: 3963.2,
-                                    spherical: true
-                                }
-                            },
-                            {
-                                $match: { $expr: { $eq: ["$_id", "$$foreignId"] } }
-                            },
-                            {
-                                $project: {
-                                    "email": 1,
-                                    "phone_number": 1,
-                                    "address": 1,
-                                    "care_home.care_service_name": 1,
-                                    "care_home.type_of_home": 1,
-                                    "care_home.name": 1,
-                                    "distance": 1
-                                }
-                            }
-                        ]
-                    }
-                },
-                { $unwind: '$care_home'},
-                {
-                    $lookup: {
-                        from: "jobs",
-                        as: "conflicts",
-                        let: { start_date: "$start_date", end_date: "$end_date"},
-                        pipeline: [
-                            {
-                                $match: { _id : { $in: results.calendarJobsQuery[1].map(job => job._id) }}
-                            },
-                            {
-                                $project: {
-                                    _id: 0,
-                                    "conflict": { $cond: { if: { $or: [ { $lt: [ { $abs: { $subtract: [ "$start_date" , "$$end_date"]} }, 1000 * 60 * 60 ] }, { $lt: [ { $abs: { $subtract: [ "$end_date" , "$$start_date"]} }, 1000 * 60 * 60 ] }] }, then: true, else: false }}
-                                }
-                            },
-                        ]
-                    }
-                },
-                {
-                    $project: {
-                        start_date: 1, end_date: 1, care_home: 1, role: 1,
-                        conflict: { $anyElementTrue: { $map: { input: "$conflicts", as: "el", in: "$$el.conflict" } } }
-                    }
-                }
-            ];
-
-            if(!isNaN(filterDistance))
-                aggregateQuery.push({ $match: { "care_home.distance": { $lt: filterDistance } } })
-
-            //sorts
-            let options = {};
-            switch (sort)
-            {
-                case "roleASC":
-                {
-                    options["sortBy"] = { role: "ASC" }
-                    break;
-                }
-                case "roleDESC":
-                {
-                    options["sortBy"] = { role: "DESC" }
-                    break;
-                }
-                case "startDESC":
-                {
-                    options["sortBy"] = { start_date: "DESC" }
-                    break;
-                }
-                case "endASC":
-                {
-                    options["sortBy"] = { end_date: "ASC" }
-                    break;
-                }
-                case "endDESC":
-                {
-                    options["sortBy"] = { end_date: "DESC" }
-                    break;
-                }
-                default:
-                {
-                    options["sortBy"] = { start_date: "ASC" }
-                    break;
-                }
-            }
-
-            //pagination and parsing
-            const jobs = await Utils.paginate(Job, { query: Job.aggregate(aggregateQuery), options: options }, req, true);
-            let paginated = Utils.parsePaginatedResults(jobs);
-            paginated.results.map(job => Job.parseJob(job, req));
-
-            res.json(paginated);
-        });
-    },
-
     acceptJob: function(req, res)
     {
         Job.findOne({ _id: req.params.id }, (error, job) => {
@@ -509,63 +279,22 @@ module.exports = {
 
         //signature upload
         const uploader = fileHandler(req, res);
-        uploader.singleUpload("signature", "jobs", [
-            "image/jpeg",
-            "image/jpg",
-            "image/png"
-        ], 10)
-        .then(() => {
+        const filePath = await uploader.handleSingleUpload("signature", "jobs/" + job._id, { allowedMimeTypes: [ "image/jpeg", "image/jpg", "image/png"], maxFileSize: 10 });
 
-            job.assignment["summary_sheet"] = {
-                signature: req.file ? req.file.path : null,
-                name: req.body.name,
-                position: req.body.position,
-                notes: req.body.notes || null,
-                start_date: req.body.start_date,
-                end_date: req.body.end_date
-            };
+	    job.assignment["summary_sheet"] = {
+		    signature: filePath,
+		    name: req.body.name,
+		    position: req.body.position,
+		    notes: req.body.notes || '',
+		    start_date: req.body.start_date,
+		    end_date: req.body.end_date
+	    };
 
-            //saving signature and sending response
-            job
-                .save()
-                .then(() => res.json({ status: true }))
-                .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
-        })
-
-
-    },
-
-    getJobs: async function (req, res)
-    {
-        const options = {
-            select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 },
-            populate: [
-                {
-                    path: "care_home",
-                    select: {
-                        "email": 1,
-                        "phone_number": 1,
-                        "address": 1,
-                        "care_home": 1,
-                        "care_home.care_service_name": 1,
-                        "care_home.type_of_home": 1,
-                        "care_home.name": 1
-                    }
-                }
-            ],
-            sort: { start_date: 1 },
-            lean: true,
-            leanWithId: false
-        };
-
-        const  query = { };
-
-        const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
-        let paginated = Utils.parsePaginatedResults(jobs);
-        paginated.results.map(job => Job.parseJob(job, req));
-
-        res.json(paginated);
+	    //saving signature and sending response
+	    job
+		    .save()
+		    .then(() => res.json({ status: true }))
+		    .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     }
-
 }
 

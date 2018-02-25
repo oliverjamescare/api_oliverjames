@@ -49,10 +49,7 @@ const schema = mongoose.Schema({
     password: {
         type: String,
         required: [true, "{PATH} field is required."],
-        validate: {
-            validator: value => (/^\$2/.test(value) && value.length >= 50)? true : passwordRegExp.test(value),
-            message: "Password must have at least 6 characters and contain at least one letter and number."
-        }
+        validate: validators.password(passwordRegExp, "{PATH} must have at least 6 characters and contain at least one letter and number.")
     },
     access_token: {
         token: {
@@ -109,7 +106,7 @@ const schema = mongoose.Schema({
     address: addressSchema,
     notes: {
         type: String,
-        default: "",
+        default: null,
         maxlength: [ 1000, "{PATH} can't be longer than {MAXLENGTH} characters." ]
     },
     transactions: [
@@ -231,35 +228,33 @@ schema.methods.addPasswordRemindHandle = function(mailer)
     }, (error) => console.log(error));
 }
 
-schema.methods.hasValidGeneralGuidance = function()
-{
-    let valid = false;
-    if(this.care_home.general_guidance)
-    {
-        valid = true;
-        Object.keys(this.care_home.general_guidance).forEach(property => {
-            if(!this.care_home.general_guidance[property])
-                valid = false;
-        });
-    }
-
-    return valid;
-}
-
 //statics
-schema.statics.parseCareHome = function(careHome, req)
+schema.statics.parse = function(user, req)
 {
-    if(careHome)
+	const fileHandler = require("../services/fileHandler")(req);
+
+    //care home
+    if(user.care_home)
     {
-        //guidance link
-        if(careHome.general_guidance)
-        {
-            let link = careHome.general_guidance.floor_plan.substr(careHome.general_guidance.floor_plan.indexOf("/") + 1).replace(/\\/g,"/");
-            careHome.general_guidance.floor_plan = link ? `http://${req.headers.host}/${link}` : "";
-        }
+        //floor plan link
+        if(user.care_home.general_guidance && user.care_home.general_guidance.floor_plan)
+	        user.care_home.general_guidance.floor_plan = fileHandler.getFileUrl(user.care_home.general_guidance.floor_plan);
+
+
+        //distance
+	    if(user.distance != undefined)
+		    user.distance = parseFloat(user.distance.toFixed(2));
     }
 
-    return careHome;
+    //carer
+	if(user.carer && user.carer.profile_image)
+		user.carer.profile_image = fileHandler.getFileUrl(user.carer.profile_image);
+
+	//address link
+	if(user.address && user.address.location)
+		user.address.link = `https://www.google.com/maps/search/?api=1&query=${user.address.location.coordinates[0]},${user.address.location.coordinates[1]}`;
+
+    return user;
 }
 
 
