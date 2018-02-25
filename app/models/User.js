@@ -10,8 +10,10 @@ const config = process.env;
 const validators = require('./../services/validators');
 const paths = require('./../../config/paths');
 const permissions = require('./../../config/permissions');
+
 const careHomeSchema = require("./schemas/CareHome").schema;
 const carerSchema = require('./schemas/Carer').schema;
+const addressSchema = require("./schemas/Address").address;
 
 //settings
 const passwordRegExp = /^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]{6,}$/;
@@ -22,10 +24,15 @@ const settings =  {
 };
 
 const statuses = {
-    CREATED: 0,
-    CONFIRMED: 1,
-    BLOCKED: 2,
-    WAITING_LIST: 3
+    CREATED: "CREATED",
+    ACTIVE: "ACTIVE",
+    BANNED: "BANNED",
+    BLOCKED: "BLOCKED"
+};
+
+const transactionStatuses = {
+    CONFIRMED: "CONFIRMED",
+    PENDING: "PENDING",
 };
 
 const schema = mongoose.Schema({
@@ -41,11 +48,8 @@ const schema = mongoose.Schema({
     },
     password: {
         type: String,
-        required: validators.required_if_not("status", statuses.WAITING_LIST),
-        validate: {
-            validator: value => (/^\$2/.test(value) && value.length >= 50)? true : passwordRegExp.test(value),
-            message: "Password must have at least 6 characters and contain at least one letter and number."
-        }
+        required: [true, "{PATH} field is required."],
+        validate: validators.password(passwordRegExp, "{PATH} must have at least 6 characters and contain at least one letter and number.")
     },
     access_token: {
         token: {
@@ -59,88 +63,93 @@ const schema = mongoose.Schema({
     },
     phone_number: {
         type: String,
-        required: validators.required_if_not("status", statuses.WAITING_LIST),
+        required: [true, "{PATH} field is required."],
         validate: validators.numbers,
         minlength: [6,"{PATH} must have at least {MINLENGTH} characters."],
         unique: true
     },
+    blocked_until: {
+        type: Date,
+        default: null
+    },
+    password_resets: [
+        {
+            token: {
+                type: String,
+                default: randomstring.generate(128)
+            },
+            expiration:{
+                type: Date,
+                default: +new Date() + (settings.passwordResetExpirationDays * 24 * 60 * 60 * 1000)
+            }
+        }
+    ],
+    email_confirmations: [
+        {
+            email: {
+                type: String,
+                required: true,
+                validate: validators.email
+            },
+            token:{
+                type: String,
+                default: randomstring.generate(128)
+            },
+            expiration:{
+                type: Date,
+                default: +new Date() + (settings.emailConfirmationExpirationDays * 24 * 60 * 60 * 1000)
+            }
+        }
+    ],
+    care_home: careHomeSchema,
+    carer: carerSchema,
+    address: addressSchema,
+    notes: {
+        type: String,
+        default: null,
+        maxlength: [ 1000, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+    },
+    transactions: [
+        {
+            description: {
+                type: String,
+                required: [ true, "{PATH} field is required." ],
+                maxlength: [ 500, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+            },
+            amount: {
+                type: Number,
+                required: [ true, "{PATH} field is required." ]
+            },
+            status: {
+                type: String,
+                enum: Object.values(transactionStatuses),
+                default: transactionStatuses.PENDING
+            },
+            created: {
+                type: Date,
+                required: [ true, "{PATH} field is required." ]
+            }
+        }
+    ],
     status: {
-        type: Number,
+        type: String,
         enum: Object.values(statuses),
         default: statuses.CREATED
     },
-    blocked_until: Date,
-    password_resets: [{
-        token: {
-            type: String,
-            default: randomstring.generate(128)
-        },
-        expiration:{
-            type: Date,
-            default: +new Date() + (settings.passwordResetExpirationDays * 24 * 60 * 60 * 1000)
-        }
-    }],
-    email_confirmations: [{
-        email: {
+    roles: [
+        {
             type: String,
             required: true,
-            validate: validators.email
-        },
-        token:{
-            type: String,
-            default: randomstring.generate(128)
-        },
-        expiration:{
-            type: Date,
-            default: +new Date() + (settings.emailConfirmationExpirationDays * 24 * 60 * 60 * 1000)
+            enum: permissions.roles.map(role => role.role)
         }
-    }],
-    care_home: careHomeSchema,
-    carer: carerSchema,
-    roles: [{
-        type: String,
-        required: true,
-        enum: permissions.roles.map(role => role.role)
-    }],
-    permissions:[{
-        type: String,
-        required: true,
-        enum: permissions.permissions
-    }],
-    address: {
-        postal_code: {
+    ],
+    permissions:[
+        {
             type: String,
-            required: [ true, "{PATH} field is required." ],
-            maxlength: [ 30, "{PATH} can't be longer than {MAXLENGTH} characters." ]
-        },
-        company: {
-            type: String,
-            maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-            default: null
-        },
-        address_line_1: {
-            type: String,
-            required: [ true, "{PATH} field is required." ],
-            maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ]
-        },
-        address_line_2: {
-            type: String,
-            maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-            default: null
-        },
-        city: {
-            type: String,
-            required: [ true, "{PATH} field is required." ],
-            maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ]
-        },
-        location: {
-            type: {
-                type: String,
-                default: "Point"
-            },
-            coordinates: [ Number ]
+            required: true,
+            enum: permissions.permissions
         }
-    },
+    ],
     created: {
         type: Date,
         default: Date.now()
@@ -196,13 +205,13 @@ schema.methods.addEmailConfirmationHandle = function(email, mailer)
 
 schema.methods.blockingHandle = function()
 {
-    if(this.status == statuses.BLOCKED)
+    if(this.status == statuses.BANNED)
     {
         if(this.blocked_until.getTime() < new Date().getTime())
-            this.status = statuses.CONFIRMED;
+            this.status = statuses.ACTIVE;
     }
 
-    return this.status != statuses.BLOCKED;
+    return this.status != statuses.BANNED && this.status != statuses.BLOCKED;
 }
 
 schema.methods.addPasswordRemindHandle = function(mailer)
@@ -219,21 +228,34 @@ schema.methods.addPasswordRemindHandle = function(mailer)
     }, (error) => console.log(error));
 }
 
-schema.methods.hasValidGeneralGuidance = function()
+//statics
+schema.statics.parse = function(user, req)
 {
-    let valid = false;
-    if(this.care_home.general_guidance)
+	const fileHandler = require("../services/fileHandler")(req);
+
+    //care home
+    if(user.care_home)
     {
-        valid = true;
-        Object.keys(this.care_home.general_guidance).forEach(property => {
-            if(!this.care_home.general_guidance[property])
-                valid = false;
-        });
+        //floor plan link
+        if(user.care_home.general_guidance && user.care_home.general_guidance.floor_plan)
+	        user.care_home.general_guidance.floor_plan = fileHandler.getFileUrl(user.care_home.general_guidance.floor_plan);
+
+
+        //distance
+	    if(user.distance != undefined)
+		    user.distance = parseFloat(user.distance.toFixed(2));
     }
 
-    return valid;
-}
+    //carer
+	if(user.carer && user.carer.profile_image)
+		user.carer.profile_image = fileHandler.getFileUrl(user.carer.profile_image);
 
+	//address link
+	if(user.address && user.address.location)
+		user.address.link = `https://www.google.com/maps/search/?api=1&query=${user.address.location.coordinates[0]},${user.address.location.coordinates[1]}`;
+
+    return user;
+}
 
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been taken.' });

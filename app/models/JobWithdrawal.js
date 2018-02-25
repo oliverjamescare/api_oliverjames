@@ -5,10 +5,12 @@ const schema = mongoose.Schema({
     carer: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+        required: [ true, "{PATH} field is required." ]
     },
 	job: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Job",
+        required: [ true, "{PATH} field is required." ],
     },
     message: {
         type: String,

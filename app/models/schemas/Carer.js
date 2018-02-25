@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const validators = require('./../../services/validators');
 const moment = require('moment');
 
-const eligibleRoles = [
-	"Carer",
-	"Senior Carer"
-];
+const eligibleRoles = {
+	CARER: "Carer",
+	SENIOR_CARER: "Senior Carer"
+}
 
 //forms
 const radioText = function (radioAvailableValues)
@@ -78,6 +78,18 @@ const shiftsRanges = {
     }
 }
 
+//training record settings
+const qualifications = [
+	"Care certificate",
+	"QCF / NVQ level 2 in Health & Social Care",
+	"QCF / NVQ level 3 in Health & Social Care",
+	"QCF / NVQ level 4 in Health & Social Care",
+	"QCF / NVQ level 5 in Health & Social Care",
+	"Agency carer induction training",
+	"Nursing qualification (UK)",
+	"Nursing qualification (elsewhere)"
+];
+
 const schema = mongoose.Schema({
 	first_name: {
 		type: String,
@@ -105,23 +117,23 @@ const schema = mongoose.Schema({
 		type: String,
 		default: null
 	},
-	joining_care_experiance: {
-		type: Number,
-		default: 1 // this means more than one year
-	},
 	max_job_distance: {
 		type: Number,
 		default: 5
 	},
-	cv: {
-		type: String,
-		required: [ true, "{PATH} field is required." ]
-	},
-	eligible_roles: [ {
-		type: String,
-		required: [ true, "{PATH} field is required." ],
-		enum: eligibleRoles
-	} ],
+	cv_uploads: [
+        {
+            type: String,
+            required: [ true, "{PATH} field is required." ]
+        }
+	],
+	eligible_roles: [
+		{
+			type: String,
+			required: [ true, "{PATH} field is required." ],
+			enum: Object.values(eligibleRoles)
+		}
+	],
 	q_a_form: {
 		criminal_record: radioText([ 0, 1 ]),
 		physical_issues: radio([ 0, 1 ]),
@@ -147,22 +159,139 @@ const schema = mongoose.Schema({
 			}
 		]
 	},
+	training_record: {
+		qualifications: [
+			{
+				type: String,
+				enum: qualifications
+			}
+		],
+		safeguarding: {
+			type: Date,
+			default: null
+		},
+        manual_handling_people: {
+            type: Date,
+            default: null
+        },
+        medication_management: {
+            type: Date,
+            default: null
+        },
+		infection_control: {
+            type: Date,
+            default: null
+        },
+        first_aid_and_basic_life_support: {
+            type: Date,
+            default: null
+		},
+        first_aid_awareness: {
+            type: Date,
+            default: null
+		},
+		h_and_s: {
+            type: Date,
+            default: null
+		},
+		dementia: {
+            type: Date,
+            default: null
+		},
+		fire_safety: {
+            type: Date,
+            default: null
+		},
+        other: {
+            type: String,
+            default: null
+        },
+        photos: [
+        	{
+            	type: String,
+            	required: [ true, "{PATH} field is required." ]
+        	}
+        ]
+	},
+	joining_care_experience: {
+		years: {
+			type: Number,
+			validate: validators.integer,
+			min: [1, 'Minimum one year of experience is required.'],
+			default: 1
+		},
+		months:
+		{
+			type: Number,
+            validate: validators.integer,
+            min: [0, 'Number of months can\'t be lower than 0. '],
+            max: [11, 'Number of months can\'t be greater than 11. '],
+			default: 0
+		}
+	},
+	dbs: {
+		dbs_date: {
+			type: Date,
+			default: null
+		},
+		ref_number: {
+			type: String,
+            maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ],
+			default: null
+		},
+		status: {
+			type: String,
+			enum: [ "Clear", "Minor issues - approved" ],
+			default: "Clear"
+		},
+        photos: [
+            {
+                type: String,
+                required: [ true, "{PATH} field is required." ]
+            }
+        ]
+	},
+	reference: {
+		references: [
+            {
+                name: {
+                    type: String,
+                    required: [ true, "{PATH} field is required." ],
+                    maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+                },
+                type: {
+                    type: String,
+                    required: [ true, "{PATH} field is required." ],
+                    enum: [ "Professional", "Personal" ]
+                }
+            }
+        ],
+        photos: [
+            {
+                type: String,
+                required: [ true, "{PATH} field is required." ]
+            }
+        ]
+	},
     jobs: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Job",
+            required: [ true, "{PATH} field is required." ]
         }
     ],
 	job_declines: [
 		{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Job",
+            required: [ true, "{PATH} field is required." ]
 		}
 	],
     job_withdrawals: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Job_withdrawal",
+            required: [ true, "{PATH} field is required." ]
         }
     ]
 });
@@ -277,6 +406,4 @@ schema.methods.getAvailabilitySetForDay = function(date)
 }
 
 
-module.exports.schema = schema;
-module.exports.eligibleRoles = eligibleRoles;
-module.exports.shiftRanges = shiftsRanges;
+module.exports = { schema, eligibleRoles, shiftsRanges };

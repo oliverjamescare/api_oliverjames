@@ -6,8 +6,6 @@
 
 //core
 const bcrypt = require('bcrypt-nodejs');
-const randomstring = require("randomstring");
-const config = process.env;
 
 //custom
 const User = require("./../models/User").schema;
@@ -54,7 +52,7 @@ module.exports = {
         });
     },
 
-    profile: function(req, res)
+    profile: async function(req, res)
     {
         //general user properties
         let user = {
@@ -62,7 +60,7 @@ module.exports = {
             email: req.user.email,
             phone_number: req.user.phone_number,
             email_verified: req.user.email_verified,
-            address: req.user.address
+            address: req.user.address.toObject()
         };
 
         //carer properties
@@ -76,26 +74,24 @@ module.exports = {
                 max_job_distance: req.user.carer.max_job_distance,
                 eligible_roles: req.user.carer.eligible_roles
             }
-
-            if(user["carer"].profile_image)
-            {
-                let link = user["carer"].profile_image.substr(user["carer"].profile_image.indexOf("\\") + 1).replace(/\\/g,"/");
-                user["carer"].profile_image = `http://${req.headers.host}/${link}`;
-            }
         }
 
         //care home properties
         if(req.user.care_home)
         {
+	        await req.user.populate({ path: "care_home.blocked_carers", select: { "carer.first_name": 1, "carer.surname": 1 } }).execPopulate();
+
             user["care_home"] = {
                 name: req.user.care_home.name,
                 care_service_name: req.user.care_home.care_service_name,
                 type_of_home: req.user.care_home.type_of_home,
+                general_guidance: req.user.care_home.general_guidance,
+                gender_preference: req.user.care_home.gender_preference,
                 blocked_carers: req.user.care_home.blocked_carers
             }
         }
 
-        return res.json(user);
+        return res.json(User.parse(user, req));
     },
 
     changePassword: function(req, res)
@@ -124,33 +120,24 @@ module.exports = {
         });
     },
 
-    updateProfileImage: function(req, res)
+    updateProfileImage: async function(req, res)
     {
         //profile image upload
         const uploader = fileHandler(req, res);
-        uploader.singleUpload("profile_image", "users", [
-            "image/jpeg",
-            "image/jpg",
-            "image/png"
-        ], 5).then(() => {
+        const filePath = await uploader.handleSingleUpload("profile_image", "users/" +  req.user._id, { allowedMimeTypes: [ "image/jpeg", "image/jpg", "image/png" ], fileToRemove: req.user.carer.profile_image });
 
-           //saving new profile image
-           if(req.file)
-           {
-               req.user.carer.profile_image =  req.file.path;
-               req.user.save().catch(error => console.log(error));
-           }
+        //saving new profile image
+	    req.user.carer.profile_image =  filePath || req.user.carer.profile_image;;
+	    req.user.save().catch(error => console.log(error));
 
-           //sending response
-           res.json({ status: true });
-        });
+		//sending response
+		res.json({ status: true });
     },
 
     changeEmail: function (req, res)
     {
         const email = req.user.email;
         req.user.email = req.body.email;
-        req.user.email_verified = false;
 
         req.user
             .validate()
@@ -162,6 +149,7 @@ module.exports = {
                 //sending verification and saving user
                 if(req.user.email != email)
                 {
+                    req.user.email_verified = false;
                     req.user.addEmailConfirmationHandle(req.user.email, req.app.mailer);
                     req.user.save().catch(error => console.log(error));
                 }
@@ -172,7 +160,7 @@ module.exports = {
     resendEmailVerification: function (req, res)
     {
         if(req.user.email_verified)
-            return res.status(409).json(Utils.parseStringError("This email is already verified", "email"));
+            return res.status(409).json(Utils.parseStringError("This email has already been verified", "email"));
 
         //sending response
         res.json({ status: true });
@@ -204,13 +192,59 @@ module.exports = {
                 if(req.body.address_line_1 && req.body.city && req.body.postal_code) //if required fields are not present then don't update address
                     req.user.address = address;
 
-                console.log(req.user.address);
                 //saving user and sending response
                 req.user
                     .save()
-                    .then(user => res.json({ status: true }))
-                    .catch(error => console.log(error));
+                    .then(() => res.json({ status: true }))
+	                .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
             })
-    }
+    },
+
+	updateCareHomeDetails: async function(req, res)
+	{
+	    //address handle
+	    const address = await locationHandler.getCustomLocation(req);
+
+		//profile image upload
+		const uploader = fileHandler(req, res);
+		const filePath = await uploader.handleSingleUpload("floor_plan", "users/" +  req.user._id,
+            {
+	            allowedMimeTypes: [
+		            "application/msword",
+		            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+		            "application/pdf",
+		            "image/png",
+		            "image/jpg",
+		            "image/jpeg",
+	            ],
+	            maxFileSize: 10
+            });
+
+
+		//updating values
+		req.user.phone_number = req.body.phone_number || req.user.phone_number;
+		req.user.care_home.name = req.body.name || req.user.care_home.name;
+		req.user.care_home.care_service_name = req.body.care_service_name || req.user.care_home.care_service_name;
+		req.user.care_home.type_of_home = req.body.type_of_home || req.user.care_home.type_of_home;
+		req.user.care_home.gender_preference = req.body.gender_preference || req.user.care_home.gender_preference;
+
+		//general guidance
+		req.user.care_home.general_guidance.superior_contact = req.body.superior_contact || req.user.care_home.general_guidance.superior_contact;
+		req.user.care_home.general_guidance.report_contact = req.body.report_contact || req.user.care_home.general_guidance.report_contact;
+		req.user.care_home.general_guidance.emergency_guidance = req.body.emergency_guidance || req.user.care_home.general_guidance.emergency_guidance;
+		req.user.care_home.general_guidance.notes_for_carers = req.body.notes_for_carers || req.user.care_home.general_guidance.notes_for_carers;
+		req.user.care_home.general_guidance.parking = req.body.parking || req.user.care_home.general_guidance.parking;
+		req.user.care_home.general_guidance.floor_plan = filePath || req.user.care_home.general_guidance.floor_plan;
+
+
+		if(req.body.address_line_1 && req.body.city && req.body.postal_code) //if required fields are not present then don't update address
+			req.user.address = address;
+
+		//saving user and sending response
+		req.user
+			.save()
+			.then(() => res.json({ status: true }))
+			.catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+	},
 }
 

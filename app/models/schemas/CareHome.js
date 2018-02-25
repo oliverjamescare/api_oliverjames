@@ -9,6 +9,12 @@ const homeTypes = [
     "Supported living"
 ];
 
+const genderPreferences = {
+	MALE: "Male",
+	FEMALE: "Female",
+	NO_PREFERENCE: "No preference"
+}
+
 const schema = mongoose.Schema({
     care_service_name: {
         type: String,
@@ -34,14 +40,35 @@ const schema = mongoose.Schema({
         }
     ],
     general_guidance: GeneralGuidance.general_guidance(),
+	gender_preference: {
+		type: String,
+		enum: Object.values(genderPreferences),
+		default: genderPreferences.NO_PREFERENCE
+	},
 
     //references
     jobs: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: "Job"
+            ref: "Job",
         }
     ],
 });
+
+//methods
+schema.methods.hasValidGeneralGuidance = function()
+{
+	let valid = false;
+	if(this.general_guidance)
+	{
+		valid = true;
+		Object.keys(this.general_guidance).forEach(property => {
+			if(!this.general_guidance[property])
+				valid = false;
+		});
+	}
+
+	return valid;
+}
 
 module.exports.schema = schema;

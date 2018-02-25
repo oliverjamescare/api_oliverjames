@@ -6,6 +6,37 @@ const mongooseAggregatePaginate = require('mongoose-aggregate-paginate');
 //custom
 const validators = require('./../services/validators');
 const GeneralGuidance = require('./schemas/GeneralGuidance');
+const CarerRoles = require('./schemas/Carer').eligibleRoles;
+
+//settings
+const statuses = {
+	POSTED: "POSTED",
+	EXPIRED: "EXPIRED",
+	ACCEPTED: "ACCEPTED",
+	PENDING_SUMMARY_SHEET: "PENDING_SUMMARY_SHEET",
+	SUBMITTED_SUMMARY_SHEET: "SUBMITTED_SUMMARY_SHEET",
+    PENDING_PAYMENT: "PENDING_PAYMENT",
+    CHALLENGED: "CHALLENGED",
+    PAID: "PAID",
+    PAYMENT_REJECTED: "PAYMENT_REJECTED"
+};
+
+const genderPreferences = {
+	MALE: "Male",
+	FEMALE: "Female",
+	NO_PREFERENCE: "No preference"
+}
+
+const reviewStatuses = {
+	PENDING: "PENDING",
+	PUBLISHED: "PUBLISHED",
+	ARCHIVED: "ARCHIVED"
+};
+
+const challengeStatuses = {
+	ACTIVE: "ACTIVE",
+	CANCELLED: "CANCELLED"
+}
 
 const schema = mongoose.Schema({
 	start_date: {
@@ -22,6 +53,10 @@ const schema = mongoose.Schema({
 		type: mongoose.Schema.Types.ObjectId,
 		ref: "User",
 		required: [ true, "{PATH} field is required." ]
+	},
+	manual_booking: {
+		type: Boolean,
+		default: false
 	},
 	assignment: {
 		carer: {
@@ -61,17 +96,67 @@ const schema = mongoose.Schema({
                 type: Date,
                 required: validators.required_if_present("assignment.summary_sheet.start_date"),
                 validate: validators.dateGreaterThanDateField("start_date")
+            },
+            voluntary_deduction: { //number of minutes to deduct
+                type: Number,
+                validate: validators.integer,
+                min: [0, "Voluntary deduction cannot be lower than 0."],
+				default: 0
+            },
+            created: {
+                type: Date,
+                required: validators.required_if_present("assignment.summary_sheet")
+            }
+		},
+		review: {
+			rate: {
+				type: Number,
+                required: validators.required_if_present("assignment.review"),
+				validate: validators.integer,
+				min: [1, "Rate cannot be lower than 1."],
+				max: [5, "Rate cannot be greater than 5."],
+			},
+			description: {
+				type: String,
+				required: validators.required_if_present("assignment.review"),
+                maxlength: [ 500, "{PATH} can't be longer than {MAXLENGTH} characters." ],
+			},
+			status: {
+				type: String,
+                required: validators.required_if_present("assignment.review"),
+				enum: Object.values(reviewStatuses),
+			},
+			created: {
+				type: Date,
+                required: validators.required_if_present("assignment.review")
+			}
+		},
+		challenge: {
+			description: {
+                type: String,
+                required: validators.required_if_present("assignment.challenge"),
+                maxlength: [ 1000, "{PATH} can't be longer than {MAXLENGTH} characters." ],
+			},
+            status: {
+                type: String,
+                required: validators.required_if_present("assignment.challenge"),
+                enum: Object.values(challengeStatuses)
+            },
+            created: {
+                type: Date,
+                required: validators.required_if_present("assignment.challenge")
             }
 		}
 	},
 	role: {
 		type: String,
 		required: [ true, "{PATH} field is required." ],
-		enum: [ "Carer", "Senior Carer" ]
+		enum: Object.values(CarerRoles)
 	},
 	gender_preference: {
 		type: String,
-		enum: [ "Male", "Female" ]
+		enum: Object.values(genderPreferences),
+		default: genderPreferences.NO_PREFERENCE
 	},
 	notes: {
 		type: String,
@@ -91,6 +176,11 @@ const schema = mongoose.Schema({
             ref: "User",
         }
     ],
+    status: {
+        type: String,
+        enum: Object.values(statuses),
+        default: statuses.POSTED
+    },
 	created: {
 		type: Date,
 		default: Date.now()
@@ -126,39 +216,32 @@ schema.pre("save", function (next)
 });
 
 //statics
-schema.statics.parseJob = function(job, req)
+schema.statics.parse = function(job, req)
 {
     if(job)
     {
+	    const fileHandler = require("../services/fileHandler")(req);
+		const User = require('./User').schema;
+
         job.start_date = job.start_date.getTime();
         job.end_date = job.end_date.getTime();
 
         //guidance link
-        if(job.general_guidance)
-		{
-            let link = job.general_guidance.floor_plan.substr(job.general_guidance.floor_plan.indexOf("/") + 1).replace(/\\/g,"/");
-            job.general_guidance.floor_plan = `http://${req.headers.host}/${link}`;
-		}
+        if(job.general_guidance && job.general_guidance.floor_plan)
+	        job.general_guidance.floor_plan = fileHandler.getFileUrl(job.general_guidance.floor_plan);
 
 		//care home
 		if(job.care_home)
 		{
-            //distance
-            if(job.care_home.distance != undefined)
-                job.care_home.distance = parseFloat(job.care_home.distance.toFixed(2));
-
-            //address link
-            if(job.care_home.address && job.care_home.address.location)
-                job.care_home.address["link"] = `https://www.google.com/maps/search/?api=1&query=${job.care_home.address.location.coordinates[0]},${job.care_home.address.location.coordinates[1]}`;
-
-            job["author"] = job.care_home;
+			job.care_home =  User.parse(job.care_home, req);
+            job.author = job.care_home;
             delete job.care_home;
 		}
 
 		//carer
 		if(job.assignment)
 		{
-			job["carer"] = job.assignment.carer || null;
+			job.carer = job.assignment.carer || null;
 			delete job.assignment;
 		}
     }
