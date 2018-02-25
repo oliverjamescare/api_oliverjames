@@ -153,7 +153,6 @@ module.exports = {
     {
         const email = req.user.email;
         req.user.email = req.body.email;
-        req.user.email_verified = false;
 
         req.user
             .validate()
@@ -165,6 +164,7 @@ module.exports = {
                 //sending verification and saving user
                 if(req.user.email != email)
                 {
+                    req.user.email_verified = false;
                     req.user.addEmailConfirmationHandle(req.user.email, req.app.mailer);
                     req.user.save().catch(error => console.log(error));
                 }
@@ -175,7 +175,7 @@ module.exports = {
     resendEmailVerification: function (req, res)
     {
         if(req.user.email_verified)
-            return res.status(409).json(Utils.parseStringError("This email is already verified", "email"));
+            return res.status(409).json(Utils.parseStringError("This email has already been verified", "email"));
 
         //sending response
         res.json({ status: true });

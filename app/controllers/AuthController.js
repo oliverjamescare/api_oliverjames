@@ -1,5 +1,6 @@
 //core
 const bcrypt = require('bcrypt-nodejs');
+const mongoose = require('mongoose');
 
 //services
 const Utils = require('./../services/utils');
@@ -13,18 +14,23 @@ const CareHomeWaitingUser = require("./../models/CareHomeWaitingUser").schema;
 module.exports = {
     register: function (req, res)
     {
+        //getting new user id
+	    const id = mongoose.Types.ObjectId();
+
         //cv upload
         const uploader = fileHandler(req, res);
-        uploader.singleUpload("cv", "users", [
+        uploader.singleUpload("cv", "users/" + id , [
             "application/msword",
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            "application/pdf"
+            "application/pdf",
+            "image/png",
         ], 10, (req) => req.body.first_name && req.body.surname) //only if this is carer registration request
             .then(() => locationHandler.getCustomLocation(req))
             .then((address) => {
 
                 //user
                 let user = new User({
+                    _id: id,
                     email: req.body.email,
                     password: req.body.password,
                     phone_number: req.body.phone_number,
@@ -63,7 +69,7 @@ module.exports = {
                             surname: req.body.surname,
                             middle_name: req.body.middle_name,
                             date_of_birth: req.body.date_of_birth,
-                            cv: req.file ? req.file.path : null,
+                            cv_uploads: [ req.file ? req.file.path : null ],
                             q_a_form: {
                                 criminal_record: {
                                     value: req.body[ "criminal_record_value" ],

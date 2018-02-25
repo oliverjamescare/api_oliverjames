@@ -8,8 +8,8 @@ module.exports = function(req, res)
         {
             return new  Promise((resolve, reject) => {
                 const storage = multer.diskStorage({
-                    destination: "./public/uploads/"+ path +"/",
-                    filename: (req, file, cb) => cb(null, new Date().getTime() + file.originalname)
+                    destination: "./public/uploads/"+ path + "/",
+                    filename: (req, file, cb) => cb(null, new Date().getTime() + file.originalname.replace(/\s/g, '-'))
                 });
 
                 const upload = multer({
@@ -17,11 +17,13 @@ module.exports = function(req, res)
                     limits: {
                         fileSize: 1024 * 1024 * maxFileSize
                     },
-                    fileFilter: (req, file, cb) => cb(null, allowedMimeTypes.indexOf(file.mimetype) != -1 && filterFunction(req))
+                    fileFilter: (req, file, cb) => {
+                        const valid = allowedMimeTypes.indexOf(file.mimetype) != -1 && filterFunction(req);
+                        return valid ? cb(null, true) : cb( new Error("Invalid extension. "));
+                    }
                 }).single(source);
 
-                upload(req, res,
-                    (error) => {
+                upload(req, res, (error) => {
 
                         if(error)
                         {
