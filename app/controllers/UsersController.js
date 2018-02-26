@@ -202,9 +202,6 @@ module.exports = {
 
 	updateCareHomeDetails: async function(req, res)
 	{
-	    //address handle
-	    const address = await locationHandler.getCustomLocation(req);
-
 		//profile image upload
 		const uploader = fileHandler(req, res);
 		const filePath = await uploader.handleSingleUpload("floor_plan", "users/" +  req.user._id,
@@ -220,6 +217,8 @@ module.exports = {
 	            maxFileSize: 10
             });
 
+	    //address handle
+	    const address = await locationHandler.getCustomLocation(req);
 
 		//updating values
 		req.user.phone_number = req.body.phone_number || req.user.phone_number;

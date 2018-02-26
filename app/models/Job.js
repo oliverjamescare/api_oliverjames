@@ -100,8 +100,7 @@ const schema = mongoose.Schema({
             voluntary_deduction: { //number of minutes to deduct
                 type: Number,
                 validate: validators.integer,
-                min: [0, "Voluntary deduction cannot be lower than 0."],
-				default: 0
+                min: [0, "Voluntary deduction cannot be lower than 0."]
             },
             created: {
                 type: Date,

@@ -1,4 +1,5 @@
-/** 
+
+/**
  * @api {post} /register Register
  * @apiSampleRequest /register
  * @apiVersion 0.0.1

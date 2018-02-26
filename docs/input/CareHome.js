@@ -41,7 +41,8 @@
                                     "type": "Point"
                                 },
                                 "address_line_2": null,
-                                "company": null
+                                "company": null,
+                                "link": "https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533"
                             }
                         }
                     }
@@ -114,6 +115,185 @@
         }
     ]
  }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {get} /care-home/my-jobs Care home my jobs
+ * @apiSampleRequest /care-home/my-jobs
+ * @apiVersion 0.0.1
+ * @apiName Care home my jobs
+ * @apiGroup Care Home
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {Number} [page] Page number.
+ * @apiParam {Number} [results] Results per page. Default 10.
+ *
+ * @apiSuccess (Success 200){Object} results Pagination results.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          "results": [
+ *              {
+ *                  "_id": "5a814b8deb5cee1dc0720128",
+ *                  "start_date": 1518422931942,
+ *                  "end_date": 1518425101942,
+ *                  "carer": {
+ *                      "_id": "5a6b1413599b6f3c8c7eaa8b",
+ *                      "carer": {
+ *                          "surname": "m",
+ *                          "first_name": "Adr"
+ *                      }
+ *                  }
+ *              }
+ *           ],
+ *           "pages": 1,
+ *           "total": 3
+ *
+ *      }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {post} /care-home/carers/:id/block Add carer to blocked
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Add carer to blocked
+ * @apiGroup Care Home
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Carer id.
+ *
+ * @apiSuccess (Success 200){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          "status": true
+ *      }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {delete} /care-home/carers/:id/block Remove carer from blocked
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Remove carer from blocked
+ * @apiGroup Care Home
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Carer id.
+ *
+ * @apiSuccess (Success 200){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          "status": true
+ *     }
  *
  * @apiError AccessDenied Access Denied.
  * @apiErrorExample Error-Response:

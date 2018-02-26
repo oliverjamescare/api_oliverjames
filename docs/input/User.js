@@ -110,7 +110,8 @@
                     "type": "Point"
                 },
                 "address_line_2": null,
-                "company": null
+                "company": null,
+                "link": "https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533"
             },
             "carer": {
                 "first_name": "Test",
@@ -121,6 +122,28 @@
                 "eligible_roles": [
                     "Carer",
                     "Senior Carer"
+                ]
+            },
+            "care_home": {
+                "name": "Test Test",
+                "care_service_name": "Test care home",
+                "type_of_home": "Nursing",
+                "general_guidance": {
+                    "superior_contact": "asd",
+                    "report_contact": "asd",
+                    "emergency_guidance": "sd",
+                    "notes_for_carers": "s",
+                    "parking": "test",
+                    "floor_plan": "http://localhost:8000/uploads/users/151808246323012. test.docx"
+                },
+                "gender_preference": "No preference",
+                "blocked_carers": [
+                    {
+                        "_id": "5a6b1413599b6f3c8c7eaa8b",
+                        "carer": {
+                            "first_name": "Test",
+                            "surname": "Test"
+                    }
                 ]
             }
         }
@@ -384,6 +407,86 @@
  * @apiParam {String} [company] Company address name.
  * @apiParam {String} [phone_number] Phone number.
  * @apiParam {String} [eligible_roles] Array of encoded to string eligible roles. E.g. ["Carer", "Senior Carer"]
+ *
+ * @apiSuccess (Success 200){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *         "status": true
+ *     }
+ *
+ * @apiError WrongParameters Wrong parameters.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 406 Wrong Parameters
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "phone_number",
+ *                   "message": "This phone number has already been taken"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {put} /user/care-home Change care home profile
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Change care home profile
+ * @apiGroup User
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} [name] Care home owner name.
+ * @apiParam {String} [care_service_name] Care service name.
+ * @apiParam {String} [type_of_home] Type of home.
+ * @apiParam {String} [superior_contact] General guidance -  If our carer needs to call your service, who should they speak to.
+ * @apiParam {String} [report_contact] General guidance -  Where should carer report to upon arrival.
+ * @apiParam {String} [emergency_guidance] General guidance -  Carer guidance in event of fire alarm sounding.
+ * @apiParam {String} [notes_for_carers] General guidance -  Notes on High risk / complexity residents / any other requests for our carers.
+ * @apiParam {String} [parking] General guidance -  Where to park your car.
+ * @apiParam {File} [floor_plan] General guidance -  Upload a floorplan of your care home. Max 10MB. Allowed mime types: application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf, image/png, image/jpg, image/jpeg
+ * @apiParam {String} [city] City. Required in changing address process.
+ * @apiParam {String} [postal_code] Postal code. Required in changing address process.
+ * @apiParam {String} [address_line_1] Address first line. Required in changing address process.
+ * @apiParam {String} [address_line_2] Address second line.
+ * @apiParam {String} [company] Company address name.
+ * @apiParam {String} [phone_number] Phone number.
  *
  * @apiSuccess (Success 200){Boolean} status Operation status.
  * @apiSuccessExample Success-Response:

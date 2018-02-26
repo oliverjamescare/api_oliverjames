@@ -21,7 +21,8 @@ module.exports = function(req, res)
 			const constrains = {
 				maxFileSize: settings.maxFileSize || 5,
 				allowedMimeTypes: settings.allowedMimeTypes || [],
-				fileToRemove: settings.fileToRemove || false
+				fileToRemove: settings.fileToRemove || false,
+				skipCondition: settings.skipCondition || (() => false)
 			};
 
 			const storage = multer.diskStorage({
@@ -35,11 +36,16 @@ module.exports = function(req, res)
 					fileSize: 1024 * 1024 * constrains.maxFileSize
 				},
 				fileFilter: (req, file, cb) => {
-					const valid = constrains.allowedMimeTypes.indexOf(file.mimetype) != -1;
-					return valid ? cb(null, true) : cb({ message: "Invalid mime type. Allowed mime types: " + constrains.allowedMimeTypes.join(', ') + ".", field: field });
+
+					if(constrains.skipCondition())
+						return cb(null, false);
+					else
+					{
+						const valid = constrains.allowedMimeTypes.indexOf(file.mimetype) != -1;
+						return valid ? cb(null, true) : cb({ message: "Invalid mime type. Allowed mime types: " + constrains.allowedMimeTypes.join(', ') + ".", field: field });
+					}
 				}
-			})
-				.single(field);
+			}).single(field);
 
 
 			//registers on response hook to clear upload from failed actions
