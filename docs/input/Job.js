@@ -16,7 +16,7 @@
             "_id": "5a814b8deb5cee1dc0720128",
             "start_date": 1518422931942,
             "end_date": 1518425101942,
-            "care_home": {
+            "author": {
                 "_id": "5a71b2834f1f26305c6abf2a",
                 "care_home": {
                     "care_service_name": "Test care home",
@@ -50,7 +50,36 @@
                 "report_contact": "test",
                 "superior_contact": "test"
             },
-            "notes": null
+            "notes": null,
+            "carer": {
+                "_id": "5a9404d68ce0962d6c988f97",
+                "carer": {
+                    "first_name": "Test",
+                    "surname": "Test",
+                    "dbs": {
+                        "status": "Clear",
+                        "dbs_date": 157766400000
+                    },
+                    "training_record": {
+                        "fire_safety": null,
+                        "dementia": null,
+                        "h_and_s": null,
+                        "first_aid_awareness": 1471816800000,
+                        "first_aid_and_basic_life_support": null,
+                        "infection_control": null,
+                        "medication_management": null,
+                        "manual_handling_people": null,
+                        "safeguarding": null,
+                        "qualifications": [
+                            "Nursing qualification (elsewhere)",
+                            "Agency carer induction training"
+                        ]
+                    },
+                    "profile_image": null
+                },
+                "email": "test@test.pl",
+                "phone_number": "111222111"
+            }
  *     }
  *
  * @apiError NotFound Job not found.

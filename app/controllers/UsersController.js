@@ -202,7 +202,7 @@ module.exports = {
 
 	updateCareHomeDetails: async function(req, res)
 	{
-		//profile image upload
+		//floor plan upload
 		const uploader = fileHandler(req, res);
 		const filePath = await uploader.handleSingleUpload("floor_plan", "users/" +  req.user._id,
             {

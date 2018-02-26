@@ -7,6 +7,9 @@ const mongooseAggregatePaginate = require('mongoose-aggregate-paginate');
 const validators = require('./../services/validators');
 const GeneralGuidance = require('./schemas/GeneralGuidance');
 const CarerRoles = require('./schemas/Carer').eligibleRoles;
+const ReviewSchema = require("./schemas/Review").schema;
+const ChallengeSchema = require("./schemas/Challenge").schema;
+const SummarySheetSchema = require("./schemas/SummarySheet").schema;
 
 //settings
 const statuses = {
@@ -18,7 +21,8 @@ const statuses = {
     PENDING_PAYMENT: "PENDING_PAYMENT",
     CHALLENGED: "CHALLENGED",
     PAID: "PAID",
-    PAYMENT_REJECTED: "PAYMENT_REJECTED"
+    PAYMENT_REJECTED: "PAYMENT_REJECTED",
+    CANCELLED: "CANCELLED"
 };
 
 const genderPreferences = {
@@ -27,16 +31,6 @@ const genderPreferences = {
 	NO_PREFERENCE: "No preference"
 }
 
-const reviewStatuses = {
-	PENDING: "PENDING",
-	PUBLISHED: "PUBLISHED",
-	ARCHIVED: "ARCHIVED"
-};
-
-const challengeStatuses = {
-	ACTIVE: "ACTIVE",
-	CANCELLED: "CANCELLED"
-}
 
 const schema = mongoose.Schema({
 	start_date: {
@@ -68,84 +62,9 @@ const schema = mongoose.Schema({
 			default: 0
 		},
 		created: Date,
-		summary_sheet: {
-			signature: {
-				type: String,
-				required: validators.required_if_present("assignment.summary_sheet")
-            },
-            name: {
-                type: String,
-                required: validators.required_if_present("assignment.summary_sheet"),
-                maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ]
-            },
-            position: {
-                type: String,
-                required: validators.required_if_present("assignment.summary_sheet"),
-                maxlength: [ 50, "{PATH} can't be longer than {MAXLENGTH} characters." ]
-            },
-            notes: {
-                type: String,
-                maxlength: [ 500, "{PATH} can't be longer than {MAXLENGTH} characters." ]
-            },
-			start_date: {
-				type: Date,
-                required: validators.required_if_present("assignment.summary_sheet.end_date"),
-                validate: validators.dateGreaterThanDateField("start_date")
-			},
-            end_date: {
-                type: Date,
-                required: validators.required_if_present("assignment.summary_sheet.start_date"),
-                validate: validators.dateGreaterThanDateField("start_date")
-            },
-            voluntary_deduction: { //number of minutes to deduct
-                type: Number,
-                validate: validators.integer,
-                min: [0, "Voluntary deduction cannot be lower than 0."]
-            },
-            created: {
-                type: Date,
-                required: validators.required_if_present("assignment.summary_sheet")
-            }
-		},
-		review: {
-			rate: {
-				type: Number,
-                required: validators.required_if_present("assignment.review"),
-				validate: validators.integer,
-				min: [1, "Rate cannot be lower than 1."],
-				max: [5, "Rate cannot be greater than 5."],
-			},
-			description: {
-				type: String,
-				required: validators.required_if_present("assignment.review"),
-                maxlength: [ 500, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-			},
-			status: {
-				type: String,
-                required: validators.required_if_present("assignment.review"),
-				enum: Object.values(reviewStatuses),
-			},
-			created: {
-				type: Date,
-                required: validators.required_if_present("assignment.review")
-			}
-		},
-		challenge: {
-			description: {
-                type: String,
-                required: validators.required_if_present("assignment.challenge"),
-                maxlength: [ 1000, "{PATH} can't be longer than {MAXLENGTH} characters." ],
-			},
-            status: {
-                type: String,
-                required: validators.required_if_present("assignment.challenge"),
-                enum: Object.values(challengeStatuses)
-            },
-            created: {
-                type: Date,
-                required: validators.required_if_present("assignment.challenge")
-            }
-		}
+		summary_sheet: SummarySheetSchema,
+		review: ReviewSchema,
+		challenge: ChallengeSchema
 	},
 	role: {
 		type: String,
@@ -211,6 +130,8 @@ schema.pre("save", function (next)
 		});
 	}
 
+
+
 	next();
 });
 
@@ -240,6 +161,7 @@ schema.statics.parse = function(job, req)
 		//carer
 		if(job.assignment)
 		{
+            User.parse(job.assignment.carer, req);
 			job.carer = job.assignment.carer || null;
 			delete job.assignment;
 		}
@@ -252,3 +174,4 @@ schema.plugin(mongoosePaginate);
 schema.plugin(mongooseAggregatePaginate);
 
 module.exports.schema = mongoose.model("Job", schema);
+module.exports.statuses = statuses;
