@@ -8,7 +8,8 @@
 const async = require('async');
 
 //custom
-const Job = require("./../models/Job").schema;
+const JobModel = require("./../models/Job");
+const Job = JobModel.schema;
 const JobWithdrawal = require("./../models/JobWithdrawal").schema;
 
 const fileHandler = require("../services/fileHandler");
@@ -18,7 +19,8 @@ module.exports = {
 	//all
     getJobDetails: function(req, res)
     {
-        Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 })
+    	//for all
+        const jobsQuery = Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 })
             .populate("care_home",{
                 "email": 1,
                 "phone_number": 1,
@@ -27,8 +29,35 @@ module.exports = {
                 "care_home.care_service_name": 1,
                 "care_home.type_of_home": 1,
                 "care_home.name": 1
-            })
-            .lean()
+            });
+
+        //request by care home
+		if(req.user.care_home)
+		{
+            jobsQuery
+				.populate("assignment.carer", {
+					"phone_number": 1,
+					"email": 1,
+					"carer.first_name": 1,
+					"carer.surname": 1,
+					"carer.profile_image": 1,
+					"carer.training_record.qualifications": 1,
+					"carer.training_record.safeguarding": 1,
+					"carer.training_record.manual_handling_people": 1,
+					"carer.training_record.medication_management": 1,
+					"carer.training_record.infection_control": 1,
+					"carer.training_record.first_aid_and_basic_life_support": 1,
+					"carer.training_record.first_aid_awareness": 1,
+					"carer.training_record.h_and_s": 1,
+					"carer.training_record.dementia": 1,
+					"carer.training_record.fire_safety": 1,
+					"carer.dbs.status": 1,
+					"carer.dbs.dbs_date": 1
+				});
+		}
+
+        jobsQuery
+			.lean()
             .exec((error, job) => {
 
                 if(!job)
@@ -93,6 +122,8 @@ module.exports = {
 			}
 		});
 
+		console.log(jobs[0].assignment);
+
 		//validation
 		async.parallel(
 			jobs.map(job => (callback) => {
@@ -118,8 +149,6 @@ module.exports = {
 					//updating general guidance
 					if (!validGeneralGuidance && jobs.length)
 						req.user.care_home.general_guidance = jobs[0].general_guidance;
-
-
 
 					//saving job references
 					jobs.forEach(job => req.user.care_home.jobs.push(job));
@@ -281,20 +310,100 @@ module.exports = {
         const uploader = fileHandler(req, res);
         const filePath = await uploader.handleSingleUpload("signature", "jobs/" + job._id, { allowedMimeTypes: [ "image/jpeg", "image/jpg", "image/png"], maxFileSize: 10 });
 
-	    job.assignment["summary_sheet"] = {
-		    signature: filePath,
-		    name: req.body.name,
-		    position: req.body.position,
-		    notes: req.body.notes || '',
-		    start_date: req.body.start_date,
-		    end_date: req.body.end_date
-	    };
+        job.assignment.summary_sheet = {
+            signature: filePath,
+            name: req.body.name,
+            position: req.body.position,
+            notes: req.body.notes || '',
+            start_date: req.body.start_date,
+            end_date: req.body.end_date,
+            voluntary_deduction: parseInt(req.body.voluntary_deduction) || 0,
+            created: new Date()
+        };
 
 	    //saving signature and sending response
 	    job
 		    .save()
 		    .then(() => res.json({ status: true }))
 		    .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+    },
+
+	updateJob: async function(req, res)
+	{
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
+
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+        //checking is user an author of this job
+        if(req.user._id.toString() != job.care_home.toString())
+            return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
+
+        //is job accepted
+        if(job.assignment.carer)
+            return res.status(409).json(Utils.parseStringError("You can\'t edit already accepted job", "job"));
+
+        //floor plan upload
+        const uploader = fileHandler(req, res);
+        const filePath = await uploader.handleSingleUpload("floor_plan", "users/" +  req.user._id,
+            {
+                allowedMimeTypes: [
+                    "application/msword",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "application/pdf",
+                    "image/png",
+                    "image/jpg",
+                    "image/jpeg",
+                ],
+                maxFileSize: 10
+            });
+
+        //editing fields
+        job.set({
+			start_date: req.body.start_date || job.start_date,
+			end_date: req.body.end_date || job.end_date,
+			role: req.body.role || job.role,
+            general_guidance: {
+                superior_contact: req.body.superior_contact || job.general_guidance.superior_contact,
+                report_contact: req.body.report_contact || job.general_guidance.report_contact,
+                emergency_guidance: req.body.emergency_guidance || job.general_guidance.emergency_guidance,
+                notes_for_carers: req.body.notes_for_carers || job.general_guidance.notes_for_carers,
+                parking: req.body.report_contact || job.general_guidance.parking,
+                floor_plan: filePath || job.general_guidance.floor_plan,
+			}
+		});
+
+        //saving job and sending response
+        job
+            .save()
+            .then(() => res.json({ status: true }))
+            .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+	},
+
+    cancelJob: async function(req, res)
+    {
+		//getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
+
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+        //checking is user an author of this job
+        if(req.user._id.toString() != job.care_home.toString())
+            return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
+
+        //summary sent
+        if(job.assignment.summary_sheet)
+            return res.status(409).json(Utils.parseStringError("You can\'t cancel this job, because summary sheet for this job has already been sent", "job"));
+
+        job.status = JobModel.statuses.CANCELLED;
+        job.save().catch(error => console.log(error));
+
+        //sending response
+        res.json({ status: true });
     }
 }
 

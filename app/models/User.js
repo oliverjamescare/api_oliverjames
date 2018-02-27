@@ -247,8 +247,24 @@ schema.statics.parse = function(user, req)
     }
 
     //carer
-	if(user.carer && user.carer.profile_image)
-		user.carer.profile_image = fileHandler.getFileUrl(user.carer.profile_image);
+	if(user.carer)
+    {
+        if(user.carer.profile_image)
+		    user.carer.profile_image = fileHandler.getFileUrl(user.carer.profile_image);
+
+        //training record
+        if(user.carer.training_record)
+        {
+            Object.keys(user.carer.training_record).forEach(key => {
+                if(user.carer.training_record[key] && !Array.isArray(user.carer.training_record[key]))
+                    user.carer.training_record[key] = user.carer.training_record[key].getTime();
+            });
+        }
+
+        //dbs
+        if(user.carer.dbs && user.carer.dbs.dbs_date)
+            user.carer.dbs.dbs_date = user.carer.dbs.dbs_date.getTime();
+    }
 
 	//address link
 	if(user.address && user.address.location)

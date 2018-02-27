@@ -118,12 +118,16 @@ module.exports.adult = {
     message: "You have to be adult to register."
 };
 
-module.exports.futureDate = {
-    validator: function(value)
-    {
-        return !this.isNew ? true : !value || value.getTime() >= new Date().getTime();
-    },
-    message: "{PATH} must be greater than current date."
+module.exports.futureDate = function(field)
+{
+    return {
+        validator: function (value)
+        {
+            const validationRequired = this.isNew || (this.initial[field] && value && new Date(this.initial[field]).getTime() != value.getTime()); //validates when object is new or value changed
+            return validationRequired ? !value || value.getTime() >= new Date().getTime() : true;
+        },
+        message: "{PATH} must be greater than current date."
+    }
 };
 
 module.exports.dateGreaterThanDateField = function (field)

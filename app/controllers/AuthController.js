@@ -16,6 +16,23 @@ module.exports = {
     {
         //getting new user id and preparing address
 	    const id = mongoose.Types.ObjectId();
+
+        //cv upload
+        const uploader = fileHandler(req, res);
+        const filePath = await uploader.handleSingleUpload("cv", "users/" + id , {
+            allowedMimeTypes: [
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/pdf",
+                "image/png",
+                "image/jpg",
+                "image/jpeg",
+            ],
+            maxFileSize: 10,
+            skipCondition: () => !req.body.first_name || !req.body.surname
+        });
+
+        //preparing address
 	    const address = await locationHandler.getCustomLocation(req);
 
 	    //user
@@ -44,21 +61,6 @@ module.exports = {
 	    //carer
 	    else if (req.body.first_name && req.body.surname)
 	    {
-
-		    //cv upload
-		    const uploader = fileHandler(req, res);
-		    const filePath = await uploader.handleSingleUpload("cv", "users/" + id , {
-                            allowedMimeTypes: [
-                                "application/msword",
-                                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                "application/pdf",
-                                "image/png",
-                                "image/jpg",
-                                "image/jpeg",
-                            ],
-                            maxFileSize: 10
-                        });
-
 		    try
 		    {
 			    var eligibleRoles = JSON.parse(req.body.eligible_roles)

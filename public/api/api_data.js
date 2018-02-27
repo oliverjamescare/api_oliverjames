@@ -606,6 +606,103 @@ define({ "api": [
     "groupTitle": "Auth"
   },
   {
+    "type": "post",
+    "url": "/care-home/carers/:id/block",
+    "title": "Add carer to blocked",
+    "version": "0.0.1",
+    "name": "Add_carer_to_blocked",
+    "group": "Care_Home",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Carer id.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n     \"status\": true\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/CareHome.js",
+    "groupTitle": "Care_Home"
+  },
+  {
     "type": "get",
     "url": "/care-home/calendar",
     "title": "Care home jobs calendar",
@@ -634,7 +731,116 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n   {\n       \"calendar\": [\n           {\n               \"day\": \"2018-02-12\",\n               \"jobs\": [\n                   {\n                       \"_id\": \"5a814b8deb5cee1dc0720128\",\n                       \"start_date\": 1518422931942,\n                       \"end_date\": 1518425101942,\n                       \"role\": \"Senior Carer\",\n                       \"author\": {\n                           \"_id\": \"5a71b2834f1f26305c6abf2a\",\n                           \"care_home\": {\n                               \"care_service_name\": \"Test care home\",\n                               \"type_of_home\": \"Nursing\",\n                               \"name\": \"Test Test\"\n                           },\n                           \"email\": \"test.test@test.com\",\n                           \"phone_number\": \"123456788777\",\n                           \"address\": {\n                               \"postal_code\": \"Ex8 2el\",\n                               \"city\": \"Exmouth\",\n                               \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                               \"location\": {\n                                   \"coordinates\": [\n                                       50.7583820,\n                                       19.005533\n                                   ],\n                                   \"type\": \"Point\"\n                               },\n                               \"address_line_2\": null,\n                               \"company\": null\n                           }\n                       }\n                   }\n               ]\n           },\n           {\n               \"day\": \"2018-02-13\",\n               \"jobs\": []\n           }\n       ]\n   }",
+          "content": "HTTP/1.1 200 OK\n   {\n       \"calendar\": [\n           {\n               \"day\": \"2018-02-12\",\n               \"jobs\": [\n                   {\n                       \"_id\": \"5a814b8deb5cee1dc0720128\",\n                       \"start_date\": 1518422931942,\n                       \"end_date\": 1518425101942,\n                       \"role\": \"Senior Carer\",\n                       \"author\": {\n                           \"_id\": \"5a71b2834f1f26305c6abf2a\",\n                           \"care_home\": {\n                               \"care_service_name\": \"Test care home\",\n                               \"type_of_home\": \"Nursing\",\n                               \"name\": \"Test Test\"\n                           },\n                           \"email\": \"test.test@test.com\",\n                           \"phone_number\": \"123456788777\",\n                           \"address\": {\n                               \"postal_code\": \"Ex8 2el\",\n                               \"city\": \"Exmouth\",\n                               \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                               \"location\": {\n                                   \"coordinates\": [\n                                       50.7583820,\n                                       19.005533\n                                   ],\n                                   \"type\": \"Point\"\n                               },\n                               \"address_line_2\": null,\n                               \"company\": null,\n                               \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n                           }\n                       }\n                   }\n               ]\n           },\n           {\n               \"day\": \"2018-02-13\",\n               \"jobs\": []\n           }\n       ]\n   }",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/CareHome.js",
+    "groupTitle": "Care_Home"
+  },
+  {
+    "type": "get",
+    "url": "/care-home/my-jobs",
+    "title": "Care home my jobs",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/care-home/my-jobs"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Care_home_my_jobs",
+    "group": "Care_Home",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page",
+            "description": "<p>Page number.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "results",
+            "description": "<p>Results per page. Default 10.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "results",
+            "description": "<p>Pagination results.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n     \"results\": [\n         {\n             \"_id\": \"5a814b8deb5cee1dc0720128\",\n             \"start_date\": 1518422931942,\n             \"end_date\": 1518425101942,\n             \"carer\": {\n                 \"_id\": \"5a6b1413599b6f3c8c7eaa8b\",\n                 \"carer\": {\n                     \"surname\": \"m\",\n                     \"first_name\": \"Adr\"\n                 }\n             }\n         }\n      ],\n      \"pages\": 1,\n      \"total\": 3\n\n }",
           "type": "json"
         }
       ]
@@ -726,6 +932,103 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "HTTP/1.1 200 OK\n{\n    \"carers\": [\n       {\n           \"_id\": \"5a6b1413599b6f3c8c7eaa8b\",\n           \"carer\": {\n               \"surname\": \"Test\",\n               \"first_name\": \"Test\"\n           }\n       }\n   ]\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/CareHome.js",
+    "groupTitle": "Care_Home"
+  },
+  {
+    "type": "delete",
+    "url": "/care-home/carers/:id/block",
+    "title": "Remove carer from blocked",
+    "version": "0.0.1",
+    "name": "Remove_carer_from_blocked",
+    "group": "Care_Home",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Carer id.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n     \"status\": true\n}",
           "type": "json"
         }
       ]
@@ -976,6 +1279,136 @@ define({ "api": [
   },
   {
     "type": "get",
+    "url": "/carer/jobs",
+    "title": "Carer available jobs",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/carer/jobs"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Carer_available_jobs",
+    "group": "Carer",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page",
+            "description": "<p>Page number.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "results",
+            "description": "<p>Results per page. Default 10.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "dont_meet_criteria",
+            "description": "<p>Filter which disables availability checking. Available options 1 - enabled, 0(default) - disabled.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "distance",
+            "description": "<p>Filter by distance.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "sort",
+            "description": "<p>Sort parameter. Available options: roleASC - by role ascending, roleDESC - by role descending, startDESC - by start date descending, startASC(default) - by start date ascending, endDESC - by end date descending, endASC - by end date ascending</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "results",
+            "description": "<p>Pagination results.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "   HTTP/1.1 200 OK\n{\n    \"results\": [\n        {\n           \"_id\": \"5a814b8deb5cee1dc0720128\",\n           \"start_date\": 1518422931942,\n           \"end_date\": 1518425101942,\n           \"author\": {\n               \"_id\": \"5a71b2834f1f26305c6abf2a\",\n               \"care_home\": {\n                   \"care_service_name\": \"Test care home\",\n                   \"type_of_home\": \"Nursing\",\n                   \"name\": \"Test Test\",\n               },\n               \"email\": \"test.test@test.com\",\n               \"phone_number\": \"123456788777\",\n               \"address\": {\n                   \"postal_code\": \"Ex8 2el\",\n                   \"city\": \"Exmouth\",\n                   \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                   \"location\": {\n                       \"coordinates\": [\n                           50.7583820,\n                           19.005533\n                       ],\n                       \"type\": \"Point\"\n                   },\n                   \"address_line_2\": null,\n                   \"company\": null,\n                   \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n               },\n               \"distance\": 4.25\n           },\n           \"role\": \"Senior Carer\",\n           \"conflict\": false\n       }\n    ],\n    \"pages\": 1,\n    \"total\": 3\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/Carer.js",
+    "groupTitle": "Carer"
+  },
+  {
+    "type": "get",
     "url": "/carer/calendar",
     "title": "Carer jobs calendar",
     "sampleRequest": [
@@ -1004,6 +1437,115 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "HTTP/1.1 200 OK\n   {\n       \"calendar\": [\n           {\n               \"day\": \"2018-02-12\",\n               \"jobs\": [\n                   {\n                       \"_id\": \"5a814b8deb5cee1dc0720128\",\n                       \"start_date\": 1518422931942,\n                       \"end_date\": 1518425101942,\n                       \"role\": \"Senior Carer\",\n                       \"author\": {\n                           \"_id\": \"5a71b2834f1f26305c6abf2a\",\n                           \"care_home\": {\n                               \"care_service_name\": \"Test care home\",\n                               \"type_of_home\": \"Nursing\",\n                               \"name\": \"Test Test\"\n                           },\n                           \"email\": \"test.test@test.com\",\n                           \"phone_number\": \"123456788777\",\n                           \"address\": {\n                               \"postal_code\": \"Ex8 2el\",\n                               \"city\": \"Exmouth\",\n                               \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                               \"location\": {\n                                   \"coordinates\": [\n                                       50.7583820,\n                                       19.005533\n                                   ],\n                                   \"type\": \"Point\"\n                               },\n                               \"address_line_2\": null,\n                               \"company\": null\n                           }\n                       }\n                   }\n               ]\n           },\n           {\n               \"day\": \"2018-02-13\",\n               \"jobs\": []\n           }\n       ]\n   }",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/Carer.js",
+    "groupTitle": "Carer"
+  },
+  {
+    "type": "get",
+    "url": "/carer/my-jobs",
+    "title": "Carer my jobs",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/carer/my-jobs"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Carer_my_jobs",
+    "group": "Carer",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page",
+            "description": "<p>Page number.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "results",
+            "description": "<p>Results per page. Default 10.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "results",
+            "description": "<p>Pagination results.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "   HTTP/1.1 200 OK\n{\n    \"results\": [\n        {\n           \"_id\": \"5a814b8deb5cee1dc0720128\",\n           \"start_date\": 1518422931942,\n           \"end_date\": 1518425101942,\n           \"author\": {\n               \"_id\": \"5a71b2834f1f26305c6abf2a\",\n               \"care_home\": {\n                   \"care_service_name\": \"Test care home\",\n                   \"type_of_home\": \"Nursing\",\n                   \"name\": \"Test Test\",\n               },\n               \"email\": \"test.test@test.com\",\n               \"phone_number\": \"123456788777\",\n               \"address\": {\n                   \"postal_code\": \"Ex8 2el\",\n                   \"city\": \"Exmouth\",\n                   \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                   \"location\": {\n                       \"coordinates\": [\n                           50.7583820,\n                           19.005533\n                       ],\n                       \"type\": \"Point\"\n                   },\n                   \"address_line_2\": null,\n                   \"company\": null,\n                   \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n               }\n           },\n           \"role\": \"Senior Carer\",\n           \"general_guidance\": {\n               \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012.floor_plan.docx\",\n               \"parking\": \"test\",\n               \"notes_for_carers\": \"test\",\n               \"emergency_guidance\": \"test\",\n               \"report_contact\": \"test\",\n               \"superior_contact\": \"test\"\n           },\n           \"notes\": null\n       }\n    ],\n    \"pages\": 1,\n    \"total\": 3\n}",
           "type": "json"
         }
       ]
@@ -1384,7 +1926,7 @@ define({ "api": [
             "type": "File",
             "optional": true,
             "field": "floor_plan",
-            "description": "<p>Floor plan file. Required if not already exists.</p>"
+            "description": "<p>Floor plan file. Required if not already exists. Allowed mime types: application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf, image/png, image/jpg, image/jpeg</p>"
           },
           {
             "group": "Parameter",
@@ -1554,6 +2096,13 @@ define({ "api": [
             "group": "Parameter",
             "type": "Number",
             "optional": true,
+            "field": "voluntary_deduction",
+            "description": "<p>Number of deducted minutes. Min 0.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
             "field": "start_date",
             "description": "<p>Start date of job if it was different than original. Cannot be earlier than original start date. Timestamp formatted to UTC timezone.</p>"
           },
@@ -1665,16 +2214,11 @@ define({ "api": [
     "groupTitle": "Job"
   },
   {
-    "type": "get",
-    "url": "/care-home/my-jobs",
-    "title": "Care home my jobs",
-    "sampleRequest": [
-      {
-        "url": "http://api.oliver-james.ready4s.it/api/care-home/my-jobs"
-      }
-    ],
+    "type": "put",
+    "url": "/jobs/:id/cancel",
+    "title": "Cancel job",
     "version": "0.0.1",
-    "name": "Care_home_my_jobs",
+    "name": "Cancel_job",
     "group": "Job",
     "header": {
       "fields": {
@@ -1694,37 +2238,30 @@ define({ "api": [
         "Parameter": [
           {
             "group": "Parameter",
-            "type": "Number",
-            "optional": true,
-            "field": "page",
-            "description": "<p>Page number.</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": true,
-            "field": "results",
-            "description": "<p>Results per page. Default 10.</p>"
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Job id.</p>"
           }
         ]
       }
     },
     "success": {
       "fields": {
-        "Success 200": [
+        "Success 201": [
           {
-            "group": "Success 200",
-            "type": "Object",
+            "group": "Success 201",
+            "type": "Boolean",
             "optional": false,
-            "field": "results",
-            "description": "<p>Pagination results.</p>"
+            "field": "status",
+            "description": "<p>Operation status.</p>"
           }
         ]
       },
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n     \"results\": [\n         {\n             \"_id\": \"5a814b8deb5cee1dc0720128\",\n             \"start_date\": 1518422931942,\n             \"end_date\": 1518425101942,\n             \"carer\": {\n                 \"_id\": \"5a6b1413599b6f3c8c7eaa8b\",\n                 \"carer\": {\n                     \"surname\": \"m\",\n                     \"first_name\": \"Adr\"\n                 }\n             }\n         }\n      ],\n      \"pages\": 1,\n      \"total\": 3\n\n }",
+          "content": "HTTP/1.1 200 OK\n{\n   \"status\": true\n}",
           "type": "json"
         }
       ]
@@ -1747,132 +2284,14 @@ define({ "api": [
           {
             "group": "Error 4xx",
             "optional": false,
-            "field": "ExpiredToken",
-            "description": "<p>Token expired.</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
-          "type": "json"
-        },
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
-          "type": "json"
-        },
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "docs/input/Job.js",
-    "groupTitle": "Job"
-  },
-  {
-    "type": "get",
-    "url": "/carer/jobs",
-    "title": "Carer available jobs",
-    "sampleRequest": [
-      {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/jobs"
-      }
-    ],
-    "version": "0.0.1",
-    "name": "Carer_available_jobs",
-    "group": "Job",
-    "header": {
-      "fields": {
-        "Header": [
-          {
-            "group": "Header",
-            "type": "String",
-            "optional": false,
-            "field": "X-access-token",
-            "description": "<p>Access token</p>"
-          }
-        ]
-      }
-    },
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": true,
-            "field": "page",
-            "description": "<p>Page number.</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": true,
-            "field": "results",
-            "description": "<p>Results per page. Default 10.</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": true,
-            "field": "dont_meet_criteria",
-            "description": "<p>Filter which disables availability checking. Available options 1 - enabled, 0(default) - disabled.</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": true,
-            "field": "distance",
-            "description": "<p>Filter by distance.</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": true,
-            "field": "sort",
-            "description": "<p>Sort parameter. Available options: roleASC - by role ascending, roleDESC - by role descending, startDESC - by start date descending, startASC(default) - by start date ascending, endDESC - by end date descending, endASC - by end date ascending</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "Object",
-            "optional": false,
-            "field": "results",
-            "description": "<p>Pagination results.</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "   HTTP/1.1 200 OK\n{\n    \"results\": [\n        {\n           \"_id\": \"5a814b8deb5cee1dc0720128\",\n           \"start_date\": 1518422931942,\n           \"end_date\": 1518425101942,\n           \"author\": {\n               \"_id\": \"5a71b2834f1f26305c6abf2a\",\n               \"care_home\": {\n                   \"care_service_name\": \"Test care home\",\n                   \"type_of_home\": \"Nursing\",\n                   \"name\": \"Test Test\",\n               },\n               \"email\": \"test.test@test.com\",\n               \"phone_number\": \"123456788777\",\n               \"address\": {\n                   \"postal_code\": \"Ex8 2el\",\n                   \"city\": \"Exmouth\",\n                   \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                   \"location\": {\n                       \"coordinates\": [\n                           50.7583820,\n                           19.005533\n                       ],\n                       \"type\": \"Point\"\n                   },\n                   \"address_line_2\": null,\n                   \"company\": null,\n                   \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n               },\n               \"distance\": 4.25\n           },\n           \"role\": \"Senior Carer\",\n           \"conflict\": false\n       }\n    ],\n    \"pages\": 1,\n    \"total\": 3\n}",
-          "type": "json"
-        }
-      ]
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "optional": false,
-            "field": "AccessDenied",
-            "description": "<p>Access Denied.</p>"
+            "field": "NotFound",
+            "description": "<p>Job not found.</p>"
           },
           {
             "group": "Error 4xx",
             "optional": false,
-            "field": "PermissionDenied",
-            "description": "<p>Permission Denied.</p>"
+            "field": "Conflict",
+            "description": "<p>Summary sheet already sent.</p>"
           },
           {
             "group": "Error 4xx",
@@ -1895,111 +2314,12 @@ define({ "api": [
         },
         {
           "title": "Error-Response:",
-          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
-          "type": "json"
-        }
-      ]
-    },
-    "filename": "docs/input/Job.js",
-    "groupTitle": "Job"
-  },
-  {
-    "type": "get",
-    "url": "/carer/my-jobs",
-    "title": "Carer my jobs",
-    "sampleRequest": [
-      {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/my-jobs"
-      }
-    ],
-    "version": "0.0.1",
-    "name": "Carer_my_jobs",
-    "group": "Job",
-    "header": {
-      "fields": {
-        "Header": [
-          {
-            "group": "Header",
-            "type": "String",
-            "optional": false,
-            "field": "X-access-token",
-            "description": "<p>Access token</p>"
-          }
-        ]
-      }
-    },
-    "parameter": {
-      "fields": {
-        "Parameter": [
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": true,
-            "field": "page",
-            "description": "<p>Page number.</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "Number",
-            "optional": true,
-            "field": "results",
-            "description": "<p>Results per page. Default 10.</p>"
-          }
-        ]
-      }
-    },
-    "success": {
-      "fields": {
-        "Success 200": [
-          {
-            "group": "Success 200",
-            "type": "Object",
-            "optional": false,
-            "field": "results",
-            "description": "<p>Pagination results.</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n     {\n         \"results\": [\n             {\n                \"_id\": \"5a814b8deb5cee1dc0720128\",\n                \"start_date\": 1518422931942,\n                \"end_date\": 1518425101942,\n                \"author\": {\n                    \"_id\": \"5a71b2834f1f26305c6abf2a\",\n                    \"care_home\": {\n                        \"care_service_name\": \"Test care home\",\n                        \"type_of_home\": \"Nursing\",\n                        \"name\": \"Test Test\",\n                    },\n                    \"email\": \"test.test@test.com\",\n                    \"phone_number\": \"123456788777\",\n                    \"address\": {\n                        \"postal_code\": \"Ex8 2el\",\n                        \"city\": \"Exmouth\",\n                        \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                        \"location\": {\n                            \"coordinates\": [\n                                50.7583820,\n                                19.005533\n                            ],\n                            \"type\": \"Point\"\n                        },\n                        \"address_line_2\": null,\n                        \"company\": null,\n                        \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n                    }\n                },\n                \"role\": \"Senior Carer\",\n                \"general_guidance\": {\n                    \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012.floor_plan.docx\",\n                    \"parking\": \"test\",\n                    \"notes_for_carers\": \"test\",\n                    \"emergency_guidance\": \"test\",\n                    \"report_contact\": \"test\",\n                    \"superior_contact\": \"test\"\n                },\n                \"notes\": null\n            }\n         ],\n         \"pages\": 1,\n         \"total\": 3\n     }",
-          "type": "json"
-        }
-      ]
-    },
-    "error": {
-      "fields": {
-        "Error 4xx": [
-          {
-            "group": "Error 4xx",
-            "optional": false,
-            "field": "AccessDenied",
-            "description": "<p>Access Denied.</p>"
-          },
-          {
-            "group": "Error 4xx",
-            "optional": false,
-            "field": "PermissionDenied",
-            "description": "<p>Permission Denied.</p>"
-          },
-          {
-            "group": "Error 4xx",
-            "optional": false,
-            "field": "ExpiredToken",
-            "description": "<p>Token expired.</p>"
-          }
-        ]
-      },
-      "examples": [
-        {
-          "title": "Error-Response:",
-          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "content": "HTTP/1.1 404 Job not found\n{\n     \"errors\": [\n         {\n              \"field\": \"job\",\n              \"message\": \"Job not found\"\n         }\n     ]\n }",
           "type": "json"
         },
         {
           "title": "Error-Response:",
-          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "content": "HTTP/1.1 409 Summary sheet already sent\n{\n     \"errors\": [\n         {\n              \"field\": \"job\",\n              \"message\": \"Summary sheet already sent\"\n         }\n     ]\n }",
           "type": "json"
         },
         {
@@ -2052,7 +2372,7 @@ define({ "api": [
             "type": "String",
             "optional": true,
             "field": "gender",
-            "description": "<p>Gender preference. Available options: male, female, no preference(default)</p>"
+            "description": "<p>Gender preference. Available options: Male, Female, No preference(default)</p>"
           }
         ]
       }
@@ -2241,6 +2561,199 @@ define({ "api": [
     "groupTitle": "Job"
   },
   {
+    "type": "put",
+    "url": "/jobs/:id",
+    "title": "Edit job",
+    "version": "0.0.1",
+    "name": "Edit_job",
+    "group": "Job",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Job id.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "start_date",
+            "description": "<p>Start date of job.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "end_date",
+            "description": "<p>End date of job.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "role",
+            "description": "<p>Required role of carer. Available options: Carer, Senior Carer.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "File",
+            "optional": true,
+            "field": "floor_plan",
+            "description": "<p>Floor plan file. Required if not already exists. Allowed mime types: application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf, image/png, image/jpg, image/jpeg</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "parking",
+            "description": "<p>Description about parking.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "notes_for_carers",
+            "description": "<p>Notes for carers.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "emergency_guidance",
+            "description": "<p>Emergency guidance.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "report_contact",
+            "description": "<p>Report contact info.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "superior_contact",
+            "description": "<p>Superior contact info.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 201": [
+          {
+            "group": "Success 201",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "NotFound",
+            "description": "<p>Job not found.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "WrongParameters",
+            "description": "<p>Wrong Parameters.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "Conflict",
+            "description": "<p>Accepted job.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 404 Job not found\n{\n     \"errors\": [\n         {\n              \"field\": \"job\",\n              \"message\": \"Job not found\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 406 Wrong Parameters\n{\n     \"errors\": [\n         {\n              \"field\": \"start_date\",\n              \"message\": \"Start date is required\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 409 Accepted job\n{\n     \"errors\": [\n         {\n              \"field\": \"job\",\n              \"message\": \"You can't edit already accepted job\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/Job.js",
+    "groupTitle": "Job"
+  },
+  {
     "type": "get",
     "url": "/jobs/:id",
     "title": "Job details",
@@ -2288,7 +2801,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n        \"_id\": \"5a814b8deb5cee1dc0720128\",\n        \"start_date\": 1518422931942,\n        \"end_date\": 1518425101942,\n        \"care_home\": {\n            \"_id\": \"5a71b2834f1f26305c6abf2a\",\n            \"care_home\": {\n                \"care_service_name\": \"Test care home\",\n                \"type_of_home\": \"Nursing\",\n                \"name\": \"Test Test\"\n            },\n            \"email\": \"test.test@test.com\",\n            \"phone_number\": \"123456788777\",\n            \"address\": {\n                    \"postal_code\": \"Ex8 2el\",\n                    \"city\": \"Exmouth\",\n                    \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                    \"location\": {\n                        \"coordinates\": [\n                            50.7583820,\n                            19.005533\n                        ],\n                        \"type\": \"Point\"\n                    },\n                    \"address_line_2\": null,\n                    \"company\": null,\n                    \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n                }\n        },\n        \"role\": \"Senior Carer\",\n        \"general_guidance\": {\n            \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012.floor_plan.docx\",\n            \"parking\": \"test\",\n            \"notes_for_carers\": \"test\",\n            \"emergency_guidance\": \"test\",\n            \"report_contact\": \"test\",\n            \"superior_contact\": \"test\"\n        },\n        \"notes\": null\n}",
+          "content": "HTTP/1.1 200 OK\n{\n        \"_id\": \"5a814b8deb5cee1dc0720128\",\n        \"start_date\": 1518422931942,\n        \"end_date\": 1518425101942,\n        \"author\": {\n            \"_id\": \"5a71b2834f1f26305c6abf2a\",\n            \"care_home\": {\n                \"care_service_name\": \"Test care home\",\n                \"type_of_home\": \"Nursing\",\n                \"name\": \"Test Test\"\n            },\n            \"email\": \"test.test@test.com\",\n            \"phone_number\": \"123456788777\",\n            \"address\": {\n                    \"postal_code\": \"Ex8 2el\",\n                    \"city\": \"Exmouth\",\n                    \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                    \"location\": {\n                        \"coordinates\": [\n                            50.7583820,\n                            19.005533\n                        ],\n                        \"type\": \"Point\"\n                    },\n                    \"address_line_2\": null,\n                    \"company\": null,\n                    \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n                }\n        },\n        \"role\": \"Senior Carer\",\n        \"general_guidance\": {\n            \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012.floor_plan.docx\",\n            \"parking\": \"test\",\n            \"notes_for_carers\": \"test\",\n            \"emergency_guidance\": \"test\",\n            \"report_contact\": \"test\",\n            \"superior_contact\": \"test\"\n        },\n        \"notes\": null,\n        \"carer\": {\n            \"_id\": \"5a9404d68ce0962d6c988f97\",\n            \"carer\": {\n                \"first_name\": \"Test\",\n                \"surname\": \"Test\",\n                \"dbs\": {\n                    \"status\": \"Clear\",\n                    \"dbs_date\": 157766400000\n                },\n                \"training_record\": {\n                    \"fire_safety\": null,\n                    \"dementia\": null,\n                    \"h_and_s\": null,\n                    \"first_aid_awareness\": 1471816800000,\n                    \"first_aid_and_basic_life_support\": null,\n                    \"infection_control\": null,\n                    \"medication_management\": null,\n                    \"manual_handling_people\": null,\n                    \"safeguarding\": null,\n                    \"qualifications\": [\n                        \"Nursing qualification (elsewhere)\",\n                        \"Agency carer induction training\"\n                    ]\n                },\n                \"profile_image\": null\n            },\n            \"email\": \"test@test.pl\",\n            \"phone_number\": \"111222111\"\n        }\n}",
           "type": "json"
         }
       ]
@@ -2473,6 +2986,212 @@ define({ "api": [
     },
     "filename": "docs/input/Job.js",
     "groupTitle": "Job"
+  },
+  {
+    "type": "put",
+    "url": "/user/care-home",
+    "title": "Change care home profile",
+    "version": "0.0.1",
+    "name": "Change_care_home_profile",
+    "group": "User",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "name",
+            "description": "<p>Care home owner name.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "care_service_name",
+            "description": "<p>Care service name.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "type_of_home",
+            "description": "<p>Type of home.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "superior_contact",
+            "description": "<p>General guidance -  If our carer needs to call your service, who should they speak to.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "report_contact",
+            "description": "<p>General guidance -  Where should carer report to upon arrival.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "emergency_guidance",
+            "description": "<p>General guidance -  Carer guidance in event of fire alarm sounding.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "notes_for_carers",
+            "description": "<p>General guidance -  Notes on High risk / complexity residents / any other requests for our carers.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "parking",
+            "description": "<p>General guidance -  Where to park your car.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "File",
+            "optional": true,
+            "field": "floor_plan",
+            "description": "<p>General guidance -  Upload a floorplan of your care home. Max 10MB. Allowed mime types: application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf, image/png, image/jpg, image/jpeg</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "city",
+            "description": "<p>City. Required in changing address process.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "postal_code",
+            "description": "<p>Postal code. Required in changing address process.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "address_line_1",
+            "description": "<p>Address first line. Required in changing address process.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "address_line_2",
+            "description": "<p>Address second line.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "company",
+            "description": "<p>Company address name.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "phone_number",
+            "description": "<p>Phone number.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n    \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "WrongParameters",
+            "description": "<p>Wrong parameters.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 406 Wrong Parameters\n{\n     \"errors\": [\n         {\n              \"field\": \"phone_number\",\n              \"message\": \"This phone number has already been taken\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/User.js",
+    "groupTitle": "User"
   },
   {
     "type": "put",
@@ -3236,7 +3955,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n     \"_id\": \"5a6b1413599b6f3c8c7eaa8b\",\n        \"email\": \"test.test@test.com\",\n        \"phone_number\": \"9876543211\",\n        \"email_verified\": false,\n        \"address\": {\n            \"postal_code\": \"Ex8 2el\",\n            \"city\": \"Exmouth\",\n            \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n            \"location\": {\n                \"coordinates\": [\n                    50.7583820,\n                    19.005533\n                ],\n                \"type\": \"Point\"\n            },\n            \"address_line_2\": null,\n            \"company\": null\n        },\n        \"carer\": {\n            \"first_name\": \"Test\",\n            \"surname\": \"Test\",\n            \"middle_name\": \"Test\",\n            \"profile_image\": \"http://localhost:8000/uploads/users/1519038810982test.jpg\",\n            \"max_job_distance\": 15,\n            \"eligible_roles\": [\n                \"Carer\",\n                \"Senior Carer\"\n            ]\n        }\n    }",
+          "content": "HTTP/1.1 200 OK\n{\n     \"_id\": \"5a6b1413599b6f3c8c7eaa8b\",\n        \"email\": \"test.test@test.com\",\n        \"phone_number\": \"9876543211\",\n        \"email_verified\": false,\n        \"address\": {\n            \"postal_code\": \"Ex8 2el\",\n            \"city\": \"Exmouth\",\n            \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n            \"location\": {\n                \"coordinates\": [\n                    50.7583820,\n                    19.005533\n                ],\n                \"type\": \"Point\"\n            },\n            \"address_line_2\": null,\n            \"company\": null,\n            \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n        },\n        \"carer\": {\n            \"first_name\": \"Test\",\n            \"surname\": \"Test\",\n            \"middle_name\": \"Test\",\n            \"profile_image\": \"http://localhost:8000/uploads/users/1519038810982test.jpg\",\n            \"max_job_distance\": 15,\n            \"eligible_roles\": [\n                \"Carer\",\n                \"Senior Carer\"\n            ]\n        },\n        \"care_home\": {\n            \"name\": \"Test Test\",\n            \"care_service_name\": \"Test care home\",\n            \"type_of_home\": \"Nursing\",\n            \"general_guidance\": {\n                \"superior_contact\": \"asd\",\n                \"report_contact\": \"asd\",\n                \"emergency_guidance\": \"sd\",\n                \"notes_for_carers\": \"s\",\n                \"parking\": \"test\",\n                \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012. test.docx\"\n            },\n            \"gender_preference\": \"No preference\",\n            \"blocked_carers\": [\n                {\n                    \"_id\": \"5a6b1413599b6f3c8c7eaa8b\",\n                    \"carer\": {\n                        \"first_name\": \"Test\",\n                        \"surname\": \"Test\"\n                }\n            ]\n        }\n    }",
           "type": "json"
         }
       ]

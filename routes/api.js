@@ -58,6 +58,9 @@ router.put('/jobs/:id/accept', authenticate, security(["CARER_UPDATE"]), JobsCon
 router.put('/jobs/:id/withdraw', authenticate, security(["CARER_UPDATE"]), JobsController.withdrawJob);
 router.put('/jobs/:id/decline', authenticate, security(["CARER_UPDATE"]), JobsController.declineJob);
 router.post('/jobs/:id/summary', authenticate, security(["CARER_SAVE"]), JobsController.sendSummarySheet);
+router.put('/jobs/:id', authenticate, security(["CARE_HOME_UPDATE"]), JobsController.updateJob);
+router.put('/jobs/:id/cancel', authenticate, security(["CARE_HOME_UPDATE"]), JobsController.cancelJob);
+
 
 //documentation
 router.get('/documentation', (req, res) => {
