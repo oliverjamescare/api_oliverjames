@@ -25,12 +25,11 @@ const schema = mongoose.Schema({
     },
     start_date: {
         type: Date,
-        required: [ true, "{PATH} field is required." ],
         validate: validators.dateGreaterThanDateField("start_date")
     },
     end_date: {
         type: Date,
-        required: [ true, "{PATH} field is required." ],
+        required: validators.required_if_present("start_date"),
         validate: validators.dateGreaterThanDateField("start_date")
     },
     voluntary_deduction: { //number of minutes to deduct

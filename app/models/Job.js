@@ -17,9 +17,9 @@ const statuses = {
 	EXPIRED: "EXPIRED",
 	ACCEPTED: "ACCEPTED",
 	PENDING_SUMMARY_SHEET: "PENDING_SUMMARY_SHEET",
-	SUBMITTED_SUMMARY_SHEET: "SUBMITTED_SUMMARY_SHEET",
     PENDING_PAYMENT: "PENDING_PAYMENT",
     CHALLENGED: "CHALLENGED",
+    PAYMENT_CANCELLED: "PAYMENT_CANCELLED",
     PAID: "PAID",
     PAYMENT_REJECTED: "PAYMENT_REJECTED",
     CANCELLED: "CANCELLED"
@@ -36,7 +36,7 @@ const schema = mongoose.Schema({
 	start_date: {
 		type: Date,
 		required: [ true, "{PATH} field is required." ],
-		validate: validators.futureDate,
+		validate: validators.futureDate('start_date'),
 	},
 	end_date: {
 		type: Date,
@@ -130,9 +130,13 @@ schema.pre("save", function (next)
 		});
 	}
 
-
-
 	next();
+});
+
+schema.post('init', function(job)
+{
+    if(!this.isNew)
+        job.initial = JSON.parse(JSON.stringify(job));
 });
 
 //statics
@@ -161,9 +165,8 @@ schema.statics.parse = function(job, req)
 		//carer
 		if(job.assignment)
 		{
-            User.parse(job.assignment.carer, req);
-			job.carer = job.assignment.carer || null;
-			delete job.assignment;
+			job.carer = job.assignment.carer ? User.parse(job.assignment.carer, req) : null;
+	        delete job.assignment;
 		}
     }
 

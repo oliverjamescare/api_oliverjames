@@ -18,8 +18,7 @@ module.exports = {
 	checkCarersNearArea: function (req, res)
 	{
 		locationHandler.getCustomLocation(req)
-			.then((address) =>
-			{
+			.then((address) => {
 				if (!address.location || !address.location.coordinates.length)
 					return res.json({ exists: false });
 

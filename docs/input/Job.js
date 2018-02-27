@@ -611,3 +611,180 @@
  *          ]
  *      }
  */
+
+/**
+ * @api {put} /jobs/:id Edit job
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Edit job
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Job id.
+ * @apiParam {Number} [start_date] Start date of job.
+ * @apiParam {Number} [end_date] End date of job.
+ * @apiParam {String} [role] Required role of carer. Available options: Carer, Senior Carer.
+ * @apiParam {File} [floor_plan] Floor plan file. Required if not already exists. Allowed mime types: application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf, image/png, image/jpg, image/jpeg
+ * @apiParam {String} [parking] Description about parking.
+ * @apiParam {String} [notes_for_carers] Notes for carers.
+ * @apiParam {String} [emergency_guidance] Emergency guidance.
+ * @apiParam {String} [report_contact] Report contact info.
+ * @apiParam {String} [superior_contact] Superior contact info.
+ *
+ * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *      "status": true
+ *   }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Job not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Job not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "Job not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError WrongParameters Wrong Parameters.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 406 Wrong Parameters
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "start_date",
+ *                   "message": "Start date is required"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError Conflict Accepted job.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 409 Accepted job
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "You can't edit already accepted job"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {put} /jobs/:id/cancel Cancel job
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Cancel job
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Job id.
+ *
+ * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *      "status": true
+ *   }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Job not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Job not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "Job not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError Conflict Summary sheet already sent.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 409 Summary sheet already sent
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "Summary sheet already sent"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */

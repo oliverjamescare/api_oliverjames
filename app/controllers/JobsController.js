@@ -310,14 +310,16 @@ module.exports = {
         const uploader = fileHandler(req, res);
         const filePath = await uploader.handleSingleUpload("signature", "jobs/" + job._id, { allowedMimeTypes: [ "image/jpeg", "image/jpg", "image/png"], maxFileSize: 10 });
 
-	    job.assignment["summary_sheet"] = {
-		    signature: filePath,
-		    name: req.body.name,
-		    position: req.body.position,
-		    notes: req.body.notes || '',
-		    start_date: req.body.start_date,
-		    end_date: req.body.end_date
-	    };
+        job.assignment.summary_sheet = {
+            signature: filePath,
+            name: req.body.name,
+            position: req.body.position,
+            notes: req.body.notes || '',
+            start_date: req.body.start_date,
+            end_date: req.body.end_date,
+            voluntary_deduction: parseInt(req.body.voluntary_deduction) || 0,
+            created: new Date()
+        };
 
 	    //saving signature and sending response
 	    job
@@ -374,7 +376,7 @@ module.exports = {
 		});
 
         //saving job and sending response
-        req.user
+        job
             .save()
             .then(() => res.json({ status: true }))
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
@@ -401,7 +403,7 @@ module.exports = {
         job.save().catch(error => console.log(error));
 
         //sending response
-        res.json({ status: true })
+        res.json({ status: true });
     }
 }
 
