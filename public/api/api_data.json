@@ -2989,6 +2989,232 @@
   },
   {
     "type": "put",
+    "url": "/payments/bank",
+    "title": "Add / Update bank details",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/payments/card"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Add___Update_bank_details",
+    "group": "Payments",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "token",
+            "description": "<p>Stripe source token holding bank details.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n    \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "WrongParameters",
+            "description": "<p>Wrong parameters.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 406 Wrong Parameters\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Invalid token\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/Payment.js",
+    "groupTitle": "Payments"
+  },
+  {
+    "type": "put",
+    "url": "/payments/card",
+    "title": "Add / Update card details",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/payments/card"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Add___Update_card_details",
+    "group": "Payments",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "token",
+            "description": "<p>Stripe source token holding card details.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n    \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "WrongParameters",
+            "description": "<p>Wrong parameters.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 406 Wrong Parameters\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Invalid token\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/Payment.js",
+    "groupTitle": "Payments"
+  },
+  {
+    "type": "put",
     "url": "/user/care-home",
     "title": "Change care home profile",
     "version": "0.0.1",
@@ -3955,7 +4181,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n     \"_id\": \"5a6b1413599b6f3c8c7eaa8b\",\n        \"email\": \"test.test@test.com\",\n        \"phone_number\": \"9876543211\",\n        \"email_verified\": false,\n        \"address\": {\n            \"postal_code\": \"Ex8 2el\",\n            \"city\": \"Exmouth\",\n            \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n            \"location\": {\n                \"coordinates\": [\n                    50.7583820,\n                    19.005533\n                ],\n                \"type\": \"Point\"\n            },\n            \"address_line_2\": null,\n            \"company\": null,\n            \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n        },\n        \"carer\": {\n            \"first_name\": \"Test\",\n            \"surname\": \"Test\",\n            \"middle_name\": \"Test\",\n            \"profile_image\": \"http://localhost:8000/uploads/users/1519038810982test.jpg\",\n            \"max_job_distance\": 15,\n            \"eligible_roles\": [\n                \"Carer\",\n                \"Senior Carer\"\n            ]\n        },\n        \"care_home\": {\n            \"name\": \"Test Test\",\n            \"care_service_name\": \"Test care home\",\n            \"type_of_home\": \"Nursing\",\n            \"general_guidance\": {\n                \"superior_contact\": \"asd\",\n                \"report_contact\": \"asd\",\n                \"emergency_guidance\": \"sd\",\n                \"notes_for_carers\": \"s\",\n                \"parking\": \"test\",\n                \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012. test.docx\"\n            },\n            \"gender_preference\": \"No preference\",\n            \"blocked_carers\": [\n                {\n                    \"_id\": \"5a6b1413599b6f3c8c7eaa8b\",\n                    \"carer\": {\n                        \"first_name\": \"Test\",\n                        \"surname\": \"Test\"\n                }\n            ]\n        }\n    }",
+          "content": "HTTP/1.1 200 OK\n{\n     \"_id\": \"5a6b1413599b6f3c8c7eaa8b\",\n        \"email\": \"test.test@test.com\",\n        \"phone_number\": \"9876543211\",\n        \"email_verified\": false,\n        \"address\": {\n            \"postal_code\": \"Ex8 2el\",\n            \"city\": \"Exmouth\",\n            \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n            \"location\": {\n                \"coordinates\": [\n                    50.7583820,\n                    19.005533\n                ],\n                \"type\": \"Point\"\n            },\n            \"address_line_2\": null,\n            \"company\": null,\n            \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n        },\n        \"carer\": {\n            \"first_name\": \"Test\",\n            \"surname\": \"Test\",\n            \"middle_name\": \"Test\",\n            \"profile_image\": \"http://localhost:8000/uploads/users/1519038810982test.jpg\",\n            \"max_job_distance\": 15,\n            \"eligible_roles\": [\n                \"Carer\",\n                \"Senior Carer\"\n            ],\n            \"payment_system\": {\n                \"bank_number\": \"**** **** **** 3737\"\n            }\n        },\n        \"care_home\": {\n            \"name\": \"Test Test\",\n            \"care_service_name\": \"Test care home\",\n            \"type_of_home\": \"Nursing\",\n            \"general_guidance\": {\n                \"superior_contact\": \"asd\",\n                \"report_contact\": \"asd\",\n                \"emergency_guidance\": \"sd\",\n                \"notes_for_carers\": \"s\",\n                \"parking\": \"test\",\n                \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012. test.docx\"\n            },\n            \"gender_preference\": \"No preference\",\n            \"blocked_carers\": [\n                {\n                    \"_id\": \"5a6b1413599b6f3c8c7eaa8b\",\n                    \"carer\": {\n                        \"first_name\": \"Test\",\n                        \"surname\": \"Test\"\n                }\n            ],\n            \"payment_system\": {\n                \"card_number\": \"**** **** **** 3737\"\n            }\n        }\n    }",
           "type": "json"
         }
       ]

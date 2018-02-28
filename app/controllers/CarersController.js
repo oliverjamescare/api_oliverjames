@@ -119,7 +119,8 @@ module.exports = {
 		const jobs = await Job.find({
 						start_date: { $gte:  new Date(calendar[0].day + " 00:00:00")},
 						end_date: { $lte: new Date(calendar[34].day + " 23:59:59")},
-						_id: { $in: req.user.carer.jobs }
+						_id: { $in: req.user.carer.jobs },
+        				"assignment.summary_sheet": { $exists: false }
 					},
             		{ start_date: 1, end_date: 1, care_home: 1, role: 1}
             		)

@@ -72,7 +72,10 @@ module.exports = {
                 middle_name: req.user.carer.middle_name,
                 profile_image: req.user.carer.profile_image,
                 max_job_distance: req.user.carer.max_job_distance,
-                eligible_roles: req.user.carer.eligible_roles
+                eligible_roles: req.user.carer.eligible_roles,
+                payment_system: {
+                    bank_number: req.user.carer.payment_system.bank_number || null
+                }
             }
         }
 
@@ -87,7 +90,10 @@ module.exports = {
                 type_of_home: req.user.care_home.type_of_home,
                 general_guidance: req.user.care_home.general_guidance,
                 gender_preference: req.user.care_home.gender_preference,
-                blocked_carers: req.user.care_home.blocked_carers
+                blocked_carers: req.user.care_home.blocked_carers,
+                payment_system: {
+                    card_number: req.user.care_home.payment_system.card_number || null
+                }
             }
         }
 
@@ -244,6 +250,6 @@ module.exports = {
 			.save()
 			.then(() => res.json({ status: true }))
 			.catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
-	},
+	}
 }
 

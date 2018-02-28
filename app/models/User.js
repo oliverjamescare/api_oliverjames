@@ -30,11 +30,6 @@ const statuses = {
     BLOCKED: "BLOCKED"
 };
 
-const transactionStatuses = {
-    CONFIRMED: "CONFIRMED",
-    PENDING: "PENDING",
-};
-
 const schema = mongoose.Schema({
     email: {
         type: String,
@@ -109,28 +104,6 @@ const schema = mongoose.Schema({
         default: null,
         maxlength: [ 1000, "{PATH} can't be longer than {MAXLENGTH} characters." ]
     },
-    transactions: [
-        {
-            description: {
-                type: String,
-                required: [ true, "{PATH} field is required." ],
-                maxlength: [ 500, "{PATH} can't be longer than {MAXLENGTH} characters." ]
-            },
-            amount: {
-                type: Number,
-                required: [ true, "{PATH} field is required." ]
-            },
-            status: {
-                type: String,
-                enum: Object.values(transactionStatuses),
-                default: transactionStatuses.PENDING
-            },
-            created: {
-                type: Date,
-                required: [ true, "{PATH} field is required." ]
-            }
-        }
-    ],
     status: {
         type: String,
         enum: Object.values(statuses),

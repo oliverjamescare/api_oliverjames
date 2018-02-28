@@ -1,7 +1,12 @@
+//core
 const mongoose = require('mongoose');
+
+//custom
 const validators = require('./../../services/validators');
 const GeneralGuidance = require('./GeneralGuidance');
+const transactionSchema = require("./Transaction").schema;
 
+//settings
 const homeTypes = [
     "Residential",
     "Nursing",
@@ -53,6 +58,18 @@ const schema = mongoose.Schema({
             ref: "Job",
         }
     ],
+    payment_system: {
+        customer_id: {
+            type: String,
+            default: null
+        },
+        card_number: {
+            type: String,
+            default: null
+        }
+    },
+    transactions: [ transactionSchema ]
+
 });
 
 //methods

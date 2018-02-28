@@ -122,7 +122,10 @@
                 "eligible_roles": [
                     "Carer",
                     "Senior Carer"
-                ]
+                ],
+                "payment_system": {
+                    "bank_number": "**** **** **** 3737"
+                }
             },
             "care_home": {
                 "name": "Test Test",
@@ -144,7 +147,10 @@
                             "first_name": "Test",
                             "surname": "Test"
                     }
-                ]
+                ],
+                "payment_system": {
+                    "card_number": "**** **** **** 3737"
+                }
             }
         }
  *

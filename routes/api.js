@@ -9,6 +9,7 @@ const ContactController = require('../app/controllers/ContactController');
 const CarersController = require('../app/controllers/CarersController');
 const CareHomeControler = require('../app/controllers/CareHomeController');
 const JobsController = require('../app/controllers/JobsController');
+const PaymentsController = require('../app/controllers/PaymentsController');
 
 //middlewares
 const authenticate = require('../app/middlewares/authenticate');
@@ -61,6 +62,9 @@ router.post('/jobs/:id/summary', authenticate, security(["CARER_SAVE"]), JobsCon
 router.put('/jobs/:id', authenticate, security(["CARE_HOME_UPDATE"]), JobsController.updateJob);
 router.put('/jobs/:id/cancel', authenticate, security(["CARE_HOME_UPDATE"]), JobsController.cancelJob);
 
+//Payments
+router.put('/payments/card', authenticate, security(["CARE_HOME_UPDATE"]), PaymentsController.updateCard);
+router.put('/payments/bank', authenticate, security(["CARER_UPDATE"]), PaymentsController.updateBankDetails);
 
 //documentation
 router.get('/documentation', (req, res) => {

@@ -1,6 +1,10 @@
+//core
 const mongoose = require('mongoose');
-const validators = require('./../../services/validators');
 const moment = require('moment');
+
+//custom
+const validators = require('./../../services/validators');
+const transactionSchema = require("./Transaction").schema;
 
 const eligibleRoles = {
 	CARER: "Carer",
@@ -293,7 +297,18 @@ const schema = mongoose.Schema({
             ref: "Job_withdrawal",
             required: [ true, "{PATH} field is required." ]
         }
-    ]
+    ],
+	payment_system: {
+		account_id: {
+			type: String,
+			default: null
+		},
+		bank_number: {
+			type: String,
+			default: null
+		}
+	},
+	transactions: [ transactionSchema ]
 });
 
 //methods
