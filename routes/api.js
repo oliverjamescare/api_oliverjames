@@ -41,6 +41,7 @@ router.get('/carers/nearby', CarersController.checkCarersNearArea);
 router.get('/carer/availability', authenticate, security(["CARER_READ"]), CarersController.getAvailabilityCalendar);
 router.put('/carer/availability', authenticate, security(["CARER_UPDATE"]), CarersController.updateAvailability);
 router.get('/carer/calendar', authenticate, security(["CARER_READ"]), CarersController.getCalendar);
+router.get('/carer/calendar/monthly', authenticate, security(["CARER_READ"]), CarersController.getMonthlyCalendar);
 router.get('/carer/jobs', authenticate, security(["CARER_READ"]), CarersController.getCarerAvailableJobs);
 router.get('/carer/my-jobs', authenticate, security(["CARER_READ"]), CarersController.getCarerMyJobs);
 
@@ -61,6 +62,7 @@ router.put('/jobs/:id/decline', authenticate, security(["CARER_UPDATE"]), JobsCo
 router.post('/jobs/:id/summary', authenticate, security(["CARER_SAVE"]), JobsController.sendSummarySheet);
 router.put('/jobs/:id', authenticate, security(["CARE_HOME_UPDATE"]), JobsController.updateJob);
 router.put('/jobs/:id/cancel', authenticate, security(["CARE_HOME_UPDATE"]), JobsController.cancelJob);
+router.get('/jobs/:id/other-jobs', authenticate, security(["CARER_READ"]), JobsController.getCareHomeOtherJobs);
 
 //Payments
 router.put('/payments/card', authenticate, security(["CARE_HOME_UPDATE"]), PaymentsController.updateCard);

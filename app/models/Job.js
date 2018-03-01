@@ -8,7 +8,7 @@ const validators = require('./../services/validators');
 const GeneralGuidance = require('./schemas/GeneralGuidance');
 const CarerRoles = require('./schemas/Carer').eligibleRoles;
 const ReviewSchema = require("./schemas/Review").schema;
-const ChallengeSchema = require("./schemas/Challenge").schema;
+const Challenge = require("./schemas/Challenge");
 const SummarySheetSchema = require("./schemas/SummarySheet").schema;
 
 //settings
@@ -64,7 +64,7 @@ const schema = mongoose.Schema({
 		created: Date,
 		summary_sheet: SummarySheetSchema,
 		review: ReviewSchema,
-		challenge: ChallengeSchema
+		challenge: Challenge.schema
 	},
 	role: {
 		type: String,
@@ -114,7 +114,8 @@ const schema = mongoose.Schema({
 schema.pre("save", function (next)
 {
 	this.updated = new Date();
-	if(!this.isNew && this.assignment.carer)
+
+	if(this.assignment.carer)
 	{
 		//removing decline
 		this.declines.pull(this.assignment.carer);
@@ -135,6 +136,18 @@ schema.pre("save", function (next)
 
 schema.post('init', function(job)
 {
+	//job status handle
+	if(!job.assignment.carer && job.end_date.getTime() > new Date().getTime() && job.status != statuses.CANCELLED)
+		job.status = statuses.POSTED;
+	else if(!job.assignment.carer && job.end_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
+        job.status = statuses.EXPIRED;
+    else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() > new Date().getTime() && job.status != statuses.CANCELLED)
+        job.status = statuses.ACCEPTED;
+    else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
+        job.status = statuses.PENDING_SUMMARY_SHEET;
+    else if(job.assignment.carer && job.assignment.summary_sheet && (job.assignment.summary_sheet.created.getTime() + (1000 * 60 * 60 * 24 * 3)) > new  Date().getTime() && (!job.assignment.challenge || job.assignment.challenge.status == Challenge.challengeStatuses.CANCELLED))
+        job.status = statuses.PENDING_PAYMENT;
+
     if(!this.isNew)
         job.initial = JSON.parse(JSON.stringify(job));
 });
@@ -178,3 +191,4 @@ schema.plugin(mongooseAggregatePaginate);
 
 module.exports.schema = mongoose.model("Job", schema);
 module.exports.statuses = statuses;
+module.exports.genderPreferences = genderPreferences;

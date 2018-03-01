@@ -13,6 +13,7 @@ const Job = JobModel.schema;
 const JobWithdrawal = require("./../models/JobWithdrawal").schema;
 
 const fileHandler = require("../services/fileHandler");
+const jobHandler = require('../services/jobsHandler');
 const Utils = require("../services/utils");
 
 module.exports = {
@@ -404,6 +405,28 @@ module.exports = {
 
         //sending response
         res.json({ status: true });
+    },
+
+    getCareHomeOtherJobs: async function(req, res)
+    {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
+
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+        jobHandler
+            .getNewJobs(req, job.care_home, job._id)
+            .then(async (queryConfig) => {
+
+                //pagination and parsing
+                const jobs = await Utils.paginate(Job, queryConfig, req, true);
+                let paginated = Utils.parsePaginatedResults(jobs);
+                paginated.results.map(job => Job.parse(job, req));
+
+                res.json(paginated);
+            });
     }
 }
 

@@ -11,6 +11,12 @@ const eligibleRoles = {
 	SENIOR_CARER: "Senior Carer"
 }
 
+const gender = {
+    MALE: "Male",
+    FEMALE: "Female"
+}
+
+
 //forms
 const radioText = function (radioAvailableValues)
 {
@@ -121,6 +127,11 @@ const schema = mongoose.Schema({
 		type: String,
 		default: null
 	},
+    gender: {
+        type: String,
+        enum: Object.values(gender),
+        default: null
+    },
 	max_job_distance: {
 		type: Number,
 		default: 5

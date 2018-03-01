@@ -300,6 +300,100 @@
  */
 
 /**
+ * @api {get} /carer/calendar/monthly Carer jobs calendar monthly
+ * @apiSampleRequest /carer/calendar/monthly
+ * @apiVersion 0.0.1
+ * @apiName Carer jobs calendar monthly
+ * @apiGroup Carer
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} [start_date] Formatted to string start day e.g. 2018-03-01
+ * @apiParam {String} [end_date] Formatted to string end day e.g. 2018-03-31
+ *
+ * @apiSuccessExample Success-Response:
+ *  HTTP/1.1 200 OK
+ {
+     "calendar": [
+         {
+             "day": "2018-02-12",
+             "jobs": [
+                 {
+                     "_id": "5a814b8deb5cee1dc0720128",
+                     "start_date": 1518422931942,
+                     "end_date": 1518425101942,
+                     "role": "Senior Carer",
+                     "author": {
+                         "_id": "5a71b2834f1f26305c6abf2a",
+                         "care_home": {
+                             "care_service_name": "Test care home",
+                             "type_of_home": "Nursing",
+                             "name": "Test Test"
+                         },
+                         "email": "test.test@test.com",
+                         "phone_number": "123456788777",
+                         "address": {
+                             "postal_code": "Ex8 2el",
+                             "city": "Exmouth",
+                             "address_line_1": "Elwyn Rd, Exmouth EX8 2E",
+                             "location": {
+                                 "coordinates": [
+                                     50.7583820,
+                                     19.005533
+                                 ],
+                                 "type": "Point"
+                             },
+                             "address_line_2": null,
+                             "company": null
+                         }
+                     }
+                 }
+             ]
+         },
+         {
+             "day": "2018-02-13",
+             "jobs": []
+         }
+     ]
+ }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
  * @api {get} /carer/my-jobs Carer my jobs
  * @apiSampleRequest /carer/my-jobs
  * @apiVersion 0.0.1
