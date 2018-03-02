@@ -6,7 +6,6 @@
 
 //core
 const moment = require("moment");
-const async = require("async");
 
 //custom
 const User = require("./../models/User").schema;
@@ -227,7 +226,7 @@ module.exports = {
 			leanWithId: false
 		};
 
-		const  query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } } ]};
+		const query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } } ]};
 
 		const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
 		let paginated = Utils.parsePaginatedResults(jobs);

@@ -114,6 +114,7 @@ const schema = mongoose.Schema({
 schema.pre("save", function (next)
 {
 	this.updated = new Date();
+	this.status = handleJobStatus(this);
 
 	if(this.assignment.carer)
 	{
@@ -137,17 +138,8 @@ schema.pre("save", function (next)
 schema.post('init', function(job)
 {
 	//job status handle
-	if(!job.assignment.carer && job.end_date.getTime() > new Date().getTime() && job.status != statuses.CANCELLED)
-		job.status = statuses.POSTED;
-	else if(!job.assignment.carer && job.end_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
-        job.status = statuses.EXPIRED;
-    else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() > new Date().getTime() && job.status != statuses.CANCELLED)
-        job.status = statuses.ACCEPTED;
-    else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
-        job.status = statuses.PENDING_SUMMARY_SHEET;
-    else if(job.assignment.carer && job.assignment.summary_sheet && (job.assignment.summary_sheet.created.getTime() + (1000 * 60 * 60 * 24 * 3)) > new  Date().getTime() && (!job.assignment.challenge || job.assignment.challenge.status == Challenge.challengeStatuses.CANCELLED))
-        job.status = statuses.PENDING_PAYMENT;
-
+	job.status = handleJobStatus(job);
+console.log(job.status);
     if(!this.isNew)
         job.initial = JSON.parse(JSON.stringify(job));
 });
@@ -184,6 +176,24 @@ schema.statics.parse = function(job, req)
     }
 
     return job;
+}
+
+function handleJobStatus(job)
+{
+    if(!job.assignment.carer && job.end_date.getTime() > new Date().getTime() && job.status != statuses.CANCELLED)
+        return statuses.POSTED;
+    else if(!job.assignment.carer && job.end_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
+        return statuses.EXPIRED;
+    else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() > new Date().getTime() && job.status != statuses.CANCELLED)
+        return statuses.ACCEPTED;
+    else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
+        return statuses.PENDING_SUMMARY_SHEET;
+    else if(job.assignment.carer && job.assignment.summary_sheet && (job.assignment.summary_sheet.created.getTime() + (1000 * 60 * 60 * 24 * 3)) > new  Date().getTime() && (!job.assignment.challenge || job.assignment.challenge.status == Challenge.challengeStatuses.CANCELLED))
+        return statuses.PENDING_PAYMENT;
+    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge.status == Challenge.challengeStatuses.ACTIVE)
+        return statuses.CHALLENGED;
+    else
+        return job.status;
 }
 
 schema.plugin(mongoosePaginate);

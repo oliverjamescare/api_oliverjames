@@ -129,7 +129,7 @@ const schema = mongoose.Schema({
 	},
     gender: {
         type: String,
-        enum: Object.values(gender),
+        enum: Object.values(gender).concat([null]),
         default: null
     },
 	max_job_distance: {

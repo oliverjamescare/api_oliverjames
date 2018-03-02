@@ -204,13 +204,28 @@ module.exports = {
 			if(job.assignment.carer)
                 return res.status(409).json(Utils.parseStringError("This job has already been accepted", "job"));
 
+			//expired job
+            if(job.status == JobModel.statuses.EXPIRED)
+                return res.status(409).json(Utils.parseStringError("This job is expired", "job"));
 
-			//availability failure
+            //cancelled job
+            if(job.status == JobModel.statuses.CANCELLED)
+                return res.status(409).json(Utils.parseStringError("This job is cancelled", "job"));
+
+            //availability failure
 			if(!req.user.carer.checkAvailabilityForDateRange(job.start_date, job.end_date))
                 return res.status(409).json(Utils.parseStringError("You're not available during this job. Check your availability.", "job"));
 
+			//required gender preference
+			if(job.gender_preference != JobModel.genderPreferences.NO_PREFERENCE && job.gender_preference != req.user.carer.gender)
+                return res.status(409).json(Utils.parseStringError("This job requires gender to be " + job.gender_preference + " .", "job"));
+
+			//required role
+			if(req.user.carer.eligible_roles.indexOf(job.role) == -1)
+                return res.status(409).json(Utils.parseStringError("This job requires role to be " + job.role + " .", "job"));
+
 			//finding my jobs in this time
-			Job.count({ $and: [{_id: { $in: req.user.carer.jobs }}, { start_date: { $lte: job.end_date }},  { end_date: { $gte: job.end_date }} ]})
+			Job.count({ $and: [{_id: { $in: req.user.carer.jobs }}, { start_date: { $lte: job.end_date }},  { end_date: { $gte: job.end_date }}, { 'assignment.summary_sheet': { $exists: false }} ]})
 				.then(amount => {
 					if(Boolean(amount))
                         return res.status(409).json(Utils.parseStringError("Conflict! You already have job in this time.", "job"));
@@ -237,7 +252,7 @@ module.exports = {
             if(!job)
                 return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-            if(job.assignment.carer == req.user.id)
+            if(job.assignment.carer && job.assignment.carer.toString() == req.user._id.toString())
                 return res.status(409).json(Utils.parseStringError("You can't decline previously accepted job", "job"));
 
             //sending response
@@ -270,11 +285,14 @@ module.exports = {
             if(!job)
                 return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-            if(job.assignment.carer != req.user.id)
+            if(!job.assignment.carer || (job.assignment.carer && job.assignment.carer.toString() != req.user._id.toString()))
                 return res.status(409).json(Utils.parseStringError("You are not assigned to this job", "job"));
 
             if(job.start_date.getTime() < new Date().getTime())
-                return res.status(409).json(Utils.parseStringError("You can't withdraw from a job which already started", "job"));
+                return res.status(409).json(Utils.parseStringError("You can't withdraw from job which already started", "job"));
+
+            if(job.assignment.summary_sheet)
+                return res.status(409).json(Utils.parseStringError("You can't withdraw from job which has summary sheet sent", "job"));
 
             //sending response
             res.json({ status: true });
@@ -300,8 +318,12 @@ module.exports = {
             return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
         //not your job
-        if(!req.user.carer.jobs.find(carerJobId => carerJobId == job._id.toString()))
+        if(job.assignment.carer.toString() != req.user._id.toString())
             return res.status(409).json(Utils.parseStringError("You're not assigned to this job", "job"));
+
+        //summary sheet already sent
+        if(job.assignment.status == JobModel.statuses.CANCELLED)
+            return res.status(409).json(Utils.parseStringError("This job is cancelled", "job"));
 
         //summary sheet already sent
         if(job.assignment.summary_sheet && job.assignment.summary_sheet.signature)
@@ -309,7 +331,7 @@ module.exports = {
 
         //signature upload
         const uploader = fileHandler(req, res);
-        const filePath = await uploader.handleSingleUpload("signature", "jobs/" + job._id, { allowedMimeTypes: [ "image/jpeg", "image/jpg", "image/png"], maxFileSize: 10 });
+        const filePath = await uploader.handleSingleUpload("signature", "jobs/" + job._id, { allowedMimeTypes: [ "image/jpeg", "image/jpg", "image/png" ], maxFileSize: 10 });
 
         job.assignment.summary_sheet = {
             signature: filePath,

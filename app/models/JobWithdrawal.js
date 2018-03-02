@@ -38,6 +38,7 @@ schema.pre("save", function (next)
 			user.carer.job_withdrawals.push(withdrawal);
 			user.carer.jobs.pull(withdrawal.job);
 
+			console.log(user.carer.jobs)
 			user.save().catch(error => console.log(error));
         });
 

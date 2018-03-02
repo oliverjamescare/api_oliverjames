@@ -1,8 +1,13 @@
 {
   "basepath": "migrations",
   "connection": "mongodb://localhost/OliverJames",
-  "current_timestamp": 1519824690909,
+  "current_timestamp": 1519994354924,
   "models": {
-    "User": "app/models/User.js"
+    "User": "app/models/User.js",
+    "Job": "app/models/Job.js",
+    "JobWithdrawal": "app/models/JobWithdrawal.js",
+    "Setting": "app/models/Setting.js",
+    "Admin": "app/models/Admin.js",
+    "CareHomeWaitingUser": "app/models/CareHomeWaitingUser.js"
   }
 }
