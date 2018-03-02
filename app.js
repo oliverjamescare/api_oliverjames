@@ -40,6 +40,7 @@ app.use(expressValidator({
 //loading config
 require('dotenv').config();
 require("./config/database");
+require("./config/workers-manager");
 app = require("./config/mailer").configure(app);
 
 //ROUTES CONFIG

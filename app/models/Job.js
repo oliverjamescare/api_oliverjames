@@ -139,7 +139,7 @@ schema.post('init', function(job)
 {
 	//job status handle
 	job.status = handleJobStatus(job);
-console.log(job.status);
+
     if(!this.isNew)
         job.initial = JSON.parse(JSON.stringify(job));
 });

@@ -15,11 +15,15 @@ const JobWithdrawal = require("./../models/JobWithdrawal").schema;
 const fileHandler = require("../services/fileHandler");
 const jobHandler = require('../services/jobsHandler');
 const Utils = require("../services/utils");
+const PaymentsHandler = require('../services/PaymentsHandler');
 
 module.exports = {
 	//all
     getJobDetails: function(req, res)
     {
+        const handler = new PaymentsHandler();
+        handler.calculatePaymentTime(new Date("2018-03-02 12:59:59"));
+
     	//for all
         const jobsQuery = Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 })
             .populate("care_home",{
