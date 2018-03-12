@@ -88,7 +88,7 @@ module.exports = class
         const startHourBound = 1000  * 60 * 60 * 9;
         const endHourBound = 1000 * 60 * 60 * 15;
         let summaryDateTimestamp = summaryDate.getMilliseconds() + (summaryDate.getSeconds() * 1000) + (summaryDate.getMinutes() * 60 * 1000) + (summaryDate.getHours() * 60 * 60 * 1000);
-        
+
 
         if(workingDayIndex != -1 && (summaryDateTimestamp > startHourBound && summaryDateTimestamp <= endHourBound))
         {
