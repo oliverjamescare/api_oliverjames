@@ -3092,6 +3092,13 @@
             "optional": false,
             "field": "message",
             "description": "<p>Withdrawal message explanation.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "password",
+            "description": "<p>User account password. Required when job has already been started.</p>"
           }
         ]
       }
@@ -3147,7 +3154,7 @@
             "group": "Error 4xx",
             "optional": false,
             "field": "Conflict",
-            "description": "<p>You can't withdraw from a job which already started.</p>"
+            "description": "<p>You can't withdraw from job which has summary sheet sent.</p>"
           },
           {
             "group": "Error 4xx",
@@ -3180,7 +3187,7 @@
         },
         {
           "title": "Error-Response:",
-          "content": "HTTP/1.1 409 You can't withdraw from a job which already started\n{\n     \"errors\": [\n         {\n              \"field\": \"job\",\n              \"message\": \"You can't withdraw from a job which already started\"\n         }\n     ]\n }",
+          "content": "HTTP/1.1 409 You can't withdraw from job which has summary sheet sent\n{\n     \"errors\": [\n         {\n              \"field\": \"job\",\n              \"message\": \"You can't withdraw from job which has summary sheet sent\"\n         }\n     ]\n }",
           "type": "json"
         },
         {

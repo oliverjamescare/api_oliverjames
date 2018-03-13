@@ -6,6 +6,7 @@
 
 //core
 const async = require('async');
+const bcrypt = require('bcrypt-nodejs');
 
 //custom
 const JobModel = require("./../models/Job");
@@ -21,8 +22,8 @@ module.exports = {
 	//all
     getJobDetails: function(req, res)
     {
-        const handler = new PaymentsHandler();
-        handler.calculatePaymentTime(new Date("2018-03-02 12:59:59"));
+        // const handler = new PaymentsHandler();
+        // handler.calculatePaymentTime(new Date("2018-03-02 12:59:59"));
 
     	//for all
         const jobsQuery = Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 })
@@ -292,24 +293,46 @@ module.exports = {
             if(!job.assignment.carer || (job.assignment.carer && job.assignment.carer.toString() != req.user._id.toString()))
                 return res.status(409).json(Utils.parseStringError("You are not assigned to this job", "job"));
 
-            if(job.start_date.getTime() < new Date().getTime())
-                return res.status(409).json(Utils.parseStringError("You can't withdraw from job which already started", "job"));
-
             if(job.assignment.summary_sheet)
                 return res.status(409).json(Utils.parseStringError("You can't withdraw from job which has summary sheet sent", "job"));
 
-            //sending response
-            res.json({ status: true });
+            if(job.start_date.getTime() < new Date().getTime())
+            {
+                bcrypt.compare(req.body["password"], req.user.password, (error, status) =>
+                {
+                    //wrong password
+                    if (!status)
+                        return res.status(406).json(Utils.parseStringError("Wrong password", "password"));
 
-            //adding new withdrawal
-            JobWithdrawal.findOne({ carer: req.user._id , job: job._id }, (error,  withdrawal) => {
-            	if(!withdrawal)
-				{
-					let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job, message: req.body.message });
-                    jobWithdrawal.save().catch(error => console.log(error));
-				}
-			});
-        })
+
+                    //sending response
+                    res.json({ status: true });
+
+                    //adding new withdrawal
+                    JobWithdrawal.findOne({ carer: req.user._id , job: job._id }, (error,  withdrawal) => {
+                        if(!withdrawal)
+                        {
+                            let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job, message: req.body.message });
+                            jobWithdrawal.save().catch(error => console.log(error));
+                        }
+                    });
+                });
+            }
+            else
+            {
+                //sending response
+                res.json({ status: true });
+
+                //adding new withdrawal
+                JobWithdrawal.findOne({ carer: req.user._id , job: job._id }, (error,  withdrawal) => {
+                    if(!withdrawal)
+                    {
+                        let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job, message: req.body.message });
+                        jobWithdrawal.save().catch(error => console.log(error));
+                    }
+                });
+            }
+        });
     },
 
     sendSummarySheet: async function(req, res)
@@ -369,8 +392,8 @@ module.exports = {
             return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
 
         //is job accepted
-        if(job.assignment.carer)
-            return res.status(409).json(Utils.parseStringError("You can\'t edit already accepted job", "job"));
+        if(job.assignment.carer && ((req.body.start_date && req.body.start_date != job.start_date) || (req.body.end_date && req.body.end_date != job.end_date)))
+            return res.status(409).json(Utils.parseStringError("You can\'t edit dates in job which has already been accepted", "job"));
 
         //floor plan upload
         const uploader = fileHandler(req, res);

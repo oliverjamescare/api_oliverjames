@@ -4,7 +4,7 @@ const { spawn } = require('child_process');
 //config
 const workersPath = "/../app/workers/";
 const registeredWorkers = [
-	"job-processor"
+	//"job-processor"
 ];
 
 //registering workers as separate processes

@@ -74,7 +74,7 @@ module.exports = {
 			    carer: {
 				    first_name: req.body.first_name,
 				    surname: req.body.surname,
-				    middle_name: req.body.middle_name,
+				    middle_name: req.body.middle_name || null,
 				    date_of_birth: req.body.date_of_birth,
 				    cv_uploads: [ filePath ],
 				    q_a_form: {

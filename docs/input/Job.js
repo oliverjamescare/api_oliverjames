@@ -207,6 +207,7 @@
  * @apiHeader {String} X-access-token Access token
  * @apiParam {String} id Job id
  * @apiParam {String} message Withdrawal message explanation.
+ * @apiParam {String} [password] User account password. Required when job has already been started.
  *
  * @apiSuccess (Success 200){Boolean} status Operation status.
  * @apiSuccessExample Success-Response:
@@ -263,14 +264,14 @@
  *          ]
  *      }
  *
- * @apiError Conflict You can't withdraw from a job which already started.
+ * @apiError Conflict You can't withdraw from job which has summary sheet sent.
  * @apiErrorExample Error-Response:
- *     HTTP/1.1 409 You can't withdraw from a job which already started
+ *     HTTP/1.1 409 You can't withdraw from job which has summary sheet sent
  *     {
  *          "errors": [
  *              {
  *                   "field": "job",
- *                   "message": "You can't withdraw from a job which already started"
+ *                   "message": "You can't withdraw from job which has summary sheet sent"
  *              }
  *          ]
  *      }
