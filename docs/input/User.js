@@ -242,7 +242,7 @@
  * @apiGroup User
  *
  * @apiHeader {String} X-access-token Access token
- * @apiParam {File} profile_image Profile image file.
+ * @apiParam {File} profile_image Profile image file. Avaliable mime types: image/png, image/jpeg. Max file size 5MB.
  *
  * @apiSuccess (Success 200){Boolean} status Operation status.
  * @apiSuccessExample Success-Response:

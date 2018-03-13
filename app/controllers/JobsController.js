@@ -278,11 +278,11 @@ module.exports = {
     withdrawJob: function(req, res)
     {
     	//validation
-        let errors;
-        req.check("message").notEmpty().withMessage('Message field is required.').isLength({ max: 200 }).withMessage('Message cannot be longer than 200 characters.');
-
-        if (errors = req.validationErrors())
-            return res.status(406).json({ errors: errors });
+        // let errors;
+        // req.check("message").notEmpty().withMessage('Message field is required.').isLength({ max: 200 }).withMessage('Message cannot be longer than 200 characters.');
+        //
+        // if (errors = req.validationErrors())
+         //    return res.status(406).json({ errors: errors });
 
         Job.findOne({ _id: req.params.id }, (error, job) => {
 
@@ -476,6 +476,47 @@ module.exports = {
 
                 res.json(paginated);
             });
+    },
+
+    reviewJob: async function (req, res)
+    {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
+
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+        //checking is user an author of this job
+        if(req.user._id.toString() != job.care_home.toString())
+            return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
+
+        const availableStatuses = [
+            JobModel.statuses.PAID,
+            JobModel.statuses.PAYMENT_REJECTED,
+            JobModel.statuses.PAYMENT_CANCELLED
+        ];
+
+        //not payment stadium
+        if(availableStatuses.indexOf(job.status) == -1)
+            return res.status(409).json(Utils.parseStringError("This job cannot be rated", "job"));
+
+        //review exists
+        if(job.assignment.review)
+            return res.status(409).json(Utils.parseStringError("Carer of this job has already been rated.", "carer"));
+
+
+        job.assignment.review = {
+            rate: req.body.rate,
+            description: req.body.description
+        };
+
+        //saving review and sending response
+        job
+            .save()
+            .then(() => res.json({ status: true }))
+            .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     }
+
 }
 

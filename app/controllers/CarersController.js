@@ -233,5 +233,20 @@ module.exports = {
 		paginated.results.map(job => Job.parse(job, req));
 
 		res.json(paginated);
-	}
+	},
+
+    getNotificationsSettings: function (req, res)
+    {
+        res.json(req.user.carer.silent_notifications_settings);
+    },
+
+    updateNotificationsSettings: function (req, res)
+    {
+        req.user.carer.silent_notifications_settings = req.body;
+
+        req.user
+            .save()
+            .then(() => res.json({ status: true }))
+            .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+    }
 }

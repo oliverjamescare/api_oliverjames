@@ -137,11 +137,11 @@ schema.pre("save", function (next)
 
 schema.post('init', function(job)
 {
-	//job status handle
-	job.status = handleJobStatus(job);
-
     if(!this.isNew)
         job.initial = JSON.parse(JSON.stringify(job));
+
+    //job status handle
+    job.status = handleJobStatus(job);
 });
 
 //statics
@@ -152,8 +152,8 @@ schema.statics.parse = function(job, req)
 	    const fileHandler = require("../services/fileHandler")(req);
 		const User = require('./User').schema;
 
-        // job.start_date = job.start_date.getTime();
-        // job.end_date = job.end_date.getTime();
+        job.start_date = job.start_date.getTime();
+        job.end_date = job.end_date.getTime();
 
         //guidance link
         if(job.general_guidance && job.general_guidance.floor_plan)

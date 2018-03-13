@@ -39,6 +39,31 @@ module.exports.filled = {
 	message: "{PATH} cannot be empty."
 };
 
+module.exports.greaterThan = function (path)
+{
+    return {
+        validator: function (value)
+        {
+            if(/\./.test(path))
+            {
+                const fields = path.split(".");
+                let fieldValue = 0;
+                let field = this;
+
+                fields.forEach(fieldname => {
+
+                    field = field[fieldname];
+                    if(Number.isInteger(field))
+                        fieldValue = parseInt(field);
+                });
+
+                return value >= fieldValue;
+            }
+        },
+        message: "{PATH} cannot be lower than " + path + "."
+    };
+}
+
 module.exports.password = function (regexp, message)
 {
 	return {

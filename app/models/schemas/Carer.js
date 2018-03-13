@@ -319,7 +319,53 @@ const schema = mongoose.Schema({
 			default: null
 		}
 	},
-	transactions: [ transactionSchema ]
+	transactions: [ transactionSchema ],
+	silent_notifications_settings: {
+		from: {
+			type: Number,
+            validate: validators.integer,
+            min: [0, "{PATH} cannot be lower than {MIN}."],
+            max: [1440, "{PATH} cannot be greater than {MAX}."],
+			default: 0
+		},
+        to: {
+            type: Number,
+            validate: [ validators.integer, validators.greaterThan("silent_notifications_settings.from")],
+            min: [0, "{PATH} cannot be lower than {MIN}."],
+            max: [1440, "{PATH} cannot be greater than {MAX}."],
+            default: 0
+        },
+		days: {
+			monday: {
+				type: Boolean,
+				default: false
+			},
+            tuesday: {
+                type: Boolean,
+                default: false
+            },
+            wednesday: {
+                type: Boolean,
+                default: false
+            },
+            thursday: {
+                type: Boolean,
+                default: false
+            },
+            friday: {
+                type: Boolean,
+                default: false
+            },
+            saturday: {
+                type: Boolean,
+                default: false
+            },
+            sunday: {
+                type: Boolean,
+                default: false
+            }
+		}
+	}
 });
 
 //methods

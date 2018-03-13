@@ -584,3 +584,143 @@
  *          ]
  *      }
  */
+
+/**
+ * @api {get} /carer/notifications Carer notifications settings
+ * @apiSampleRequest /carer/notifications
+ * @apiVersion 0.0.1
+ * @apiName Carer notifications settings
+ * @apiGroup Carer
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          "from": 20,
+ *          "to": 1440,
+ *          "days": {
+ *              "monday": false,
+ *              "tuesday": false,
+ *              "wednesday": true,
+ *              "thursday": false,
+ *              "friday": false,
+ *              "saturday": false,
+ *              "sunday": true
+ *          }
+ *    }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {put} /carer/notifications Carer notifications settings update
+ * @apiSampleRequest /carer/notifications
+ * @apiVersion 0.0.1
+ * @apiName Carer notifications settings update
+ * @apiGroup Carer
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParamExample {json} Request-Example:
+ *     {
+ *          "from": 20,
+ *          "to": 1440,
+ *          "days": {
+ *              "monday": false,
+ *              "tuesday": false,
+ *              "wednesday": true,
+ *              "thursday": false,
+ *              "friday": false,
+ *              "saturday": false,
+ *              "sunday": true
+ *          }
+ *    }
+
+ * @apiSuccess {Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *        "status": true
+ *     }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError WrongParameters Wrong Parameters.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 406 Wrong Parameters
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "carer.silent_notifications_settings.to",
+ *                   "message": "Silent notifications settings to cannot be greater than 1440."
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
