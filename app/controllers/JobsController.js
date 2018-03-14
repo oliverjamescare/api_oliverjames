@@ -12,6 +12,7 @@ const bcrypt = require('bcrypt-nodejs');
 const JobModel = require("./../models/Job");
 const Job = JobModel.schema;
 const JobWithdrawal = require("./../models/JobWithdrawal").schema;
+const reviewStatuses = require("./../models/schemas/Review").reviewStatuses;
 
 const fileHandler = require("../services/fileHandler");
 const jobHandler = require('../services/jobsHandler');
@@ -41,25 +42,53 @@ module.exports = {
 		if(req.user.care_home)
 		{
             jobsQuery
-				.populate("assignment.carer", {
-					"phone_number": 1,
-					"email": 1,
-					"carer.first_name": 1,
-					"carer.surname": 1,
-					"carer.profile_image": 1,
-					"carer.training_record.qualifications": 1,
-					"carer.training_record.safeguarding": 1,
-					"carer.training_record.manual_handling_people": 1,
-					"carer.training_record.medication_management": 1,
-					"carer.training_record.infection_control": 1,
-					"carer.training_record.first_aid_and_basic_life_support": 1,
-					"carer.training_record.first_aid_awareness": 1,
-					"carer.training_record.h_and_s": 1,
-					"carer.training_record.dementia": 1,
-					"carer.training_record.fire_safety": 1,
-					"carer.dbs.status": 1,
-					"carer.dbs.dbs_date": 1
-				});
+				.populate({
+                    path: "assignment.carer",
+                    select: {
+                        "phone_number": 1,
+                        "email": 1,
+                        "carer.first_name": 1,
+                        "carer.surname": 1,
+                        "carer.profile_image": 1,
+                        "carer.training_record.qualifications": 1,
+                        "carer.training_record.safeguarding": 1,
+                        "carer.training_record.manual_handling_people": 1,
+                        "carer.training_record.medication_management": 1,
+                        "carer.training_record.infection_control": 1,
+                        "carer.training_record.first_aid_and_basic_life_support": 1,
+                        "carer.training_record.first_aid_awareness": 1,
+                        "carer.training_record.h_and_s": 1,
+                        "carer.training_record.dementia": 1,
+                        "carer.training_record.fire_safety": 1,
+                        "carer.dbs.status": 1,
+                        "carer.dbs.dbs_date": 1,
+                        "carer.reviews": 1,
+                        "carer.care_experience": 1,
+                        "carer.jobs": 1,
+                    },
+                    populate: {
+                        path: 'carer.jobs',
+                        select: {
+                            'assignment.review.created': 1,
+                            'assignment.review.description': 1,
+                            'assignment.review.rate': 1,
+                            'care_home': 1
+                        },
+                        match: { 'assignment.review': { $exists: true }, 'assignment.review.status': reviewStatuses.PUBLISHED },
+                        populate: {
+                            path: 'care_home',
+                            select: {
+                                "email": 1,
+                                "phone_number": 1,
+                                "address": 1,
+                                "care_home": 1,
+                                "care_home.care_service_name": 1,
+                                "care_home.type_of_home": 1,
+                                "care_home.name": 1
+                            }
+                        }
+                    }
+                })
 		}
 
         jobsQuery
@@ -243,8 +272,6 @@ module.exports = {
 					job.assignment.created = new Date();
 					job.save().catch(error => console.log(error))
 
-                    req.user.carer.jobs.push(job);
-                    req.user.save().catch(error => console.log(error))
 				});
 		})
     },
@@ -364,7 +391,7 @@ module.exports = {
             signature: filePath,
             name: req.body.name,
             position: req.body.position,
-            notes: req.body.notes || '',
+            notes: req.body.notes || null,
             start_date: req.body.start_date,
             end_date: req.body.end_date,
             voluntary_deduction: parseInt(req.body.voluntary_deduction) || 0,

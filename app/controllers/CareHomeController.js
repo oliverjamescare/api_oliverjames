@@ -84,7 +84,9 @@ module.exports = {
 					path: "assignment.carer",
 					select: {
 						"carer.first_name": 1,
-						"carer.surname": 1
+						"carer.surname": 1,
+						"carer.reviews": 1,
+						"carer.care_experience": 1
 					}
 				}
 			],

@@ -176,9 +176,11 @@ module.exports = {
             {
                 //generating tokens, updating user and sending response
                 user.generateAccessTokens();
-                user.save().catch(error => console.log(error));
+                user.addDeviceHandle(req.body.device_id, req.body.device_token).then(() => {
 
-                return res.json({ user: prepareLoginResponse(user) });
+                    user.save().catch(error => console.log(error));
+                    return res.json({ user: prepareLoginResponse(user) });
+                });
             }
             //password verification
             else
@@ -191,9 +193,11 @@ module.exports = {
 
                     //generating tokens, updating user and sending response
                     user.generateAccessTokens();
-                    user.save().catch(error => console.log(error));
+                    user.addDeviceHandle(req.body.device_id, req.body.device_token).then(() => {
 
-                    return res.json({ user: prepareLoginResponse(user) });
+                        user.save().catch(error => console.log(error));
+                        return res.json({ user: prepareLoginResponse(user) });
+                    });
                 });
             }
         });

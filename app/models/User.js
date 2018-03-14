@@ -4,6 +4,7 @@ const uniqueValidator = require('mongoose-unique-validator');
 const mongoosePaginate = require('mongoose-paginate');
 const randomstring = require("randomstring");
 const JWT = require('jsonwebtoken');
+const async = require('async');
 const config = process.env;
 
 //custom
@@ -104,6 +105,16 @@ const schema = mongoose.Schema({
         default: null,
         maxlength: [ 1000, "{PATH} can't be longer than {MAXLENGTH} characters." ]
     },
+    device: {
+        device_id: {
+            type: String,
+            default: null
+        },
+        device_token: {
+            type: String,
+            default: null
+        }
+    },
     status: {
         type: String,
         enum: Object.values(statuses),
@@ -141,7 +152,60 @@ schema.pre("save", function(next)
     if(!this.address.location.coordinates.length)
         this.address.location = undefined;
 
-    next();
+    //for carer
+    if(this.carer)
+    {
+        //carer experience
+        const Job = require('./Job').schema;
+        const reviewStatuses = require('./schemas/Review').reviewStatuses;
+
+        async.parallel({
+            care_experience: (callback) => {
+                Job.aggregate([
+                    { $match: { _id: { $in: this.carer.jobs }, 'assignment.summary_sheet': { $exists: true } } },
+                    {
+                        $group: {
+                            _id: { month: { $month: '$start_date' }, year: { $year: '$start_date' }},
+                            count: { $sum: 1 }
+                        }
+                    }
+                ], (errors, results) => callback(null, results));
+            },
+            reviews: (callback) => {
+                Job.aggregate([
+                    { $match: { _id: { $in: this.carer.jobs }, 'assignment.review': { $exists: true }, 'assignment.review.status': reviewStatuses.PUBLISHED } },
+                    {
+                        $group: {
+                            _id: null,
+                            count: { $sum: 1 },
+                            average: { $avg: '$assignment.review.rate' }
+                        }
+                    }
+                ], (errors, results) => callback(null, results));
+            }
+        }, (errors, results) => {
+
+            //care exp calculation
+            const activeMonths = results.care_experience.length;
+            const joiningMonths = (this.carer.joining_care_experience.years * 12) + this.carer.joining_care_experience.months;
+            const totalMonths = activeMonths + joiningMonths;
+
+            this.carer.care_experience.years = Math.floor(totalMonths / 12);
+            this.carer.care_experience.months = totalMonths % 12;
+
+            //reviews calculation
+            if(results.reviews.length)
+            {
+                this.carer.reviews.count = results.reviews[0].count;
+                this.carer.reviews.average = results.reviews[0].average;
+            }
+
+            next();
+        })
+
+    }
+    else
+        next();
 });
 
 //methods
@@ -201,6 +265,26 @@ schema.methods.addPasswordRemindHandle = function(mailer)
     }, (error) => console.log(error));
 }
 
+schema.methods.addDeviceHandle = function(deviceId, deviceToken)
+{
+    return new Promise((resolve) => {
+        if(deviceId && deviceToken)
+        {
+            //logout all devices with that id
+            mongoose.model("User", schema)
+                .update({"device.device_id": deviceId }, { $set: { 'device.device_id': null, 'device.device_token': null }}, { multi: true })
+                .then(() => {
+                    this.device.device_id = deviceId || null;
+                    this.device.device_token = deviceToken || null;
+
+                    resolve();
+                });
+        }
+        else
+            resolve();
+    });
+}
+
 //statics
 schema.statics.parse = function(user, req)
 {
@@ -237,6 +321,12 @@ schema.statics.parse = function(user, req)
         //dbs
         if(user.carer.dbs && user.carer.dbs.dbs_date)
             user.carer.dbs.dbs_date = user.carer.dbs.dbs_date.getTime();
+
+        if(user.carer.jobs)
+        {
+            const Job = require("./Job").schema;
+            user.carer.jobs.map(job => Job.parse(job));
+        }
     }
 
 	//address link

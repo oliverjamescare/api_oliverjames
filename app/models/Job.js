@@ -122,13 +122,13 @@ schema.pre("save", function (next)
 		this.declines.pull(this.assignment.carer);
 		const job = this;
 
+		//adding job to carer if doesn't exists
 		const User = require('./User').schema;
 		User.findOne({ _id: job.assignment.carer }, (error, user) => {
 			if(user.carer.jobs.indexOf(job._id) == -1)
-			{
 				user.carer.jobs.push(job);
-				user.save().catch(error => console.log(error));
-			}
+
+			user.save().catch(error => console.log(error)); // trigger save to automatically handle care exp and reviews calculation
 		});
 	}
 
@@ -152,8 +152,12 @@ schema.statics.parse = function(job, req)
 	    const fileHandler = require("../services/fileHandler")(req);
 		const User = require('./User').schema;
 
-        job.start_date = job.start_date.getTime();
-        job.end_date = job.end_date.getTime();
+		//dates
+		if(job.start_date)
+        	job.start_date = job.start_date.getTime();
+
+		if(job.end_date)
+       		job.end_date = job.end_date.getTime();
 
         //guidance link
         if(job.general_guidance && job.general_guidance.floor_plan)
@@ -167,12 +171,22 @@ schema.statics.parse = function(job, req)
             delete job.care_home;
 		}
 
-		//carer
 		if(job.assignment)
 		{
-			job.carer = job.assignment.carer ? User.parse(job.assignment.carer, req) : null;
+			//carer
+			if(job.assignment.carer)
+				job.carer = job.assignment.carer ? User.parse(job.assignment.carer, req) : null;
+
+			//review
+			if(job.assignment.review)
+			{
+                job.assignment.review.created = job.assignment.review.created.getTime();
+                job.review = job.assignment.review;
+            }
+
 	        delete job.assignment;
 		}
+
     }
 
     return job;

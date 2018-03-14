@@ -101,6 +101,8 @@
  * @apiParam {String} [email] Email address. Required with password.
  * @apiParam {String} [password] User password. Required with email.
  * @apiParam {String} [refresh_token] Token required to handle auth refresh. Required when email and password  is not sent.
+ * @apiParam {String} [device_id] Device id
+ * @apiParam {String} [device_token] Device token - Firebase token required for push notifications.
  *
  * @apiSuccess (Success 200){String} token Access token.
  * @apiSuccessExample Success-Response:

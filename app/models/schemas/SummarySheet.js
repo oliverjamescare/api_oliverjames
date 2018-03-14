@@ -21,7 +21,8 @@ const schema = mongoose.Schema({
     },
     notes: {
         type: String,
-        maxlength: [ 500, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        maxlength: [ 500, "{PATH} can't be longer than {MAXLENGTH} characters." ],
+        default: null
     },
     start_date: {
         type: Date,

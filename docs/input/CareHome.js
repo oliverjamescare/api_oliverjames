@@ -176,9 +176,17 @@
  *                  "carer": {
  *                      "_id": "5a6b1413599b6f3c8c7eaa8b",
  *                      "carer": {
- *                          "surname": "m",
- *                          "first_name": "Adr"
- *                      }
+ *                          "surname": "Test",
+ *                          "first_name": "Test",
+ *                          "care_experience": {
+ *                              "months": 2,
+ *                              "years": 1
+ *                          },
+ *                          "reviews": {
+ *                              "average": 5,
+ *                              "count": 1
+ *                          }
+ *                      },
  *                  }
  *              }
  *           ],

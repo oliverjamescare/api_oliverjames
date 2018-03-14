@@ -244,6 +244,26 @@ const schema = mongoose.Schema({
 			default: 0
 		}
 	},
+	care_experience: {
+        years: {
+            type: Number,
+            default: 1
+        },
+		months: {
+            type: Number,
+            default: 0
+		}
+	},
+    reviews: {
+        count: {
+            type: Number,
+            default: 0
+        },
+        average: {
+            type: Number,
+            default: 0
+        }
+    },
 	dbs: {
 		dbs_date: {
 			type: Date,

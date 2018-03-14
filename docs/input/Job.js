@@ -56,6 +56,41 @@
                 "carer": {
                     "first_name": "Test",
                     "surname": "Test",
+                    "jobs": [
+                        {
+                            "_id": "5a95290a1e28cd1d88ea64cd",
+                            "author": {
+                                "_id": "5a9419d8e33cb930aa7c3856",
+                                "care_home": {
+                                    "care_service_name": "Test Care  Home",
+                                    "type_of_home": "Residential",
+                                    "name": "Test Test"
+                                },
+                                "email": "test.test@test.com",
+                                "phone_number": "3545232323",
+                                "address": {
+                                    "postal_code": "Ex8 2el",
+                                    "city": "Exmouth",
+                                    "address_line_1": "Elwyn Rd, Exmouth EX8 2E",
+                                    "location": {
+                                        "coordinates": [
+                                            50.7583820,
+                                            19.005533
+                                        ],
+                                        "type": "Point"
+                                    },
+                                    "address_line_2": null,
+                                    "company": null,
+                                    "link": "https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533"
+                                }
+                            },
+                            "review": {
+                                "created": 1520957549836,
+                                "description": "Great work",
+                                "rate": 5
+                            }
+                        }
+                    ],
                     "dbs": {
                         "status": "Clear",
                         "dbs_date": 157766400000
@@ -75,7 +110,15 @@
                             "Agency carer induction training"
                         ]
                     },
-                    "profile_image": null
+                    "profile_image": null,
+                    "care_experience": {
+                        "months": 2,
+                        "years": 1
+                    },
+                    "reviews": {
+                        "average": 5,
+                        "count": 1
+                    }
                 },
                 "email": "test@test.pl",
                 "phone_number": "111222111"
