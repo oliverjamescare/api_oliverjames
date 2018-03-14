@@ -249,7 +249,7 @@
  *
  * @apiHeader {String} X-access-token Access token
  * @apiParam {String} id Job id
- * @apiParam {String} message Withdrawal message explanation.
+ * @apiParam {String} [message] Withdrawal message explanation. Required when job hasn't started yet.
  * @apiParam {String} [password] User account password. Required when job has already been started.
  *
  * @apiSuccess (Success 200){Boolean} status Operation status.
@@ -918,6 +918,84 @@
  *              {
  *                   "field": "job",
  *                   "message": "Job not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {put} /jobs/:id/carer/review Review job carer
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Review job carer
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Job id.
+ *
+ * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *      "status": true
+ *   }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Job not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Job not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "Job not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError Conflict Carer of this job has already been rated
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 409 Carer of this job has already been rated
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "Carer of this job has already been rated"
  *              }
  *          ]
  *      }

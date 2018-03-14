@@ -6,6 +6,7 @@
 
 //core
 const moment = require("moment");
+const async = require("async");
 
 //custom
 const User = require("./../models/User").schema;
@@ -248,5 +249,52 @@ module.exports = {
             .save()
             .then(() => res.json({ status: true }))
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
-    }
+    },
+
+    getHomeScreenDetails: async function(req, res)
+	{
+        async.parallel({
+			nearestJob: (callback) => {
+
+                Job.find({ $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } } ]})
+                .sort({ start_date: 1 })
+                .limit(1)
+				.exec()
+                .then(results => callback(null, results));
+
+			},
+			jobs24: (callback) => {
+
+                let tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
+                Job.count({ $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } }, { start_date: { $gte: new Date() } }, { start_date: { $lte: tomorrow } } ]})
+					.exec()
+                    .then(results => callback(null, results));
+			},
+			newJobs: (callback) => {
+                jobHandler
+                    .getNewJobs(req)
+                    .then(async (queryConfig) => {
+
+                        let pipeline = queryConfig.query.pipeline();
+                        pipeline.push({ $count: 'jobs' });
+
+                        const newJobs = await Job.aggregate(pipeline).exec();
+                        callback(null, newJobs);
+                    });
+			}
+		}, (errors, results) => {
+
+        	//sending response
+        	const response = {
+                reviews: req.user.carer.reviews,
+				nextJobStartDate: results.nearestJob.length ? results.nearestJob[0].start_date.getTime(): null,
+				jobs24: results.jobs24,
+				newJobs: results.newJobs.length ? results.newJobs[0].jobs : 0
+			}
+
+            res.json(response);
+		});
+	}
 }

@@ -26,7 +26,7 @@ const schema = mongoose.Schema({
     },
     start_date: {
         type: Date,
-        validate: validators.dateGreaterThanDateField("start_date")
+        validate: validators.required_if_present("end_date")
     },
     end_date: {
         type: Date,

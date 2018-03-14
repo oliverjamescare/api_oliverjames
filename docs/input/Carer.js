@@ -724,3 +724,60 @@
  *          ]
  *      }
  */
+
+/**
+ * @api {get} /carer/home Carer home screen
+ * @apiSampleRequest /carer/home
+ * @apiVersion 0.0.1
+ * @apiName Carer home screen
+ * @apiGroup Carer
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *           "reviews": {
+ *              "count": 1,
+ *              "average": 5
+ *          },
+ *          "nextJobStartDate": 1521136000000,
+ *          "jobs24": 0,
+ *          "newJobs": 1
+ *    }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */

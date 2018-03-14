@@ -46,6 +46,7 @@ router.get('/carer/jobs', authenticate, security(["CARER_READ"]), CarersControll
 router.get('/carer/my-jobs', authenticate, security(["CARER_READ"]), CarersController.getCarerMyJobs);
 router.get('/carer/notifications', authenticate, security(["CARER_READ"]), CarersController.getNotificationsSettings);
 router.put('/carer/notifications', authenticate, security(["CARER_UPDATE"]), CarersController.updateNotificationsSettings);
+router.get('/carer/home', authenticate, security(["CARER_READ"]), CarersController.getHomeScreenDetails);
 
 //Care Home
 router.get('/care-home/calendar', authenticate, security(["CARE_HOME_READ"]), CareHomeControler.getCalendar);

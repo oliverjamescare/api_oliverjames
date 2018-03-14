@@ -68,13 +68,15 @@ module.exports = {
                     },
                     populate: {
                         path: 'carer.jobs',
+                        match: { 'assignment.review': { $exists: true }, 'assignment.review.status': reviewStatuses.PUBLISHED },
+                        sort: { 'assignment.review.created': "DESC" },
+                        limit: 10,
                         select: {
                             'assignment.review.created': 1,
                             'assignment.review.description': 1,
                             'assignment.review.rate': 1,
                             'care_home': 1
                         },
-                        match: { 'assignment.review': { $exists: true }, 'assignment.review.status': reviewStatuses.PUBLISHED },
                         populate: {
                             path: 'care_home',
                             select: {
@@ -304,13 +306,6 @@ module.exports = {
 
     withdrawJob: function(req, res)
     {
-    	//validation
-        // let errors;
-        // req.check("message").notEmpty().withMessage('Message field is required.').isLength({ max: 200 }).withMessage('Message cannot be longer than 200 characters.');
-        //
-        // if (errors = req.validationErrors())
-         //    return res.status(406).json({ errors: errors });
-
         Job.findOne({ _id: req.params.id }, (error, job) => {
 
             //not found
@@ -331,7 +326,6 @@ module.exports = {
                     if (!status)
                         return res.status(406).json(Utils.parseStringError("Wrong password", "password"));
 
-
                     //sending response
                     res.json({ status: true });
 
@@ -339,7 +333,7 @@ module.exports = {
                     JobWithdrawal.findOne({ carer: req.user._id , job: job._id }, (error,  withdrawal) => {
                         if(!withdrawal)
                         {
-                            let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job, message: req.body.message });
+                            let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job });
                             jobWithdrawal.save().catch(error => console.log(error));
                         }
                     });
@@ -347,6 +341,13 @@ module.exports = {
             }
             else
             {
+                //validation
+                let errors;
+                req.check("message").notEmpty().withMessage('Message field is required.').isLength({ max: 200 }).withMessage('Message cannot be longer than 200 characters.');
+
+                if (errors = req.validationErrors())
+                   return res.status(406).json({ errors: errors });
+
                 //sending response
                 res.json({ status: true });
 
@@ -526,7 +527,7 @@ module.exports = {
 
         //not payment stadium
         if(availableStatuses.indexOf(job.status) == -1)
-            return res.status(409).json(Utils.parseStringError("This job cannot be rated", "job"));
+            return res.status(409).json(Utils.parseStringError("This job cannot be rated yet.", "job"));
 
         //review exists
         if(job.assignment.review)

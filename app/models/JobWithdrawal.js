@@ -14,8 +14,8 @@ const schema = mongoose.Schema({
     },
     message: {
         type: String,
-        required: [ true, "{PATH} field is required." ],
-        maxlength: [ 350, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        maxlength: [ 350, "{PATH} can't be longer than {MAXLENGTH} characters." ],
+        default: null
     },
 	created: {
 		type: Date,
@@ -38,7 +38,6 @@ schema.pre("save", function (next)
 			user.carer.job_withdrawals.push(withdrawal);
 			user.carer.jobs.pull(withdrawal.job);
 
-			console.log(user.carer.jobs)
 			user.save().catch(error => console.log(error));
         });
 
