@@ -340,12 +340,6 @@ const schema = mongoose.Schema({
 		}
 	},
 	transactions: [ transactionSchema ],
-    notifications: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Notification"
-        }
-    ],
 	silent_notifications_settings: {
 		from: {
 			type: Number,

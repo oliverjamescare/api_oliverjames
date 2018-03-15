@@ -281,7 +281,13 @@ schema.methods.addDeviceHandle = function(deviceId, deviceToken)
                 });
         }
         else
+        {
+            //logout this device
+            this.device.device_id = null;
+            this.device.device_token = null;
+
             resolve();
+        }
     });
 }
 

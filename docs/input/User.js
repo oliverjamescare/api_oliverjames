@@ -549,3 +549,46 @@
  *          ]
  *      }
  */
+
+/**
+ * @api {put} /user/notifications/token Update notifications token
+ * @apiSampleRequest /user/notifications/token
+ * @apiVersion 0.0.1
+ * @apiName Update notifications token
+ * @apiGroup User
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} [device_id] Device id. Null or not present value clears field.
+ * @apiParam {String} [device_token] Device token - Firebase token required for push notifications. Null or not present value clears field.
+ *
+ * @apiSuccess (Success 200){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *         "status": true
+ *     }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */

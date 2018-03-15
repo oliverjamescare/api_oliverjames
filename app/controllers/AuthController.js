@@ -176,11 +176,9 @@ module.exports = {
             {
                 //generating tokens, updating user and sending response
                 user.generateAccessTokens();
-                user.addDeviceHandle(req.body.device_id, req.body.device_token).then(() => {
+                user.save().catch(error => console.log(error));
 
-                    user.save().catch(error => console.log(error));
-                    return res.json({ user: prepareLoginResponse(user) });
-                });
+                return res.json({ user: prepareLoginResponse(user) });
             }
             //password verification
             else
@@ -193,11 +191,9 @@ module.exports = {
 
                     //generating tokens, updating user and sending response
                     user.generateAccessTokens();
-                    user.addDeviceHandle(req.body.device_id, req.body.device_token).then(() => {
+                    user.save().catch(error => console.log(error));
 
-                        user.save().catch(error => console.log(error));
-                        return res.json({ user: prepareLoginResponse(user) });
-                    });
+                    return res.json({ user: prepareLoginResponse(user) });
                 });
             }
         });

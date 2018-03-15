@@ -18,6 +18,8 @@ const fileHandler = require("../services/fileHandler");
 const jobHandler = require('../services/jobsHandler');
 const Utils = require("../services/utils");
 const PaymentsHandler = require('../services/PaymentsHandler');
+const NotificationsHandler = require('../services/NotificationsHandler');
+const QueuesHandler = require('./../services/QueuesHandler');
 
 module.exports = {
 	//all
@@ -25,6 +27,10 @@ module.exports = {
     {
         // const handler = new PaymentsHandler();
         // handler.calculatePaymentTime(new Date("2018-03-02 12:59:59"));
+
+        const handler = new NotificationsHandler();
+        const a = handler.isSilent(req.user.carer.silent_notifications_settings);
+
 
     	//for all
         const jobsQuery = Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 })
@@ -419,9 +425,7 @@ module.exports = {
         if(req.user._id.toString() != job.care_home.toString())
             return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
 
-        //is job accepted
-        if(job.assignment.carer && ((req.body.start_date && req.body.start_date != job.start_date) || (req.body.end_date && req.body.end_date != job.end_date)))
-            return res.status(409).json(Utils.parseStringError("You can\'t edit dates in job which has already been accepted", "job"));
+
 
         //floor plan upload
         const uploader = fileHandler(req, res);
@@ -453,10 +457,34 @@ module.exports = {
 			}
 		});
 
+        //is job accepted
+        if(job.assignment.carer && (new Date(job.initial.start_date).getTime() != job.start_date.getTime() || job.end_date.getTime() != new Date(job.initial.end_date).getTime()))
+            return res.status(409).json(Utils.parseStringError("You can\'t edit dates in job which has already been accepted", "job"));
+
         //saving job and sending response
         job
             .save()
-            .then(() => res.json({ status: true }))
+            .then(() => {
+
+                //checking changes
+                let jobChanged = false;
+                if(
+                    job.role != job.initial.role ||
+                    job.general_guidance.superior_contact != job.initial.general_guidance.superior_contact ||
+                    job.general_guidance.report_contact != job.initial.general_guidance.report_contact ||
+                    job.general_guidance.emergency_guidance != job.initial.general_guidance.emergency_guidance ||
+                    job.general_guidance.notes_for_carers != job.initial.general_guidance.notes_for_carers ||
+                    job.general_guidance.parking != job.initial.general_guidance.parking ||
+                    job.general_guidance.floor_plan != job.initial.general_guidance.floor_plan
+                )
+                    jobChanged = true;
+
+                //sending notification
+                if(job.assignment.carer && jobChanged)
+                    QueuesHandler.publish({ user_id: job.assignment.carer, job_id: job._id, type: "JOB_MODIFIED" }, { exchange: "notifications", queue: "notifications" })
+
+                res.json({ status: true })
+            })
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
 	},
 
@@ -477,8 +505,19 @@ module.exports = {
         if(job.assignment.summary_sheet)
             return res.status(409).json(Utils.parseStringError("You can\'t cancel this job, because summary sheet for this job has already been sent", "job"));
 
+        //summary sent
+        if(job.status == JobModel.statuses.CANCELLED)
+            return res.status(409).json(Utils.parseStringError("This job has already been cancelled", "job"));
+
         job.status = JobModel.statuses.CANCELLED;
-        job.save().catch(error => console.log(error));
+        job.save()
+            .then(job => {
+
+                //sending notification
+                if(job.assignment.carer)
+                    QueuesHandler.publish({ user_id: job.assignment.carer, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
+            })
+            .catch(error => console.log(error));
 
         //sending response
         res.json({ status: true });

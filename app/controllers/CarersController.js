@@ -244,6 +244,7 @@ module.exports = {
     updateNotificationsSettings: function (req, res)
     {
         req.user.carer.silent_notifications_settings = req.body;
+        console.log(req.headers);
 
         req.user
             .save()

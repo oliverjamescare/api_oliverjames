@@ -306,20 +306,6 @@ define({ "api": [
             "optional": true,
             "field": "refresh_token",
             "description": "<p>Token required to handle auth refresh. Required when email and password  is not sent.</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": true,
-            "field": "device_id",
-            "description": "<p>Device id</p>"
-          },
-          {
-            "group": "Parameter",
-            "type": "String",
-            "optional": true,
-            "field": "device_token",
-            "description": "<p>Device token - Firebase token required for push notifications.</p>"
           }
         ]
       }
@@ -4737,6 +4723,104 @@ define({ "api": [
           "content": "HTTP/1.1 409 Email is already confirmed\n{\n     \"errors\": [\n         {\n              \"field\": \"email\",\n              \"message\": \"Email is already confirmed\"\n         }\n     ]\n }",
           "type": "json"
         },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/input/User.js",
+    "groupTitle": "User"
+  },
+  {
+    "type": "put",
+    "url": "/user/notifications/token",
+    "title": "Update notifications token",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/user/notifications/token"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Update_notifications_token",
+    "group": "User",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "device_id",
+            "description": "<p>Device id. Null or not present value clears field.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "device_token",
+            "description": "<p>Device token - Firebase token required for push notifications. Null or not present value clears field.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n    \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
         {
           "title": "Error-Response:",
           "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",

@@ -36,21 +36,4 @@ const schema = mongoose.Schema({
     }
 }, { usePushEach: true });
 
-//middlewares
-schema.pre("save", function(next)
-{
-    if(this.isNew)
-    {
-        //saving notification in carer
-        const User = require('./User').schema;
-        User.findOne({ _id: this.carer, carer: { $exists: true } } ).then(user => {
-
-            user.carer.notifications.push(this);
-            user.save().catch(error => console.log(error));
-        });
-    }
-
-    next();
-});
-
 module.exports.schema = mongoose.model("Notification", schema);

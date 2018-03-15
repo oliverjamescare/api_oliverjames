@@ -32,6 +32,7 @@ router.post('/user/email/verification', authenticate, UsersController.resendEmai
 router.put('/user/profile-image', authenticate, security(["CARER_UPDATE"]), UsersController.updateProfileImage);
 router.put('/user/care-home', authenticate, security(["CARE_HOME_UPDATE"]), UsersController.updateCareHomeDetails);
 router.put('/user/carer', authenticate, security(["CARER_UPDATE"]), UsersController.updateCarerDetails);
+router.put('/user/notifications/token', authenticate, UsersController.updateNotificationTokens);
 
 //Contact
 router.post('/contact', ContactController.sendContactMessage);

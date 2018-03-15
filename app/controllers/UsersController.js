@@ -250,6 +250,16 @@ module.exports = {
 			.save()
 			.then(() => res.json({ status: true }))
 			.catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
-	}
+	},
+
+    updateNotificationTokens: function(req, res)
+    {
+        req.user
+            .addDeviceHandle(req.body.device_id, req.body.device_token)
+            .then(() => req.user.save())
+            .catch(error => console.log(error));
+
+        res.json({ status: true });
+    }
 }
 
