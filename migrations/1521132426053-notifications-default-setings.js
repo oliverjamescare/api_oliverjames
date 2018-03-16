@@ -1,7 +1,8 @@
 exports.up = function(next)
 {
 
-  this.model("Setting").schema.create({
+  const Setting  = this.model("Setting").schema;
+  const setting = new Setting({
       type: "notifications",
       value: {
           preferred: {
@@ -41,11 +42,13 @@ exports.up = function(next)
               lessThanFourHours: 5
           }
       }
-  }, () => {
+  });
 
-    console.log("Done!")
-    next();
-  })
+  setting.save(() => {
+      console.log("Done!")
+      next();
+  });
+
 };
 
 exports.down = function(next) {

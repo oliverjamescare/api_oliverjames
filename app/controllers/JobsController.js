@@ -15,7 +15,7 @@ const JobWithdrawal = require("./../models/JobWithdrawal").schema;
 const reviewStatuses = require("./../models/schemas/Review").reviewStatuses;
 
 const fileHandler = require("../services/fileHandler");
-const jobHandler = require('../services/jobsHandler');
+const JobHandler = require('../services/JobsHandler');
 const Utils = require("../services/utils");
 const PaymentsHandler = require('../services/PaymentsHandler');
 const NotificationsHandler = require('../services/NotificationsHandler');
@@ -28,8 +28,8 @@ module.exports = {
         // const handler = new PaymentsHandler();
         // handler.calculatePaymentTime(new Date("2018-03-02 12:59:59"));
 
-        const handler = new NotificationsHandler();
-        const a = handler.isSilent(req.user.carer.silent_notifications_settings);
+        // const handler = new NotificationsHandler();
+        // const a = handler.isSilent(req.user.carer.silent_notifications_settings);
 
 
     	//for all
@@ -201,10 +201,10 @@ module.exports = {
 		);
 	},
 
-    checkCarersToContact: function(req, res)
+    checkCarersToContact: async function(req, res)
     {
         //getting job objects
-        let jobs = [], jobsObjects = [];
+        let jobsObjects = [];
         const gender = req.query.gender;
 
         try {
@@ -212,23 +212,27 @@ module.exports = {
         }
         catch (error) {}
 
-        jobsObjects.forEach(jobObject => {
+        const jobs = await Promise.all(jobsObjects.map(async jobObject => {
            if(jobObject._id && jobObject.start_date && jobObject.end_date && jobObject.role)
            {
-                const job = {
+                let job = {
                     _id: jobObject._id,
-                    start_date: jobObject.start_date,
-                    end_date: jobObject.end_date,
+                    start_date: jobObject.start_date || 0,
+                    end_date: jobObject.end_date || 0,
                     amount: jobObject.amount || 1,
                     role: jobObject.role,
                     notes: jobObject.notes || null,
                     priority_carers: jobObject.priority_carers || [],
-                    carersToContact: 10
+                    gender_preference: Object.values(JobModel.genderPreferences).indexOf(gender) != -1 ? gender : JobModel.genderPreferences.NO_PREFERENCE
                 }
 
-                jobs.push(job);
+                const availableCarers = await JobHandler.getAvailableCarers(job, req.user);
+                job["carersToContact"] = availableCarers.length;
+
+                return job;
            }
-        });
+        }));
+
 
         return res.json({ jobs });
     },
@@ -532,7 +536,7 @@ module.exports = {
         if(!job)
             return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-        jobHandler
+        JobHandler
             .getNewJobs(req, job.care_home, job._id)
             .then(async (queryConfig) => {
 

@@ -31,6 +31,13 @@ const genderPreferences = {
 	NO_PREFERENCE: "No preference"
 }
 
+//job notifications
+const jobNotificationStatuses = {
+	SCHEDULED: "SCHEDULED",
+	SENT: "SENT",
+	DUPLICATE: "DUPLICATE",
+	CARER_UNAVAILABLE: "CARER_UNAVAILABLE"
+};
 
 const schema = mongoose.Schema({
 	start_date: {
@@ -92,6 +99,27 @@ const schema = mongoose.Schema({
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
+        }
+    ],
+    notifications: [
+        {
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+			},
+            group: {
+                type: String,
+                required: [ true, "{PATH} field is required." ]
+            },
+            time: {
+                type: Date,
+                required: [ true, "{PATH} field is required." ]
+            },
+			status: {
+            	type: String,
+				enum: Object.values(jobNotificationStatuses),
+				default: jobNotificationStatuses.SCHEDULED
+			},
         }
     ],
     status: {

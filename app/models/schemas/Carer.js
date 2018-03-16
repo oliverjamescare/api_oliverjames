@@ -393,7 +393,6 @@ schema.methods.checkAvailabilityForDateRange = function(start, end)
 {
 	let available = true;
 	const dayShifts = this.getAllDayShiftsInRange(start, end);
-	console.log(dayShifts);
 
 	dayShifts.forEach(dayShift => {
 		const availability = this.getAvailabilitySetForDay(new Date(dayShift.day + " 00:00:00"));

@@ -14,7 +14,8 @@ const JobModel = require("./../models/Job");
 const Job = JobModel.schema;
 const Utils = require("../services/utils");
 const locationHandler = require('../services/locationHandler');
-const jobHandler = require('../services/jobsHandler');
+const jobHandler = require('../services/JobsHandler');
+const CarersHandler = require('../services/CarersHandler');
 
 module.exports = {
 	checkCarersNearArea: function (req, res)
@@ -24,31 +25,10 @@ module.exports = {
 				if (!address.location || !address.location.coordinates.length)
 					return res.json({ exists: false });
 
-				//finding carers near area
-				User.aggregate([
-					{
-						$geoNear: {
-							near: address.location.coordinates,
-							distanceField: "distance",
-							distanceMultiplier: 3963.2,
-							limit: 1,
-							spherical: true,
-							query: {
-								carer: { $exists: true }
-							}
-						}
-					},
-					{
-						$project: {
-							"carer.max_job_distance": 1,
-							"distance": 1,
-							"distanceArea": { "$subtract": [ "$carer.max_job_distance", "$distance" ] },
-						}
-					},
-					{
-						$match: { "distanceArea": { $gte: 0 } }
-					}
-				]).then((results) => res.json({ exists: Boolean(results.length) }));
+
+                CarersHandler
+					.getAvailableCarersNearby(address.location.coordinates)
+					.then((results) => res.json({ exists: Boolean(results.length) }));
 			});
 	},
 
