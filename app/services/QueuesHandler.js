@@ -2,13 +2,19 @@
 const amqp = require('amqplib').connect('amqp://localhost');
 const randomstring = require("randomstring");
 
-//config
-const prefix = "base_";
+
+function getPrefix()
+{
+    //config
+    const config = process.env;
+    return (config.QUEUES_PREFIX || "base") + "_";
+}
 
 module.exports = {
 	publish: function(data, settings = { } )
 	{
 		//preparing config
+		const prefix = getPrefix();
 		const config = {
 			queue: prefix + (settings.queue || ''),
 			exchange: prefix + (settings.exchange || 'main'),
@@ -27,6 +33,7 @@ module.exports = {
 	subscribe: function (callback, settings = {} )
 	{
 		//preparing config
+        const prefix = getPrefix();
 		const config = {
 			queue: prefix + (settings.queue || ''),
 			exchange: prefix + (settings.exchange || 'main'),
@@ -56,6 +63,7 @@ module.exports = {
 	publishSubscribe: function (data, callback, settings = {} )
 	{
 		//preparing config
+        const prefix = getPrefix();
 		const config = {
 			queue: prefix + (settings.queue || 'rpc_queue'),
 			correlation_id: randomstring.generate(32),
@@ -87,6 +95,7 @@ module.exports = {
 	subscribeReply: function (callback, settings = {} )
 	{
 		//preparing config
+        const prefix = getPrefix();
 		const config = {
 			queue: prefix + (settings.queue || 'rpc_queue')
 		};

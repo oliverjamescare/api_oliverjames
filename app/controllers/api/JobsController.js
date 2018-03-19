@@ -149,7 +149,7 @@ module.exports = {
 						care_home: req.user._id,
 						role: jobObject.role,
 						notes: jobObject.notes,
-						gender_preference: req.body.gender_preference,
+                        gender_preference: Object.values(JobModel.genderPreferences).indexOf(req.body.gender_preference) != -1 ? req.body.gender_preference : JobModel.genderPreferences.NO_PREFERENCE,
 						general_guidance: {
 							superior_contact: validGeneralGuidance ? req.body.superior_contact || req.user.care_home.general_guidance.superior_contact : req.body.superior_contact,
 							report_contact: validGeneralGuidance ? req.body.report_contact || req.user.care_home.general_guidance.report_contact : req.body.report_contact,
@@ -587,6 +587,22 @@ module.exports = {
             .save()
             .then(() => res.json({ status: true }))
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+    },
+
+
+    testNotification: async function(req, res)
+    {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
+
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+        QueuesHandler.publish({ user_id: req.user._id, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
+
+        //sending response
+        res.json({ status: true });
     }
 
 }

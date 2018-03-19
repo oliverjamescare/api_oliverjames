@@ -255,9 +255,7 @@ module.exports = {
                     users.filter(user => user.carer.checkAvailabilityForDateRange(new Date(job.start_date), new Date(job.end_date)));
                     resolve(users)
                 });
-
             });
         });
-
     }
 }

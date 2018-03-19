@@ -69,6 +69,9 @@ router.put('/jobs/:id/cancel', authenticate, security(["CARE_HOME_UPDATE"]), Job
 router.get('/jobs/:id/other-jobs', authenticate, security(["CARER_READ"]), JobsController.getCareHomeOtherJobs);
 router.post('/jobs/:id/carer/review', authenticate, security(["CARE_HOME_SAVE"]), JobsController.reviewJob);
 
+
+router.post('/jobs/:id/notification/test', authenticate, security(["CARER_READ"]), JobsController.testNotification); //TO REMOVE
+
 //Payments
 router.put('/payments/card', authenticate, security(["CARE_HOME_UPDATE"]), PaymentsController.updateCard);
 router.put('/payments/bank', authenticate, security(["CARER_UPDATE"]), PaymentsController.updateBankDetails);

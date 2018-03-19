@@ -2836,7 +2836,7 @@
             "type": "String",
             "optional": false,
             "field": "jobs",
-            "description": "<p>Parsed to string job objects e.g [{ &quot;_id&quot;: &quot;72837ydasdasd&quot;, &quot;start_date&quot;: 1518436800000, &quot;end_date&quot;: 1518436900000, &quot;amount&quot; : 1, &quot;role&quot;: &quot;Carer&quot; },{ &quot;_id&quot;: &quot;72837ydasdasd&quot;, &quot;start_date&quot;: 1518436800000, &quot;end_date&quot;: 1518436900000, &quot;role&quot;: &quot;Senior Carer&quot;}]</p>"
+            "description": "<p>Parsed to string job objects e.g [{ &quot;_id&quot;: &quot;5a814b8deb5cee1dc0720128&quot;, &quot;start_date&quot;: 1518436800000, &quot;end_date&quot;: 1518436900000, &quot;amount&quot; : 1, &quot;role&quot;: &quot;Carer&quot;, &quot;priority_carers&quot;: [ &quot;5a814b8deb5cee1dc0720128&quot; ] }]</p>"
           },
           {
             "group": "Parameter",
@@ -2863,7 +2863,7 @@
       "examples": [
         {
           "title": "Success-Response:",
-          "content": " HTTP/1.1 200 OK\n{\n    \"jobs\": [\n       {\n           \"_id\": \"sasdasda\",\n           \"start_date\": 1521126000000,\n           \"end_date\": 1521127000000,\n           \"amount\": 10,\n           \"role\": \"Carer\",\n           \"notes\": \"\",\n           \"priority_carers\": [],\n           \"carersToContact\": 10\n       },\n       {\n           \"_id\": \"sasdasda\",\n           \"start_date\": 1521127000000,\n           \"end_date\": 1521128000000,\n           \"amount\": 1,\n           \"role\": \"Senior Carer\",\n           \"notes\": \"\",\n           \"priority_carers\": [],\n           \"carersToContact\": 10\n       }\n   ]\n}",
+          "content": " HTTP/1.1 200 OK\n{\n    \"jobs\": [\n       {\n           \"_id\": \"5a814b8deb5cee1dc0720128\",\n           \"start_date\": 1521126000000,\n           \"end_date\": 1521127000000,\n           \"amount\": 10,\n           \"role\": \"Carer\",\n           \"notes\": \"\",\n           \"priority_carers\": [\n               \"5a814b8deb5cee1dc0720128\"\n           ],\n           \"gender_preference\": \"No preference\"\n           \"carersToContact\": 10\n       }\n   ]\n}",
           "type": "json"
         }
       ]

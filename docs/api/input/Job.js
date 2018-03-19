@@ -588,7 +588,7 @@
  * @apiGroup Job
  *
  * @apiHeader {String} X-access-token Access token
- * @apiParam {String} jobs Parsed to string job objects e.g [{ "_id": "72837ydasdasd", "start_date": 1518436800000, "end_date": 1518436900000, "amount" : 1, "role": "Carer" },{ "_id": "72837ydasdasd", "start_date": 1518436800000, "end_date": 1518436900000, "role": "Senior Carer"}]
+ * @apiParam {String} jobs Parsed to string job objects e.g [{ "_id": "5a814b8deb5cee1dc0720128", "start_date": 1518436800000, "end_date": 1518436900000, "amount" : 1, "role": "Carer", "priority_carers": [ "5a814b8deb5cee1dc0720128" ] }]
  * @apiParam {String} [gender] Gender preference. Available options: Male, Female, No preference(default)
  *
  * @apiSuccess (Success 201){Boolean} status Operation status.
@@ -597,23 +597,16 @@
  {
      "jobs": [
         {
-            "_id": "sasdasda",
+            "_id": "5a814b8deb5cee1dc0720128",
             "start_date": 1521126000000,
             "end_date": 1521127000000,
             "amount": 10,
             "role": "Carer",
             "notes": "",
-            "priority_carers": [],
-            "carersToContact": 10
-        },
-        {
-            "_id": "sasdasda",
-            "start_date": 1521127000000,
-            "end_date": 1521128000000,
-            "amount": 1,
-            "role": "Senior Carer",
-            "notes": "",
-            "priority_carers": [],
+            "priority_carers": [
+                "5a814b8deb5cee1dc0720128"
+            ],
+            "gender_preference": "No preference"
             "carersToContact": 10
         }
     ]
