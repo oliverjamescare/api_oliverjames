@@ -9,13 +9,13 @@ const moment = require("moment");
 const async = require("async");
 
 //custom
-const User = require("./../models/User").schema;
-const JobModel = require("./../models/Job");
+const User = require("../../models/User").schema;
+const JobModel = require("../../models/Job");
 const Job = JobModel.schema;
-const Utils = require("../services/utils");
-const locationHandler = require('../services/locationHandler');
-const jobHandler = require('../services/JobsHandler');
-const CarersHandler = require('../services/CarersHandler');
+const Utils = require("../../services/utils");
+const locationHandler = require('../../services/locationHandler');
+const jobHandler = require('../../services/JobsHandler');
+const CarersHandler = require('../../services/CarersHandler');
 
 module.exports = {
 	checkCarersNearArea: function (req, res)

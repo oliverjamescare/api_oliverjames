@@ -3,13 +3,13 @@ const bcrypt = require('bcrypt-nodejs');
 const mongoose = require('mongoose');
 
 //services
-const Utils = require('./../services/utils');
-const locationHandler = require('../services/locationHandler');
-const fileHandler = require("../services/fileHandler");
+const Utils = require('../../services/utils');
+const locationHandler = require('../../services/locationHandler');
+const fileHandler = require("../../services/fileHandler");
 
 //models
-const User = require("./../models/User").schema;
-const CareHomeWaitingUser = require("./../models/CareHomeWaitingUser").schema;
+const User = require("../../models/User").schema;
+const CareHomeWaitingUser = require("../../models/CareHomeWaitingUser").schema;
 
 module.exports = {
     register: async function (req, res)

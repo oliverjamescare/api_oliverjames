@@ -8,10 +8,10 @@
 const bcrypt = require('bcrypt-nodejs');
 
 //custom
-const User = require("./../models/User").schema;
-const Utils = require('./../services/utils');
-const fileHandler = require("../services/fileHandler");
-const locationHandler = require('../services/locationHandler');
+const User = require("../../models/User").schema;
+const Utils = require('../../services/utils');
+const fileHandler = require("../../services/fileHandler");
+const locationHandler = require('../../services/locationHandler');
 
 module.exports = {
 

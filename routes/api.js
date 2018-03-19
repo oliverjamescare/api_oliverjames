@@ -3,13 +3,13 @@ const path = require('path');
 const router = express.Router();
 
 //controllers
-const UsersController = require('../app/controllers/UsersController');
-const AuthController = require('../app/controllers/AuthController');
-const ContactController = require('../app/controllers/ContactController');
-const CarersController = require('../app/controllers/CarersController');
-const CareHomeControler = require('../app/controllers/CareHomeController');
-const JobsController = require('../app/controllers/JobsController');
-const PaymentsController = require('../app/controllers/PaymentsController');
+const UsersController = require('../app/controllers/api/UsersController');
+const AuthController = require('../app/controllers/api/AuthController');
+const ContactController = require('../app/controllers/api/ContactController');
+const CarersController = require('../app/controllers/api/CarersController');
+const CareHomeControler = require('../app/controllers/api/CareHomeController');
+const JobsController = require('../app/controllers/api/JobsController');
+const PaymentsController = require('../app/controllers/api/PaymentsController');
 
 //middlewares
 const authenticate = require('../app/middlewares/authenticate');

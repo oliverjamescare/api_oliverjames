@@ -8,9 +8,9 @@
 const moment = require("moment");
 
 //custom
-const Job = require("./../models/Job").schema;
-const User = require("./../models/User").schema;
-const Utils = require("../services/utils");
+const Job = require("../../models/Job").schema;
+const User = require("../../models/User").schema;
+const Utils = require("../../services/utils");
 
 module.exports = {
 

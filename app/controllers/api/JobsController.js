@@ -9,17 +9,17 @@ const async = require('async');
 const bcrypt = require('bcrypt-nodejs');
 
 //custom
-const JobModel = require("./../models/Job");
+const JobModel = require("../../models/Job");
 const Job = JobModel.schema;
-const JobWithdrawal = require("./../models/JobWithdrawal").schema;
-const reviewStatuses = require("./../models/schemas/Review").reviewStatuses;
+const JobWithdrawal = require("../../models/JobWithdrawal").schema;
+const reviewStatuses = require("../../models/schemas/Review").reviewStatuses;
 
-const fileHandler = require("../services/fileHandler");
-const JobHandler = require('../services/JobsHandler');
-const Utils = require("../services/utils");
-const PaymentsHandler = require('../services/PaymentsHandler');
-const NotificationsHandler = require('../services/NotificationsHandler');
-const QueuesHandler = require('./../services/QueuesHandler');
+const fileHandler = require("../../services/fileHandler");
+const JobHandler = require('../../services/JobsHandler');
+const Utils = require("../../services/utils");
+const PaymentsHandler = require('../../services/PaymentsHandler');
+const NotificationsHandler = require('../../services/NotificationsHandler');
+const QueuesHandler = require('../../services/QueuesHandler');
 
 module.exports = {
 	//all

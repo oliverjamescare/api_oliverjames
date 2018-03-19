@@ -4,5 +4,9 @@
   "description": "",
   "title": "Oliver James API Documentation",
   "url" : "http://api.oliver-james.ready4s.it/api",
-  "sampleUrl" : "http://api.oliver-james.ready4s.it/api"
+  "sampleUrl" : "http://api.oliver-james.ready4s.it/api",
+  "footer": {
+    "title": "Push Notifications",
+    "filename": "push-notifications-docs.md"
+  }
 }

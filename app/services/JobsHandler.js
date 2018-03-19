@@ -235,7 +235,7 @@ module.exports = {
                         }).then(jobs => callback(null, jobs))
                 }
             }, (errors, results) => {
-                
+
                 let query = {
                     carer: { $exists: true }, //carers
                     $and: [
