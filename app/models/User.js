@@ -6,6 +6,7 @@ const randomstring = require("randomstring");
 const JWT = require('jsonwebtoken');
 const async = require('async');
 const config = process.env;
+const moment = require('moment');
 
 //custom
 const validators = require('./../services/validators');
@@ -64,7 +65,11 @@ const schema = mongoose.Schema({
         minlength: [6,"{PATH} must have at least {MINLENGTH} characters."],
         unique: true
     },
-    blocked_until: {
+    banned_until: {
+        type: Date,
+        default: null
+    },
+    activation_date: {
         type: Date,
         default: null
     },
@@ -151,6 +156,10 @@ schema.pre("save", function(next)
     this.updated = new Date();
     if(!this.address.location.coordinates.length)
         this.address.location = undefined;
+
+    //status handle
+    this.blockingHandle();
+    this.status = handleStatus(this);
 
     //for carer
     if(this.carer)
@@ -242,10 +251,13 @@ schema.methods.addEmailConfirmationHandle = function(email, mailer)
 
 schema.methods.blockingHandle = function()
 {
-    if(this.status == statuses.BANNED)
+    if(this.status != statuses.BLOCKED && this.blocked_until)
     {
         if(this.blocked_until.getTime() < new Date().getTime())
-            this.status = statuses.ACTIVE;
+        {
+            this.status = this.activation_date ? statuses.ACTIVE : statuses.CREATED;
+            this.blocked_until = null;
+        }
     }
 
     return this.status != statuses.BANNED && this.status != statuses.BLOCKED;
@@ -312,6 +324,9 @@ schema.statics.parse = function(user, req)
     //carer
 	if(user.carer)
     {
+        if(user.carer.date_of_birth)
+            user.carer.date_of_birth = moment(user.carer.date_of_birth).format("YYYY-MM-DD");
+
         if(user.carer.profile_image)
 		    user.carer.profile_image = fileHandler.getFileUrl(user.carer.profile_image);
 
@@ -319,15 +334,37 @@ schema.statics.parse = function(user, req)
         if(user.carer.training_record)
         {
             Object.keys(user.carer.training_record).forEach(key => {
-                if(user.carer.training_record[key] && !Array.isArray(user.carer.training_record[key]))
+                if(user.carer.training_record[key] && !Array.isArray(user.carer.training_record[key]) && typeof user.carer.training_record[key] != "string")
                     user.carer.training_record[key] = user.carer.training_record[key].getTime();
             });
+
+            if(user.carer.training_record.files)
+                user.carer.training_record.files = user.carer.training_record.files.map(file => fileHandler.getFileUrl(file));
         }
 
         //dbs
-        if(user.carer.dbs && user.carer.dbs.dbs_date)
-            user.carer.dbs.dbs_date = user.carer.dbs.dbs_date.getTime();
+        if(user.carer.dbs)
+        {
+            if(user.carer.dbs.dbs_date)
+                user.carer.dbs.dbs_date = user.carer.dbs.dbs_date.getTime();
 
+            if(user.carer.dbs.files)
+                user.carer.dbs.files = user.carer.dbs.files.map(file => fileHandler.getFileUrl(file));
+        }
+
+        //reference
+        if(user.carer.reference)
+        {
+            if(user.carer.reference.files)
+                user.carer.reference.files = user.carer.reference.files.map(file => fileHandler.getFileUrl(file));
+        }
+
+        //CV
+        if(user.carer.cv_uploads)
+            user.carer.cv_uploads = user.carer.cv_uploads.map(file => fileHandler.getFileUrl(file));
+
+
+        //jobs
         if(user.carer.jobs)
         {
             const Job = require("./Job").schema;
@@ -339,11 +376,30 @@ schema.statics.parse = function(user, req)
 	if(user.address && user.address.location)
 		user.address.link = `https://www.google.com/maps/search/?api=1&query=${user.address.location.coordinates[0]},${user.address.location.coordinates[1]}`;
 
+    //dates
+    if(user.banned_until)
+        user.banned_until = user.banned_until.getTime();
+
+    if(user.activation_date)
+        user.activation_date = user.activation_date.getTime();
+
     return user;
 }
 
+function handleStatus(user)
+{
+    if(!user.activation_date && (!user.banned_until || user.banned_until.getTime() < new Date().getTime()) && user.status != statuses.BLOCKED)
+        return statuses.CREATED;
+    else if(user.activation_date && (!user.banned_until || user.banned_until.getTime() < new Date().getTime()) && user.status != statuses.BLOCKED)
+        return statuses.ACTIVE;
+    else if(user.banned_until && user.banned_until.getTime() > new Date().getTime() && user.status != statuses.BLOCKED )
+        return statuses.BANNED;
+    else
+        return user.status;
+}
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been taken.' });
 schema.plugin(mongoosePaginate);
 
 module.exports.schema = mongoose.model("User", schema);
+module.exports.statuses = statuses;

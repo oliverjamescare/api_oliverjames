@@ -165,7 +165,6 @@ module.exports = {
 			}
 		});
 
-		console.log(jobs[0].assignment);
 
 		//validation
 		async.parallel(

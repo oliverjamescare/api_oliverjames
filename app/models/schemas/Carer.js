@@ -221,7 +221,7 @@ const schema = mongoose.Schema({
             type: String,
             default: null
         },
-        photos: [
+        files: [
         	{
             	type: String,
             	required: [ true, "{PATH} field is required." ]
@@ -279,7 +279,7 @@ const schema = mongoose.Schema({
 			enum: [ "Clear", "Minor issues - approved" ],
 			default: "Clear"
 		},
-        photos: [
+        files: [
             {
                 type: String,
                 required: [ true, "{PATH} field is required." ]
@@ -301,7 +301,7 @@ const schema = mongoose.Schema({
                 }
             }
         ],
-        photos: [
+        files: [
             {
                 type: String,
                 required: [ true, "{PATH} field is required." ]
