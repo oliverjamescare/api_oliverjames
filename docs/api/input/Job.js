@@ -758,7 +758,7 @@
  * @apiHeader {String} X-access-token Access token
  * @apiParam {String} id Job id.
  *
- * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccess {Boolean} status Operation status.
  * @apiSuccessExample Success-Response:
  *   HTTP/1.1 200 OK
  *   {
@@ -929,7 +929,7 @@
  */
 
 /**
- * @api {put} /jobs/:id/carer/review Review job carer
+ * @api {post} /jobs/:id/carer/review Review job carer
  * @apiSampleRequest off
  * @apiVersion 0.0.1
  * @apiName Review job carer
@@ -989,6 +989,85 @@
  *              {
  *                   "field": "job",
  *                   "message": "Carer of this job has already been rated"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {post} /jobs/:id/challenge Challenge job payment
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Challenge job payment
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Job id.
+ * @apiParam {String} description Challenge detailed description. Max 1000 characters.
+ *
+ * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *      "status": true
+ *   }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Job not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Job not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "Job not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError Conflict This job cannot be challenged
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 409 This job cannot be challenged
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "This job cannot be challenged"
  *              }
  *          ]
  *      }

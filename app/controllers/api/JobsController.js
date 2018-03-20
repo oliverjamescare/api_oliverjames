@@ -584,10 +584,38 @@ module.exports = {
         //saving review and sending response
         job
             .save()
-            .then(() => res.json({ status: true }))
+            .then(() => res.status(201).json({ status: true }))
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },
 
+    challengeJob: async function(req, res)
+    {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
+
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+        //checking is user an author of this job
+        if(req.user._id.toString() != job.care_home.toString())
+            return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
+
+        //not payment stadium
+        if(job.status != JobModel.statuses.PENDING_PAYMENT)
+            return res.status(409).json(Utils.parseStringError("This job cannot be challenged.", "job"));
+
+        job.assignment.challenge = {
+            description: req.body.description
+        };
+
+        //saving challenge and sending response
+        job
+            .save()
+            .then(() => res.status(201).json({ status: true }))
+            .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+
+    },
 
     testNotification: async function(req, res)
     {

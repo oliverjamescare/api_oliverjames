@@ -15,12 +15,12 @@ const schema = mongoose.Schema({
     },
     status: {
         type: String,
-        required: [ true, "{PATH} field is required." ],
-        enum: Object.values(challengeStatuses)
+        enum: Object.values(challengeStatuses),
+        default: challengeStatuses.ACTIVE
     },
     created: {
         type: Date,
-        required: [ true, "{PATH} field is required." ]
+        default: Date.now()
     }
 });
 

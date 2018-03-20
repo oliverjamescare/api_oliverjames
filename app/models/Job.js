@@ -214,6 +214,15 @@ schema.statics.parse = function(job, req)
                 job.review = job.assignment.review;
             }
 
+            //challenge
+            if(job.assignment.challenge)
+            {
+                if(job.assignment.challenge.created)
+                    job.assignment.challenge.created = job.assignment.challenge.created.getTime();
+
+                job.challenge = job.assignment.challenge;
+            }
+
 	        delete job.assignment;
 		}
 
@@ -236,7 +245,7 @@ function handleJobStatus(job)
         return statuses.PENDING_SUMMARY_SHEET;
     else if(job.assignment.carer && job.assignment.summary_sheet && (job.assignment.summary_sheet.created.getTime() + (1000 * 60 * 60 * 24 * 3)) > new  Date().getTime() && (!job.assignment.challenge || job.assignment.challenge.status == Challenge.challengeStatuses.CANCELLED))
         return statuses.PENDING_PAYMENT;
-    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge.status == Challenge.challengeStatuses.ACTIVE)
+    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge && job.assignment.challenge.status == Challenge.challengeStatuses.ACTIVE)
         return statuses.CHALLENGED;
     else
         return job.status;

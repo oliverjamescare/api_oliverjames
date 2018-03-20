@@ -68,6 +68,7 @@ router.put('/jobs/:id', authenticate, security(["CARE_HOME_UPDATE"]), JobsContro
 router.put('/jobs/:id/cancel', authenticate, security(["CARE_HOME_UPDATE"]), JobsController.cancelJob);
 router.get('/jobs/:id/other-jobs', authenticate, security(["CARER_READ"]), JobsController.getCareHomeOtherJobs);
 router.post('/jobs/:id/carer/review', authenticate, security(["CARE_HOME_SAVE"]), JobsController.reviewJob);
+router.post('/jobs/:id/challenge', authenticate, security(["CARE_HOME_SAVE"]), JobsController.challengeJob);
 
 
 router.post('/jobs/:id/notification/test', authenticate, security(["CARER_READ"]), JobsController.testNotification); //TO REMOVE

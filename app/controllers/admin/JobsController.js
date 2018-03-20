@@ -159,6 +159,9 @@ module.exports = {
                 'assignment.review.rate': 1,
                 'assignment.review.status': 1,
                 'assignment.review.created': 1,
+                'assignment.challenge.created': 1,
+                'assignment.challenge.status': 1,
+                'assignment.challenge.description': 1,
             }
         )
         .populate({
