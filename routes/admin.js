@@ -5,6 +5,7 @@ const router = express.Router();
 //controllers
 const AuthController = require('../app/controllers/admin/AuthController');
 const CarersController = require('../app/controllers/admin/CarersController');
+const JobsController = require('../app/controllers/admin/JobsController');
 
 //middlewares
 const adminAuthenticate = require('../app/middlewares/admin-authenticate');
@@ -18,6 +19,10 @@ router.get('/carers/:id', adminAuthenticate, CarersController.getCarer);
 router.put('/carers/:id', adminAuthenticate, CarersController.updateCarer);
 router.post('/carers/:id/:resource/upload', adminAuthenticate, CarersController.uploadCarerResource);
 router.delete('/carers/:id/:resource/upload', adminAuthenticate, CarersController.deleteCarerResourceFile);
+
+//Jobs
+router.get('/jobs', adminAuthenticate, JobsController.getJobs);
+router.get('/jobs/:id', adminAuthenticate, JobsController.getJob);
 
 //documentation
 router.get('/documentation', (req, res) => {

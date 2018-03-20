@@ -208,13 +208,17 @@ schema.statics.parse = function(job, req)
 			//review
 			if(job.assignment.review)
 			{
-                job.assignment.review.created = job.assignment.review.created.getTime();
+				if(job.assignment.review.created)
+                	job.assignment.review.created = job.assignment.review.created.getTime();
+
                 job.review = job.assignment.review;
             }
 
 	        delete job.assignment;
 		}
 
+		if(job.created)
+			job.created = job.created.getTime();
     }
 
     return job;

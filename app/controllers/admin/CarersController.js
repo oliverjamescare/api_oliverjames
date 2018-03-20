@@ -4,6 +4,9 @@
  * and open the template in the editor.
  */
 
+//core
+const ObjectId = require('mongoose').Types.ObjectId;
+
 //custom
 const UserModel = require("../../models/User");
 const User = UserModel.schema;
@@ -18,6 +21,7 @@ module.exports = {
         const search = req.query.search || "";
         const pattern = new RegExp("^.*" + search + ".*$");
 
+
 		const query = {
 			carer: { $exists: true },
 			$or:[
@@ -25,6 +29,10 @@ module.exports = {
 				{'carer.surname': { $regex: pattern, $options: "xi" } }
             ]
 		};
+
+		//search by id
+		if(ObjectId.isValid(search))
+		    query.$or.push({ _id: search });
 
         const options = {
             select: {
@@ -237,7 +245,7 @@ module.exports = {
 
         //file upload
         const uploader = fileHandler(req, res);
-        const filePaths = await uploader.handleMultiFilesUpload("resource", "users/" +  user._id,
+        const filePaths = await uploader.handleMultiFilesUpload("files", "users/" +  user._id,
             {
                 allowedMimeTypes: [
                     "application/msword",

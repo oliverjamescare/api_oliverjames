@@ -21,7 +21,6 @@ const config = {
 //Notifications listener
 QueuesHandler.subscribe(data => {
 
-    console.log("aaa")
     async.parallel({
         user: (callback) => User.findOne({ _id: data.user_id, carer: { $exists: true } }, (error, user) => callback(null, user)),
         job: (callback) => Job.findOne({ _id: data.job_id }, (error, job) => callback(null, job))
