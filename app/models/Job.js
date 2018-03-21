@@ -223,6 +223,24 @@ schema.statics.parse = function(job, req)
                 job.challenge = job.assignment.challenge;
             }
 
+            //summary sheet
+            if(job.assignment.summary_sheet)
+            {
+                if(job.assignment.summary_sheet.created)
+                    job.assignment.summary_sheet.created = job.assignment.summary_sheet.created.getTime();
+
+                if(job.assignment.summary_sheet.signature)
+                    job.assignment.summary_sheet.signature = fileHandler.getFileUrl(job.assignment.summary_sheet.signature);
+
+                if(job.assignment.summary_sheet.start_date && job.assignment.summary_sheet.end_date)
+				{
+                    job.assignment.summary_sheet.start_date = job.assignment.summary_sheet.start_date.getTime();
+                    job.assignment.summary_sheet.end_date = job.assignment.summary_sheet.end_date.getTime();
+				}
+
+                job.summary_sheet = job.assignment.summary_sheet;
+            }
+
 	        delete job.assignment;
 		}
 
@@ -243,9 +261,9 @@ function handleJobStatus(job)
         return statuses.ACCEPTED;
     else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
         return statuses.PENDING_SUMMARY_SHEET;
-    else if(job.assignment.carer && job.assignment.summary_sheet && (job.assignment.summary_sheet.created.getTime() + (1000 * 60 * 60 * 24 * 3)) > new  Date().getTime() && (!job.assignment.challenge || job.assignment.challenge.status == Challenge.challengeStatuses.CANCELLED))
+    else if(job.assignment.carer && job.assignment.summary_sheet && (job.assignment.summary_sheet.created.getTime() + (1000 * 60 * 60 * 24 * 3)) > new  Date().getTime() && (!job.assignment.challenge || job.assignment.challenge.status == Challenge.challengeStatuses.CANCELLED) && job.status != statuses.CANCELLED)
         return statuses.PENDING_PAYMENT;
-    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge && job.assignment.challenge.status == Challenge.challengeStatuses.ACTIVE)
+    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge && job.assignment.challenge.status == Challenge.challengeStatuses.ACTIVE && job.status != statuses.CANCELLED)
         return statuses.CHALLENGED;
     else
         return job.status;

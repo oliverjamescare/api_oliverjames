@@ -386,7 +386,7 @@ module.exports = {
             return res.status(409).json(Utils.parseStringError("You're not assigned to this job", "job"));
 
         //summary sheet already sent
-        if(job.assignment.status == JobModel.statuses.CANCELLED)
+        if(job.status == JobModel.statuses.CANCELLED)
             return res.status(409).json(Utils.parseStringError("This job is cancelled", "job"));
 
         //summary sheet already sent
@@ -428,7 +428,13 @@ module.exports = {
         if(req.user._id.toString() != job.care_home.toString())
             return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
 
+        //summary sent
+        if(job.assignment.summary_sheet)
+            return res.status(409).json(Utils.parseStringError("You can\'t edit this job, because summary sheet for this job has already been sent", "job"));
 
+        //summary sent
+        if(job.status == JobModel.statuses.CANCELLED)
+            return res.status(409).json(Utils.parseStringError("You can't edit cancelled job", "job"));
 
         //floor plan upload
         const uploader = fileHandler(req, res);
@@ -450,6 +456,8 @@ module.exports = {
 			start_date: req.body.start_date || job.start_date,
 			end_date: req.body.end_date || job.end_date,
 			role: req.body.role || job.role,
+            notes: req.body.notes || job.notes,
+            gender_preference: req.body.gender_preference || job.gender_preference,
             general_guidance: {
                 superior_contact: req.body.superior_contact || job.general_guidance.superior_contact,
                 report_contact: req.body.report_contact || job.general_guidance.report_contact,
@@ -473,6 +481,8 @@ module.exports = {
                 let jobChanged = false;
                 if(
                     job.role != job.initial.role ||
+                    job.notes != job.initial.notes ||
+                    job.gender_preference != job.initial.gender_preference ||
                     job.general_guidance.superior_contact != job.initial.general_guidance.superior_contact ||
                     job.general_guidance.report_contact != job.initial.general_guidance.report_contact ||
                     job.general_guidance.emergency_guidance != job.initial.general_guidance.emergency_guidance ||
@@ -602,7 +612,7 @@ module.exports = {
             return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
 
         //not payment stadium
-        if(job.status != JobModel.statuses.PENDING_PAYMENT)
+        if(job.status != JobModel.statuses.PENDING_PAYMENT || job.assignment.challenge)
             return res.status(409).json(Utils.parseStringError("This job cannot be challenged.", "job"));
 
         job.assignment.challenge = {

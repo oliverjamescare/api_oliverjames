@@ -516,7 +516,7 @@
  *
  * @apiHeader {String} X-access-token Access token
  * @apiParam {String} jobs Parsed to string job objects e.g [{ "start_date": 1518436800000, "end_date": 1518436900000, "amount" : 1, "role": "Carer" },{ "start_date": 1518436800000, "end_date": 1518436900000, "role": "Senior Carer"}]
- * @apiParam {String} [gender] Gender preference. Available options: male, female, no preference(default)
+ * @apiParam {String} [gender_preference] Gender preference. Available options: Male, Female, No preference(default)
  * @apiParam {File} [floor_plan] Floor plan file. Required if not already exists. Allowed mime types: application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf, image/png, image/jpg, image/jpeg
  * @apiParam {String} [parking] Description about parking. Required if not already exists.
  * @apiParam {String} [notes_for_carers] Notes for carers. Required if not already exists.
@@ -667,8 +667,10 @@
  * @apiParam {String} [emergency_guidance] Emergency guidance.
  * @apiParam {String} [report_contact] Report contact info.
  * @apiParam {String} [superior_contact] Superior contact info.
+ * @apiParam {String} [notes] Additional notes.
+ * @apiParam {String} [gender_preference] Gender preference. Available options: No preference, Male, Female.
  *
- * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccess (Success 200){Boolean} status Operation status.
  * @apiSuccessExample Success-Response:
  *   HTTP/1.1 200 OK
  *   {

@@ -8,6 +8,8 @@
  *
  * @apiHeader {String} X-access-token Access token
  * @apiParam {String} [search] Search string.
+ * @apiParam {Number} [page] Page number.
+ * @apiParam {Number} [results] Results per page. Default 10.
  * @apiParam {String} [sort] Available options: id_asc(default) - by id ascending, id_desc - by id descending, name_asc - by name ascending, name_desc - by name descending, date_of_birth_asc - by date of birth ascending, date_of_birth_desc - by date of birth desc, activation_date_asc - by activation date ascending, activation_date_desc - by activation date descending, rating_asc - by rating ascending, rating_desc - by rating descending, status_asc - by status ascending, status_desc - by status descending, banned_until_asc - by banned date ascending, banned_until_desc - by banned date descending.
 
 

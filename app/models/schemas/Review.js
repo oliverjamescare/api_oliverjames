@@ -29,6 +29,10 @@ const schema = mongoose.Schema({
         enum: Object.values(reviewStatuses),
         default: reviewStatuses.PENDING
     },
+    notification_sent: {
+        type: Boolean,
+        default: false
+    },
     created: {
         type: Date,
         default: Date.now()

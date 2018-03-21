@@ -23,6 +23,16 @@ router.delete('/carers/:id/:resource/upload', adminAuthenticate, CarersControlle
 //Jobs
 router.get('/jobs', adminAuthenticate, JobsController.getJobs);
 router.get('/jobs/:id', adminAuthenticate, JobsController.getJob);
+router.put('/jobs/:id/review', adminAuthenticate, JobsController.approveJobReview);
+router.put('/jobs/:id/payment-retry', adminAuthenticate, JobsController.retryJobPayment);
+router.put('/jobs/:id/challenge', adminAuthenticate, JobsController.resolveJobChallenge);
+router.put('/jobs/:id', adminAuthenticate, JobsController.updateJob);
+router.put('/jobs/:id/cancel', adminAuthenticate, JobsController.cancelJob);
+
+
+//Jobs
+router.post('/care-homes/:id/jobs', adminAuthenticate, JobsController.addJobs);
+
 
 //documentation
 router.get('/documentation', (req, res) => {

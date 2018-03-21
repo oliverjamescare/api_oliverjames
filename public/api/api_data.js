@@ -2281,8 +2281,8 @@ define({ "api": [
             "group": "Parameter",
             "type": "String",
             "optional": true,
-            "field": "gender",
-            "description": "<p>Gender preference. Available options: male, female, no preference(default)</p>"
+            "field": "gender_preference",
+            "description": "<p>Gender preference. Available options: Male, Female, No preference(default)</p>"
           },
           {
             "group": "Parameter",
@@ -3249,15 +3249,29 @@ define({ "api": [
             "optional": true,
             "field": "superior_contact",
             "description": "<p>Superior contact info.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "notes",
+            "description": "<p>Additional notes.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "gender_preference",
+            "description": "<p>Gender preference. Available options: No preference, Male, Female.</p>"
           }
         ]
       }
     },
     "success": {
       "fields": {
-        "Success 201": [
+        "Success 200": [
           {
-            "group": "Success 201",
+            "group": "Success 200",
             "type": "Boolean",
             "optional": false,
             "field": "status",

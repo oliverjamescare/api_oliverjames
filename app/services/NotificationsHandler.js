@@ -150,6 +150,11 @@ module.exports = class
 
     prepareInputs(type, user, job)
     {
-        return [];
+        let inputs = [];
+
+        if(type == "REVIEW_PUBLISHED")
+            inputs.push(user.carer.reviews.average);
+
+        return inputs;
     }
 }

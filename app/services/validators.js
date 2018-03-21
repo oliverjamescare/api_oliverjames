@@ -85,7 +85,7 @@ module.exports.required_if_not = function (field, conditionValue)
 {
     return [
         function() { return this[field] != conditionValue },
-        "{PATH} is required, because field " + field + " is equal " + conditionValue + "."
+        "{PATH} is required, because field " + field + " is not equal " + conditionValue + "."
     ];
 }
 
