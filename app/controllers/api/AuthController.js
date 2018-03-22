@@ -3,13 +3,13 @@ const bcrypt = require('bcrypt-nodejs');
 const mongoose = require('mongoose');
 
 //services
-const Utils = require('./../services/utils');
-const locationHandler = require('../services/locationHandler');
-const fileHandler = require("../services/fileHandler");
+const Utils = require('../../services/utils');
+const locationHandler = require('../../services/locationHandler');
+const fileHandler = require("../../services/fileHandler");
 
 //models
-const User = require("./../models/User").schema;
-const CareHomeWaitingUser = require("./../models/CareHomeWaitingUser").schema;
+const User = require("../../models/User").schema;
+const CareHomeWaitingUser = require("../../models/CareHomeWaitingUser").schema;
 
 module.exports = {
     register: async function (req, res)
@@ -33,7 +33,7 @@ module.exports = {
         });
 
         //preparing address
-	    const address = await locationHandler.getCustomLocation(req);
+	    const address = await locationHandler.getCustomLocation(req.body);
 
 	    //user
 	    let user = new User({
@@ -131,7 +131,7 @@ module.exports = {
 
     addUserToCareHomeWaitingList: function (req, res)
     {
-        locationHandler.getCustomLocation(req)
+        locationHandler.getCustomLocation(req.body)
             .then((address) => {
                 let waitingUser = new CareHomeWaitingUser({
                     name: req.body.name,
@@ -218,8 +218,7 @@ module.exports = {
 
     remindPasswordChange: function (req, res)
     {
-        User.findOne({ "password_resets.token": req.body.token }, (error, user) =>
-        {
+        User.findOne({ "password_resets.token": req.body.token }, (error, user) => {
             //user not found
             if (!user)
                 return res.status(404).json(Utils.parseStringError("User not found", "user"));

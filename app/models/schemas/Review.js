@@ -26,12 +26,16 @@ const schema = mongoose.Schema({
     },
     status: {
         type: String,
-        required: [ true, "{PATH} field is required." ],
         enum: Object.values(reviewStatuses),
+        default: reviewStatuses.PENDING
+    },
+    notification_sent: {
+        type: Boolean,
+        default: false
     },
     created: {
         type: Date,
-        required: [ true, "{PATH} field is required." ]
+        default: Date.now()
     }
 });
 

@@ -26,8 +26,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 //handling and protecting static files
-const authenticate = require('./app/middlewares/authenticate');
-app.use("/uploads", authenticate);
+const filesAuthenticate = require('./app/middlewares/files-authenticate');
+app.use("/uploads", filesAuthenticate);
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(expressValidator({

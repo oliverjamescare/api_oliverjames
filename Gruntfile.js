@@ -7,7 +7,7 @@ module.exports = function (grunt) {
         {
             Docs:
             {
-                tasks:['watch:docs'],
+                tasks:['watch:docs_api', 'watch:docs_admin'],
                 options: 
                 {
                     logConcurrentOutput: true
@@ -16,17 +16,27 @@ module.exports = function (grunt) {
         },
         watch:
         {
-            docs:
+            docs_api:
             {
-                files:'docs/input/*.js',
-                tasks: ['apidoc:app']
+                files:'docs/api/input/*.js',
+                tasks: ['apidoc:api']
+            },
+            docs_admin:
+            {
+                files:'docs/admin/input/*.js',
+                tasks: ['apidoc:admin']
             }
         },
         apidoc: 
         {
-            app: {
-                src: "docs/input/",
+            api: {
+                src: "docs/api/input/",
                 dest: "public/api/",
+                template: "docs/template/",
+            },
+            admin: {
+                src: "docs/admin/input/",
+                dest: "public/admin/",
                 template: "docs/template/",
             }
         }

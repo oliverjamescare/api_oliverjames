@@ -2,4 +2,5 @@
 /node_modules/
 /public/uploads/
 /public/api/
+/public/admin/
 .env

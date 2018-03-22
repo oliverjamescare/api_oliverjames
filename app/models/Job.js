@@ -31,6 +31,13 @@ const genderPreferences = {
 	NO_PREFERENCE: "No preference"
 }
 
+//job notifications
+const jobNotificationStatuses = {
+	SCHEDULED: "SCHEDULED",
+	SENT: "SENT",
+	DUPLICATE: "DUPLICATE",
+	CARER_UNAVAILABLE: "CARER_UNAVAILABLE"
+};
 
 const schema = mongoose.Schema({
 	start_date: {
@@ -94,6 +101,27 @@ const schema = mongoose.Schema({
             ref: "User",
         }
     ],
+    notifications: [
+        {
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+			},
+            group: {
+                type: String,
+                required: [ true, "{PATH} field is required." ]
+            },
+            time: {
+                type: Date,
+                required: [ true, "{PATH} field is required." ]
+            },
+			status: {
+            	type: String,
+				enum: Object.values(jobNotificationStatuses),
+				default: jobNotificationStatuses.SCHEDULED
+			},
+        }
+    ],
     status: {
         type: String,
         enum: Object.values(statuses),
@@ -122,13 +150,13 @@ schema.pre("save", function (next)
 		this.declines.pull(this.assignment.carer);
 		const job = this;
 
+		//adding job to carer if doesn't exists
 		const User = require('./User').schema;
 		User.findOne({ _id: job.assignment.carer }, (error, user) => {
 			if(user.carer.jobs.indexOf(job._id) == -1)
-			{
 				user.carer.jobs.push(job);
-				user.save().catch(error => console.log(error));
-			}
+
+			user.save().catch(error => console.log(error)); // trigger save to automatically handle care exp and reviews calculation
 		});
 	}
 
@@ -137,11 +165,11 @@ schema.pre("save", function (next)
 
 schema.post('init', function(job)
 {
-	//job status handle
-	job.status = handleJobStatus(job);
-
     if(!this.isNew)
         job.initial = JSON.parse(JSON.stringify(job));
+
+    //job status handle
+    job.status = handleJobStatus(job);
 });
 
 //statics
@@ -152,8 +180,12 @@ schema.statics.parse = function(job, req)
 	    const fileHandler = require("../services/fileHandler")(req);
 		const User = require('./User').schema;
 
-        // job.start_date = job.start_date.getTime();
-        // job.end_date = job.end_date.getTime();
+		//dates
+		if(job.start_date)
+        	job.start_date = job.start_date.getTime();
+
+		if(job.end_date)
+       		job.end_date = job.end_date.getTime();
 
         //guidance link
         if(job.general_guidance && job.general_guidance.floor_plan)
@@ -167,12 +199,53 @@ schema.statics.parse = function(job, req)
             delete job.care_home;
 		}
 
-		//carer
 		if(job.assignment)
 		{
-			job.carer = job.assignment.carer ? User.parse(job.assignment.carer, req) : null;
+			//carer
+			if(job.assignment.carer)
+				job.carer = job.assignment.carer ? User.parse(job.assignment.carer, req) : null;
+
+			//review
+			if(job.assignment.review)
+			{
+				if(job.assignment.review.created)
+                	job.assignment.review.created = job.assignment.review.created.getTime();
+
+                job.review = job.assignment.review;
+            }
+
+            //challenge
+            if(job.assignment.challenge)
+            {
+                if(job.assignment.challenge.created)
+                    job.assignment.challenge.created = job.assignment.challenge.created.getTime();
+
+                job.challenge = job.assignment.challenge;
+            }
+
+            //summary sheet
+            if(job.assignment.summary_sheet)
+            {
+                if(job.assignment.summary_sheet.created)
+                    job.assignment.summary_sheet.created = job.assignment.summary_sheet.created.getTime();
+
+                if(job.assignment.summary_sheet.signature)
+                    job.assignment.summary_sheet.signature = fileHandler.getFileUrl(job.assignment.summary_sheet.signature);
+
+                if(job.assignment.summary_sheet.start_date && job.assignment.summary_sheet.end_date)
+				{
+                    job.assignment.summary_sheet.start_date = job.assignment.summary_sheet.start_date.getTime();
+                    job.assignment.summary_sheet.end_date = job.assignment.summary_sheet.end_date.getTime();
+				}
+
+                job.summary_sheet = job.assignment.summary_sheet;
+            }
+
 	        delete job.assignment;
 		}
+
+		if(job.created)
+			job.created = job.created.getTime();
     }
 
     return job;
@@ -188,9 +261,9 @@ function handleJobStatus(job)
         return statuses.ACCEPTED;
     else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
         return statuses.PENDING_SUMMARY_SHEET;
-    else if(job.assignment.carer && job.assignment.summary_sheet && (job.assignment.summary_sheet.created.getTime() + (1000 * 60 * 60 * 24 * 3)) > new  Date().getTime() && (!job.assignment.challenge || job.assignment.challenge.status == Challenge.challengeStatuses.CANCELLED))
+    else if(job.assignment.carer && job.assignment.summary_sheet && (job.assignment.summary_sheet.created.getTime() + (1000 * 60 * 60 * 24 * 3)) > new  Date().getTime() && (!job.assignment.challenge || job.assignment.challenge.status == Challenge.challengeStatuses.CANCELLED) && job.status != statuses.CANCELLED)
         return statuses.PENDING_PAYMENT;
-    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge.status == Challenge.challengeStatuses.ACTIVE)
+    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge && job.assignment.challenge.status == Challenge.challengeStatuses.ACTIVE && job.status != statuses.CANCELLED)
         return statuses.CHALLENGED;
     else
         return job.status;

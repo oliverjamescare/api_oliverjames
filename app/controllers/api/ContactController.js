@@ -1,5 +1,5 @@
 const config = process.env;
-const User = require("./../models/User").schema;
+const User = require("../../models/User").schema;
 
 module.exports = {
     sendContactMessage: async function (req, res)

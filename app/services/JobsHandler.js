@@ -5,6 +5,7 @@ const async = require("async");
 const JobModel = require("./../models/Job");
 const Job = JobModel.schema;
 const User = require("./../models/User").schema;
+const CarersHandler = require('./CarersHandler');
 
 module.exports = {
     getNewJobs: function(req, fromCareHome = null, withoutJob = null)
@@ -197,5 +198,64 @@ module.exports = {
             });
         });
 
+    },
+
+    getAvailableCarers: function(job, careHome)
+    {
+        return new Promise(resolve => {
+            async.parallel({
+                carersInArea: (callback) => CarersHandler.getAvailableCarersNearby(careHome.address.location.coordinates).then(carers => callback(null, carers)),
+                conflictJobs: (callback) => {
+
+                    const quarterOverlap = 1000 * 60 * 15;
+
+                    console.log(new Date(job.end_date + quarterOverlap));
+                    console.log(new Date(job.start_date - quarterOverlap) );
+                    Job.find(
+                        {
+                            'assignment.carer': { $exists: true },
+                            'assignment.summery_sheet': { $exists: false },
+                            status: { $ne: JobModel.statuses.CANCELLED },
+                            $or: [
+                                {
+                                    $and: [
+                                        { start_date: { $lt: new Date(job.end_date + quarterOverlap) } },
+                                        { end_date: { $gt: new Date(job.start_date - quarterOverlap) } },
+                                        { care_home: { $ne: careHome._id } },
+                                    ]
+                                },
+                                {
+                                    $and: [
+                                        { start_date: { $lt: new Date(job.end_date) } },
+                                        { end_date: { $gt: new Date(job.start_date) } },
+                                        { care_home: careHome._id },
+                                    ]
+                                }
+                            ]
+                        }).then(jobs => callback(null, jobs))
+                }
+            }, (errors, results) => {
+
+                let query = {
+                    carer: { $exists: true }, //carers
+                    $and: [
+                        { _id: { $not: { $in: careHome.care_home.blocked_carers } } }, // without blocked
+                        { _id: { $in: results.carersInArea.map(carer => carer._id )} }, // available in area
+                        { _id: { $not: { $in: results.conflictJobs.map(job => job.assignment.carer) } } }, // without calendar conflicts
+                    ],
+                    'carer.eligible_roles': job.role, //required role
+                };
+
+                if(job.gender_preference != JobModel.genderPreferences.NO_PREFERENCE) //required gender preference
+                    query["carer.gender"] = job.gender_preference;
+
+
+                User.find(query).then(users => {
+
+                    users.filter(user => user.carer.checkAvailabilityForDateRange(new Date(job.start_date), new Date(job.end_date)));
+                    resolve(users)
+                });
+            });
+        });
     }
 }

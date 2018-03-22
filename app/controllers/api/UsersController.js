@@ -8,10 +8,10 @@
 const bcrypt = require('bcrypt-nodejs');
 
 //custom
-const User = require("./../models/User").schema;
-const Utils = require('./../services/utils');
-const fileHandler = require("../services/fileHandler");
-const locationHandler = require('../services/locationHandler');
+const User = require("../../models/User").schema;
+const Utils = require('../../services/utils');
+const fileHandler = require("../../services/fileHandler");
+const locationHandler = require('../../services/locationHandler');
 
 module.exports = {
 
@@ -178,7 +178,7 @@ module.exports = {
 
     updateCarerDetails: function(req, res)
     {
-        locationHandler.getCustomLocation(req)
+        locationHandler.getCustomLocation(req.body)
             .then(address => {
 
                 //updating values
@@ -224,7 +224,7 @@ module.exports = {
             });
 
 	    //address handle
-	    const address = await locationHandler.getCustomLocation(req);
+	    const address = await locationHandler.getCustomLocation(req.body);
 
 		//updating values
 		req.user.phone_number = req.body.phone_number || req.user.phone_number;
@@ -250,6 +250,17 @@ module.exports = {
 			.save()
 			.then(() => res.json({ status: true }))
 			.catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
-	}
+	},
+
+    updateNotificationTokens: function(req, res)
+    {
+        req.user
+            .addDeviceHandle(req.body.device_id, req.body.device_token)
+            .then(() => req.user.save())
+            .catch(error => console.log(error));
+
+        res.json({ status: true });
+    }
+
 }
 

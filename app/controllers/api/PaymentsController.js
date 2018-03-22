@@ -8,9 +8,9 @@
 const bcrypt = require('bcrypt-nodejs');
 
 //custom
-const User = require("./../models/User").schema;
-const Utils = require('./../services/utils');
-const PaymentsHandler = require('../services/PaymentsHandler');
+const User = require("../../models/User").schema;
+const Utils = require('../../services/utils');
+const PaymentsHandler = require('../../services/PaymentsHandler');
 
 module.exports = {
 

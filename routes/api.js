@@ -3,13 +3,13 @@ const path = require('path');
 const router = express.Router();
 
 //controllers
-const UsersController = require('../app/controllers/UsersController');
-const AuthController = require('../app/controllers/AuthController');
-const ContactController = require('../app/controllers/ContactController');
-const CarersController = require('../app/controllers/CarersController');
-const CareHomeControler = require('../app/controllers/CareHomeController');
-const JobsController = require('../app/controllers/JobsController');
-const PaymentsController = require('../app/controllers/PaymentsController');
+const UsersController = require('../app/controllers/api/UsersController');
+const AuthController = require('../app/controllers/api/AuthController');
+const ContactController = require('../app/controllers/api/ContactController');
+const CarersController = require('../app/controllers/api/CarersController');
+const CareHomeControler = require('../app/controllers/api/CareHomeController');
+const JobsController = require('../app/controllers/api/JobsController');
+const PaymentsController = require('../app/controllers/api/PaymentsController');
 
 //middlewares
 const authenticate = require('../app/middlewares/authenticate');
@@ -30,8 +30,9 @@ router.put('/user/password', authenticate, UsersController.changePassword);
 router.put('/user/email', authenticate, UsersController.changeEmail);
 router.post('/user/email/verification', authenticate, UsersController.resendEmailVerification);
 router.put('/user/profile-image', authenticate, security(["CARER_UPDATE"]), UsersController.updateProfileImage);
-router.put('/user/carer', authenticate, security(["CARER_UPDATE"]), UsersController.updateCarerDetails);
 router.put('/user/care-home', authenticate, security(["CARE_HOME_UPDATE"]), UsersController.updateCareHomeDetails);
+router.put('/user/carer', authenticate, security(["CARER_UPDATE"]), UsersController.updateCarerDetails);
+router.put('/user/notifications/token', authenticate, UsersController.updateNotificationTokens);
 
 //Contact
 router.post('/contact', ContactController.sendContactMessage);
@@ -44,6 +45,9 @@ router.get('/carer/calendar', authenticate, security(["CARER_READ"]), CarersCont
 router.get('/carer/calendar/monthly', authenticate, security(["CARER_READ"]), CarersController.getMonthlyCalendar);
 router.get('/carer/jobs', authenticate, security(["CARER_READ"]), CarersController.getCarerAvailableJobs);
 router.get('/carer/my-jobs', authenticate, security(["CARER_READ"]), CarersController.getCarerMyJobs);
+router.get('/carer/notifications', authenticate, security(["CARER_READ"]), CarersController.getNotificationsSettings);
+router.put('/carer/notifications', authenticate, security(["CARER_UPDATE"]), CarersController.updateNotificationsSettings);
+router.get('/carer/home', authenticate, security(["CARER_READ"]), CarersController.getHomeScreenDetails);
 
 //Care Home
 router.get('/care-home/calendar', authenticate, security(["CARE_HOME_READ"]), CareHomeControler.getCalendar);
@@ -63,6 +67,11 @@ router.post('/jobs/:id/summary', authenticate, security(["CARER_SAVE"]), JobsCon
 router.put('/jobs/:id', authenticate, security(["CARE_HOME_UPDATE"]), JobsController.updateJob);
 router.put('/jobs/:id/cancel', authenticate, security(["CARE_HOME_UPDATE"]), JobsController.cancelJob);
 router.get('/jobs/:id/other-jobs', authenticate, security(["CARER_READ"]), JobsController.getCareHomeOtherJobs);
+router.post('/jobs/:id/carer/review', authenticate, security(["CARE_HOME_SAVE"]), JobsController.reviewJob);
+router.post('/jobs/:id/challenge', authenticate, security(["CARE_HOME_SAVE"]), JobsController.challengeJob);
+
+
+router.post('/jobs/:id/notification/test', authenticate, security(["CARER_READ"]), JobsController.testNotification); //TO REMOVE
 
 //Payments
 router.put('/payments/card', authenticate, security(["CARE_HOME_UPDATE"]), PaymentsController.updateCard);

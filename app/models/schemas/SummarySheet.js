@@ -21,11 +21,12 @@ const schema = mongoose.Schema({
     },
     notes: {
         type: String,
-        maxlength: [ 500, "{PATH} can't be longer than {MAXLENGTH} characters." ]
+        maxlength: [ 500, "{PATH} can't be longer than {MAXLENGTH} characters." ],
+        default: null
     },
     start_date: {
         type: Date,
-        validate: validators.dateGreaterThanDateField("start_date")
+        validate: validators.required_if_present("end_date")
     },
     end_date: {
         type: Date,

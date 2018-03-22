@@ -23,7 +23,7 @@ const radioText = function (radioAvailableValues)
 	return {
 		value: {
 			type: Number,
-			required: [ true, "{PATH} field is required." ],
+			required: validators.required_if_not("created_by_admin", true),
 			min: Math.min.apply(Math, radioAvailableValues),
 			max: Math.max.apply(Math, radioAvailableValues),
 			validate: validators.integer
@@ -39,7 +39,7 @@ const radio = function (radioAvailableValues)
 	return {
 		value: {
 			type: Number,
-			required: [ true, "{PATH} field is required." ],
+			required: validators.required_if_not("created_by_admin", true),
 			min: Math.min.apply(Math, radioAvailableValues),
 			max: Math.max.apply(Math, radioAvailableValues),
 			validate: validators.integer
@@ -136,6 +136,10 @@ const schema = mongoose.Schema({
 		type: Number,
 		default: 5
 	},
+	created_by_admin: {
+		type: Boolean,
+		default: false
+	},
 	cv_uploads: [
         {
             type: String,
@@ -221,7 +225,7 @@ const schema = mongoose.Schema({
             type: String,
             default: null
         },
-        photos: [
+        files: [
         	{
             	type: String,
             	required: [ true, "{PATH} field is required." ]
@@ -244,6 +248,26 @@ const schema = mongoose.Schema({
 			default: 0
 		}
 	},
+	care_experience: {
+        years: {
+            type: Number,
+            default: 1
+        },
+		months: {
+            type: Number,
+            default: 0
+		}
+	},
+    reviews: {
+        count: {
+            type: Number,
+            default: 0
+        },
+        average: {
+            type: Number,
+            default: 0
+        }
+    },
 	dbs: {
 		dbs_date: {
 			type: Date,
@@ -259,7 +283,7 @@ const schema = mongoose.Schema({
 			enum: [ "Clear", "Minor issues - approved" ],
 			default: "Clear"
 		},
-        photos: [
+        files: [
             {
                 type: String,
                 required: [ true, "{PATH} field is required." ]
@@ -281,7 +305,7 @@ const schema = mongoose.Schema({
                 }
             }
         ],
-        photos: [
+        files: [
             {
                 type: String,
                 required: [ true, "{PATH} field is required." ]
@@ -319,7 +343,53 @@ const schema = mongoose.Schema({
 			default: null
 		}
 	},
-	transactions: [ transactionSchema ]
+	transactions: [ transactionSchema ],
+	silent_notifications_settings: {
+		from: {
+			type: Number,
+            validate: validators.integer,
+            min: [0, "{PATH} cannot be lower than {MIN}."],
+            max: [1440, "{PATH} cannot be greater than {MAX}."],
+			default: 0
+		},
+        to: {
+            type: Number,
+            validate: [ validators.integer, validators.greaterThan("silent_notifications_settings.from")],
+            min: [0, "{PATH} cannot be lower than {MIN}."],
+            max: [1440, "{PATH} cannot be greater than {MAX}."],
+            default: 0
+        },
+		days: {
+			monday: {
+				type: Boolean,
+				default: false
+			},
+            tuesday: {
+                type: Boolean,
+                default: false
+            },
+            wednesday: {
+                type: Boolean,
+                default: false
+            },
+            thursday: {
+                type: Boolean,
+                default: false
+            },
+            friday: {
+                type: Boolean,
+                default: false
+            },
+            saturday: {
+                type: Boolean,
+                default: false
+            },
+            sunday: {
+                type: Boolean,
+                default: false
+            }
+		}
+	}
 });
 
 //methods
@@ -327,7 +397,6 @@ schema.methods.checkAvailabilityForDateRange = function(start, end)
 {
 	let available = true;
 	const dayShifts = this.getAllDayShiftsInRange(start, end);
-	console.log(dayShifts);
 
 	dayShifts.forEach(dayShift => {
 		const availability = this.getAvailabilitySetForDay(new Date(dayShift.day + " 00:00:00"));

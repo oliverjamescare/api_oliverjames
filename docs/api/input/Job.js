@@ -56,6 +56,41 @@
                 "carer": {
                     "first_name": "Test",
                     "surname": "Test",
+                    "jobs": [
+                        {
+                            "_id": "5a95290a1e28cd1d88ea64cd",
+                            "author": {
+                                "_id": "5a9419d8e33cb930aa7c3856",
+                                "care_home": {
+                                    "care_service_name": "Test Care  Home",
+                                    "type_of_home": "Residential",
+                                    "name": "Test Test"
+                                },
+                                "email": "test.test@test.com",
+                                "phone_number": "3545232323",
+                                "address": {
+                                    "postal_code": "Ex8 2el",
+                                    "city": "Exmouth",
+                                    "address_line_1": "Elwyn Rd, Exmouth EX8 2E",
+                                    "location": {
+                                        "coordinates": [
+                                            50.7583820,
+                                            19.005533
+                                        ],
+                                        "type": "Point"
+                                    },
+                                    "address_line_2": null,
+                                    "company": null,
+                                    "link": "https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533"
+                                }
+                            },
+                            "review": {
+                                "created": 1520957549836,
+                                "description": "Great work",
+                                "rate": 5
+                            }
+                        }
+                    ],
                     "dbs": {
                         "status": "Clear",
                         "dbs_date": 157766400000
@@ -75,7 +110,15 @@
                             "Agency carer induction training"
                         ]
                     },
-                    "profile_image": null
+                    "profile_image": null,
+                    "care_experience": {
+                        "months": 2,
+                        "years": 1
+                    },
+                    "reviews": {
+                        "average": 5,
+                        "count": 1
+                    }
                 },
                 "email": "test@test.pl",
                 "phone_number": "111222111"
@@ -206,7 +249,7 @@
  *
  * @apiHeader {String} X-access-token Access token
  * @apiParam {String} id Job id
- * @apiParam {String} message Withdrawal message explanation.
+ * @apiParam {String} [message] Withdrawal message explanation. Required when job hasn't started yet.
  * @apiParam {String} [password] User account password. Required when job has already been started.
  *
  * @apiSuccess (Success 200){Boolean} status Operation status.
@@ -473,7 +516,7 @@
  *
  * @apiHeader {String} X-access-token Access token
  * @apiParam {String} jobs Parsed to string job objects e.g [{ "start_date": 1518436800000, "end_date": 1518436900000, "amount" : 1, "role": "Carer" },{ "start_date": 1518436800000, "end_date": 1518436900000, "role": "Senior Carer"}]
- * @apiParam {String} [gender] Gender preference. Available options: male, female, no preference(default)
+ * @apiParam {String} [gender_preference] Gender preference. Available options: Male, Female, No preference(default)
  * @apiParam {File} [floor_plan] Floor plan file. Required if not already exists. Allowed mime types: application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/pdf, image/png, image/jpg, image/jpeg
  * @apiParam {String} [parking] Description about parking. Required if not already exists.
  * @apiParam {String} [notes_for_carers] Notes for carers. Required if not already exists.
@@ -545,7 +588,7 @@
  * @apiGroup Job
  *
  * @apiHeader {String} X-access-token Access token
- * @apiParam {String} jobs Parsed to string job objects e.g [{ "_id": "72837ydasdasd", "start_date": 1518436800000, "end_date": 1518436900000, "amount" : 1, "role": "Carer" },{ "_id": "72837ydasdasd", "start_date": 1518436800000, "end_date": 1518436900000, "role": "Senior Carer"}]
+ * @apiParam {String} jobs Parsed to string job objects e.g [{ "_id": "5a814b8deb5cee1dc0720128", "start_date": 1518436800000, "end_date": 1518436900000, "amount" : 1, "role": "Carer", "priority_carers": [ "5a814b8deb5cee1dc0720128" ] }]
  * @apiParam {String} [gender] Gender preference. Available options: Male, Female, No preference(default)
  *
  * @apiSuccess (Success 201){Boolean} status Operation status.
@@ -554,23 +597,16 @@
  {
      "jobs": [
         {
-            "_id": "sasdasda",
+            "_id": "5a814b8deb5cee1dc0720128",
             "start_date": 1521126000000,
             "end_date": 1521127000000,
             "amount": 10,
             "role": "Carer",
             "notes": "",
-            "priority_carers": [],
-            "carersToContact": 10
-        },
-        {
-            "_id": "sasdasda",
-            "start_date": 1521127000000,
-            "end_date": 1521128000000,
-            "amount": 1,
-            "role": "Senior Carer",
-            "notes": "",
-            "priority_carers": [],
+            "priority_carers": [
+                "5a814b8deb5cee1dc0720128"
+            ],
+            "gender_preference": "No preference"
             "carersToContact": 10
         }
     ]
@@ -631,8 +667,10 @@
  * @apiParam {String} [emergency_guidance] Emergency guidance.
  * @apiParam {String} [report_contact] Report contact info.
  * @apiParam {String} [superior_contact] Superior contact info.
+ * @apiParam {String} [notes] Additional notes.
+ * @apiParam {String} [gender_preference] Gender preference. Available options: No preference, Male, Female.
  *
- * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccess (Success 200){Boolean} status Operation status.
  * @apiSuccessExample Success-Response:
  *   HTTP/1.1 200 OK
  *   {
@@ -722,7 +760,7 @@
  * @apiHeader {String} X-access-token Access token
  * @apiParam {String} id Job id.
  *
- * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccess {Boolean} status Operation status.
  * @apiSuccessExample Success-Response:
  *   HTTP/1.1 200 OK
  *   {
@@ -875,6 +913,163 @@
  *              {
  *                   "field": "job",
  *                   "message": "Job not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {post} /jobs/:id/carer/review Review job carer
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Review job carer
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Job id.
+ *
+ * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *      "status": true
+ *   }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Job not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Job not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "Job not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError Conflict Carer of this job has already been rated
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 409 Carer of this job has already been rated
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "Carer of this job has already been rated"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {post} /jobs/:id/challenge Challenge job payment
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Challenge job payment
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Job id.
+ * @apiParam {String} description Challenge detailed description. Max 1000 characters.
+ *
+ * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *      "status": true
+ *   }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Job not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Job not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "Job not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError Conflict This job cannot be challenged
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 409 This job cannot be challenged
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "This job cannot be challenged"
  *              }
  *          ]
  *      }

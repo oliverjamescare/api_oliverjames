@@ -8,9 +8,9 @@
 const moment = require("moment");
 
 //custom
-const Job = require("./../models/Job").schema;
-const User = require("./../models/User").schema;
-const Utils = require("../services/utils");
+const Job = require("../../models/Job").schema;
+const User = require("../../models/User").schema;
+const Utils = require("../../services/utils");
 
 module.exports = {
 
@@ -84,7 +84,9 @@ module.exports = {
 					path: "assignment.carer",
 					select: {
 						"carer.first_name": 1,
-						"carer.surname": 1
+						"carer.surname": 1,
+						"carer.reviews": 1,
+						"carer.care_experience": 1
 					}
 				}
 			],

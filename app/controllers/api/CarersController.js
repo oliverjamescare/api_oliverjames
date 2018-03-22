@@ -6,48 +6,29 @@
 
 //core
 const moment = require("moment");
+const async = require("async");
 
 //custom
-const User = require("./../models/User").schema;
-const JobModel = require("./../models/Job");
+const User = require("../../models/User").schema;
+const JobModel = require("../../models/Job");
 const Job = JobModel.schema;
-const Utils = require("../services/utils");
-const locationHandler = require('../services/locationHandler');
-const jobHandler = require('../services/jobsHandler');
+const Utils = require("../../services/utils");
+const locationHandler = require('../../services/locationHandler');
+const jobHandler = require('../../services/JobsHandler');
+const CarersHandler = require('../../services/CarersHandler');
 
 module.exports = {
 	checkCarersNearArea: function (req, res)
 	{
-		locationHandler.getCustomLocation(req)
+		locationHandler.getCustomLocation(req.query)
 			.then((address) => {
 				if (!address.location || !address.location.coordinates.length)
 					return res.json({ exists: false });
 
-				//finding carers near area
-				User.aggregate([
-					{
-						$geoNear: {
-							near: address.location.coordinates,
-							distanceField: "distance",
-							distanceMultiplier: 3963.2,
-							limit: 1,
-							spherical: true,
-							query: {
-								carer: { $exists: true }
-							}
-						}
-					},
-					{
-						$project: {
-							"carer.max_job_distance": 1,
-							"distance": 1,
-							"distanceArea": { "$subtract": [ "$carer.max_job_distance", "$distance" ] },
-						}
-					},
-					{
-						$match: { "distanceArea": { $gte: 0 } }
-					}
-				]).then((results) => res.json({ exists: Boolean(results.length) }));
+
+                CarersHandler
+					.getAvailableCarersNearby(address.location.coordinates)
+					.then((results) => res.json({ exists: Boolean(results.length) }));
 			});
 	},
 
@@ -233,5 +214,68 @@ module.exports = {
 		paginated.results.map(job => Job.parse(job, req));
 
 		res.json(paginated);
+	},
+
+    getNotificationsSettings: function (req, res)
+    {
+        res.json(req.user.carer.silent_notifications_settings);
+    },
+
+    updateNotificationsSettings: function (req, res)
+    {
+        req.user.carer.silent_notifications_settings = req.body;
+        console.log(req.headers);
+
+        req.user
+            .save()
+            .then(() => res.json({ status: true }))
+            .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+    },
+
+    getHomeScreenDetails: async function(req, res)
+	{
+        async.parallel({
+			nearestJob: (callback) => {
+
+                Job.find({ $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } } ]})
+                .sort({ start_date: 1 })
+                .limit(1)
+				.exec()
+                .then(results => callback(null, results));
+
+			},
+			jobs24: (callback) => {
+
+                let tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+
+                Job.count({ $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } }, { start_date: { $gte: new Date() } }, { start_date: { $lte: tomorrow } } ]})
+					.exec()
+                    .then(results => callback(null, results));
+			},
+			newJobs: (callback) => {
+                jobHandler
+                    .getNewJobs(req)
+                    .then(async (queryConfig) => {
+
+                        let pipeline = queryConfig.query.pipeline();
+                        pipeline.push({ $count: 'jobs' });
+
+                        const newJobs = await Job.aggregate(pipeline).exec();
+                        callback(null, newJobs);
+                    });
+			}
+		}, (errors, results) => {
+
+        	//sending response
+        	const response = {
+                reviews: req.user.carer.reviews,
+				nextJobStartDate: results.nearestJob.length ? results.nearestJob[0].start_date.getTime(): null,
+				jobs24: results.jobs24,
+				newJobs: results.newJobs.length ? results.newJobs[0].jobs : 0
+			}
+
+            res.json(response);
+		});
 	}
 }

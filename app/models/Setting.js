@@ -12,10 +12,7 @@ const schema = mongoose.Schema({
         enum: settingTypes,
         unique: true
     },
-    value: {
-        type: String | Object | Number,
-        required: [true, "{PATH} field is required."]
-    }
+    value: mongoose.Schema.Types.Mixed
 }, { usePushEach: true });
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been taken.' });

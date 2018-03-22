@@ -5,11 +5,15 @@
   "title": "Oliver James API Documentation",
   "url": "http://api.oliver-james.ready4s.it/api",
   "sampleUrl": "http://api.oliver-james.ready4s.it/api",
+  "footer": {
+    "title": "Push Notifications",
+    "content": "<h1>Push notifications</h1>\n<p>Short description about push notifications structure.</p>\n<h2>Notification payload</h2>\n<p>Notification structure:</p>\n<p>title - notification title <br>\nbody - notification description <br>\nsound - sound enabled / disabled <br>\ntarget - targets: job_details, new_jobs, home <br>\njob_id - target job id, can be null</p>\n<pre><code class=\"language-json\">{\n  &quot;title&quot;: &quot;Cancelled job!&quot;,\n  &quot;body&quot;: &quot;A job you accepted has been cancelled&quot;,\n  &quot;sound&quot;: true,\n  &quot;target&quot;: &quot;job_details&quot;,\n  &quot;job_id&quot;: &quot;87492093dfjdnfs&quot;\n}\n</code></pre>\n"
+  },
   "defaultVersion": "0.0.0",
   "apidoc": "0.3.0",
   "generator": {
     "name": "apidoc",
-    "time": "2018-03-13T09:49:22.079Z",
+    "time": "2018-03-21T17:05:29.925Z",
     "url": "http://apidocjs.com",
     "version": "0.17.6"
   }
