@@ -6,17 +6,19 @@ const googleEndpoint = "https://maps.googleapis.com/maps/api/place/textsearch/js
 
 module.exports = {
 
-    getCustomLocation(req)
+    getCustomLocation(data)
     {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
 
-            const query = (req.body.company || req.query.company ? (req.body.company || req.query.company) + ", " : "")
-                + (req.body.address_line_1 || req.query.address_line_1) + ", "
-                + (req.body.address_line_2 || req.query.address_line_2 ? (req.body.address_line_2 || req.query.address_line_2) + ", " : "")
-                + (req.body.city || req.query.city) + ", "
-                + (req.body.postal_code || req.query.postal_code);
+            if(!data)
+                resolve();
 
-            console.log(query);
+            const query = (data.company ? data.company + ", " : "")
+                + data.address_line_1 + ", "
+                + (data.address_line_2 ? data.address_line_2 + ", " : "")
+                + data.city + ", "
+                + data.postal_code;
+
             //GOOGLE
             const googleParams = {
                 key: config.GOOGLE_KEY,
@@ -25,11 +27,11 @@ module.exports = {
             const googleUrl = googleEndpoint + encodeUrlParams(googleParams);
 
             let address = {
-                postal_code: req.body.postal_code || req.query.postal_code,
-                city: req.body.city || req.query.city,
-                company: req.body.company || req.query.company ? (req.body.company || req.query.company) : null,
-                address_line_1: req.body.address_line_1 || req.query.address_line_1,
-                address_line_2: req.body.address_line_2 || req.query.address_line_2 ? (req.body.address_line_2 || req.query.address_line_2) : null
+                postal_code: data.postal_code,
+                city: data.city,
+                company: data.company ? data.company : null,
+                address_line_1: data.address_line_1,
+                address_line_2: data.address_line_2 ? data.address_line_2 : null
             };
 
             if(address.postal_code && address.city && address.address_line_1)
@@ -46,9 +48,6 @@ module.exports = {
                             ],
                         };
                     }
-
-                    console.log(address);
-                    console.log(body);
                     resolve(address);
                 });
             }

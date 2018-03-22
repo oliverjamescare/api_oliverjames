@@ -179,7 +179,6 @@ module.exports = {
 			}),
 			(errors, results) => {
 
-				console.log(new Date().getTime())
 				if (!res.headersSent && results)
 				{
 					//sending response

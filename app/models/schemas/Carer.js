@@ -23,7 +23,7 @@ const radioText = function (radioAvailableValues)
 	return {
 		value: {
 			type: Number,
-			required: [ true, "{PATH} field is required." ],
+			required: validators.required_if_not("created_by_admin", true),
 			min: Math.min.apply(Math, radioAvailableValues),
 			max: Math.max.apply(Math, radioAvailableValues),
 			validate: validators.integer
@@ -39,7 +39,7 @@ const radio = function (radioAvailableValues)
 	return {
 		value: {
 			type: Number,
-			required: [ true, "{PATH} field is required." ],
+			required: validators.required_if_not("created_by_admin", true),
 			min: Math.min.apply(Math, radioAvailableValues),
 			max: Math.max.apply(Math, radioAvailableValues),
 			validate: validators.integer
@@ -135,6 +135,10 @@ const schema = mongoose.Schema({
 	max_job_distance: {
 		type: Number,
 		default: 5
+	},
+	created_by_admin: {
+		type: Boolean,
+		default: false
 	},
 	cv_uploads: [
         {

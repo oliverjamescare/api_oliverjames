@@ -178,7 +178,7 @@ module.exports = {
 
     updateCarerDetails: function(req, res)
     {
-        locationHandler.getCustomLocation(req)
+        locationHandler.getCustomLocation(req.body)
             .then(address => {
 
                 //updating values
@@ -224,7 +224,7 @@ module.exports = {
             });
 
 	    //address handle
-	    const address = await locationHandler.getCustomLocation(req);
+	    const address = await locationHandler.getCustomLocation(req.body);
 
 		//updating values
 		req.user.phone_number = req.body.phone_number || req.user.phone_number;

@@ -20,7 +20,7 @@ const CarersHandler = require('../../services/CarersHandler');
 module.exports = {
 	checkCarersNearArea: function (req, res)
 	{
-		locationHandler.getCustomLocation(req)
+		locationHandler.getCustomLocation(req.query)
 			.then((address) => {
 				if (!address.location || !address.location.coordinates.length)
 					return res.json({ exists: false });
