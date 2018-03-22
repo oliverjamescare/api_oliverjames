@@ -34,7 +34,7 @@ module.exports = {
 						end_date: { $lte: new Date(calendar[34].day + " 23:59:59")},
 						_id: { $in: req.user.care_home.jobs }
 					},
-            		{ start_date: 1, end_date: 1, care_home: 1, role: 1}
+            		{ start_date: 1, end_date: 1, care_home: 1, role: 1, status: 1 }
             		)
 					.populate("care_home",{
 						"email": 1,
@@ -78,7 +78,7 @@ module.exports = {
 	getCareHomeMyJobs: async function(req, res)
 	{
 		const options = {
-			select: { start_date: 1, end_date: 1, "assignment.carer": 1},
+			select: { start_date: 1, end_date: 1, "assignment.carer": 1, status: 1 },
 			populate: [
 				{
 					path: "assignment.carer",

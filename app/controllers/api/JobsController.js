@@ -33,7 +33,7 @@ module.exports = {
 
 
     	//for all
-        const jobsQuery = Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 })
+        const jobsQuery = Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1 })
             .populate("care_home",{
                 "email": 1,
                 "phone_number": 1,
@@ -391,6 +391,10 @@ module.exports = {
         //summary sheet already sent
         if(job.assignment.summary_sheet && job.assignment.summary_sheet.signature)
             return res.status(409).json(Utils.parseStringError("This job already has summary sheet", "job"));
+
+        //summary sheet already sent
+        if(job.start_date.getTime() > new Date().getTime())
+            return res.status(409).json(Utils.parseStringError("You can't sent summary before start of the job", "job"));
 
         //signature upload
         const uploader = fileHandler(req, res);

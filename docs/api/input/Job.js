@@ -42,6 +42,7 @@
                     }
             },
             "role": "Senior Carer",
+            "status": "POSTED",
             "general_guidance": {
                 "floor_plan": "http://localhost:8000/uploads/users/151808246323012.floor_plan.docx",
                 "parking": "test",

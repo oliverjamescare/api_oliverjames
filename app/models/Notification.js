@@ -1,5 +1,6 @@
 //core
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate');
 
 const statuses = {
     CREATED: "CREATED",
@@ -36,4 +37,18 @@ const schema = mongoose.Schema({
     }
 }, { usePushEach: true });
 
+schema.plugin(mongoosePaginate);
+
+schema.statics.parse = function (notification)
+{
+    if(notification)
+    {
+        if(notification.created)
+            notification.created = notification.created.getTime();
+    }
+
+    return notification;
+}
+
 module.exports.schema = mongoose.model("Notification", schema);
+module.exports.statuses = statuses;

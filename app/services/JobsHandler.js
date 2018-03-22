@@ -6,6 +6,7 @@ const JobModel = require("./../models/Job");
 const Job = JobModel.schema;
 const User = require("./../models/User").schema;
 const CarersHandler = require('./CarersHandler');
+const Setting = require('./../models/Setting').schema;
 
 module.exports = {
     getNewJobs: function(req, fromCareHome = null, withoutJob = null)
@@ -93,7 +94,7 @@ module.exports = {
                     },
                     {
                         $project: {
-                            start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1
+                            start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1,  status: 1
                         }
                     },
                     {
@@ -148,7 +149,7 @@ module.exports = {
                     },
                     {
                         $project: {
-                            start_date: 1, end_date: 1, care_home: 1,  role: 1, notes: 1, general_guidance: 1,
+                            start_date: 1, end_date: 1, care_home: 1,  role: 1, notes: 1, general_guidance: 1,  status: 1,
                             conflict: { $anyElementTrue: { $map: { input: "$conflicts", as: "el", in: "$$el.conflict" } } }
                         }
                     }
@@ -257,5 +258,13 @@ module.exports = {
                 });
             });
         });
+    },
+    
+    assignBuckets: async function (users = [], priority = [])
+    {
+        //getting notifications settings
+        const settings = await Setting.findOne({ type: "notifications" }).exec();
+
+
     }
 }

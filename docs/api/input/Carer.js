@@ -251,7 +251,17 @@
                                 "address_line_2": null,
                                 "company": null
                             }
-                        }
+                        },
+                        "status": "POSTED",
+                        "general_guidance": {
+                            "floor_plan": "http://localhost:8000/uploads/users/151808246323012.floor_plan.docx",
+                            "parking": "test",
+                            "notes_for_carers": "test",
+                            "emergency_guidance": "test",
+                            "report_contact": "test",
+                            "superior_contact": "test"
+                        },
+                        "notes": null
                     }
                 ]
             },
@@ -345,7 +355,17 @@
                              "address_line_2": null,
                              "company": null
                          }
-                     }
+                     },
+                     "status": "POSTED",
+                     "general_guidance": {
+                        "floor_plan": "http://localhost:8000/uploads/users/151808246323012.floor_plan.docx",
+                        "parking": "test",
+                        "notes_for_carers": "test",
+                        "emergency_guidance": "test",
+                        "report_contact": "test",
+                        "superior_contact": "test"
+                     },
+                     "notes": null
                  }
              ]
          },
@@ -439,6 +459,7 @@
                 }
             },
             "role": "Senior Carer",
+            "status": "POSTED",
             "general_guidance": {
                 "floor_plan": "http://localhost:8000/uploads/users/151808246323012.floor_plan.docx",
                 "parking": "test",
@@ -541,7 +562,17 @@
                 "distance": 4.25
             },
             "role": "Senior Carer",
-            "conflict": false
+            "conflict": false,
+            "status": "POSTED",
+            "general_guidance": {
+                "floor_plan": "http://localhost:8000/uploads/users/151808246323012.floor_plan.docx",
+                "parking": "test",
+                "notes_for_carers": "test",
+                "emergency_guidance": "test",
+                "report_contact": "test",
+                "superior_contact": "test"
+            },
+            "notes": null
         }
      ],
      "pages": 1,
@@ -743,6 +774,71 @@
  *          "nextJobStartDate": 1521136000000,
  *          "jobs24": 0,
  *          "newJobs": 1
+ *    }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {get} /carer/notifications/list Carer notifications
+ * @apiSampleRequest /carer/home
+ * @apiVersion 0.0.1
+ * @apiName Carer notifications
+ * @apiGroup Carer
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {Number} [page] Page number.
+ * @apiParam {Number} [results] Results per page. Default 10.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+            "results": [
+                {
+                    "_id": "5ab27206d27d0508a444b220",
+                    "title": "Modified job!",
+                    "description": "A job you accepted has been modified by the client",
+                    "job": "5a95290a1e28cd1d88ea64cd",
+                    "created": 1521643104447,
+                    "status": "READ"
+                },
+            ],
+            "pages": 3,
+            "total": 21
+         }
  *    }
  *
  * @apiError AccessDenied Access Denied.

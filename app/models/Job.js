@@ -107,10 +107,7 @@ const schema = mongoose.Schema({
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "User",
 			},
-            group: {
-                type: String,
-                required: [ true, "{PATH} field is required." ]
-            },
+
             time: {
                 type: Date,
                 required: [ true, "{PATH} field is required." ]
@@ -122,6 +119,10 @@ const schema = mongoose.Schema({
 			},
         }
     ],
+    group: {
+        type: String,
+        required:
+    },
     status: {
         type: String,
         enum: Object.values(statuses),

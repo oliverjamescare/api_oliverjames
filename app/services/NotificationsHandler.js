@@ -86,11 +86,19 @@ module.exports = class
 
         if(Object.keys(NOTIFICATIONS).indexOf(type) != -1)
         {
+            const description = this.prepareDescription(NOTIFICATIONS[type].description, data.inputs || [])
             notification = {
                 to: data.to,
                 notification: {
                     title: NOTIFICATIONS[type].title,
-                    body: this.prepareDescription(NOTIFICATIONS[type].description, data.inputs || []),
+                    body: description,
+                    sound: data.sound || true,
+                    target: NOTIFICATIONS[type].target,
+                    job_id: data.job_id || null
+                },
+                data: {
+                    title: NOTIFICATIONS[type].title,
+                    body: description,
                     sound: data.sound || true,
                     target: NOTIFICATIONS[type].target,
                     job_id: data.job_id || null

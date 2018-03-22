@@ -8,10 +8,14 @@
 const moment = require("moment");
 const async = require("async");
 
-//custom
+//models
 const User = require("../../models/User").schema;
 const JobModel = require("../../models/Job");
 const Job = JobModel.schema;
+const NotificationModel = require("../../models/Notification");
+const Notification = NotificationModel.schema;
+
+//services
 const Utils = require("../../services/utils");
 const locationHandler = require('../../services/locationHandler');
 const jobHandler = require('../../services/JobsHandler');
@@ -104,7 +108,7 @@ module.exports = {
 						_id: { $in: req.user.carer.jobs },
         				"assignment.summary_sheet": { $exists: false }
 					},
-            		{ start_date: 1, end_date: 1, care_home: 1, role: 1}
+            		{ start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1,  status: 1 }
             		)
 					.populate("care_home",{
 						"email": 1,
@@ -147,7 +151,7 @@ module.exports = {
                     _id: { $in: req.user.carer.jobs },
                     "assignment.summary_sheet": { $exists: false }
                 },
-                { start_date: 1, end_date: 1, care_home: 1, role: 1}
+                { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1,  status: 1 }
             )
                 .populate("care_home",{
                     "email": 1,
@@ -187,7 +191,7 @@ module.exports = {
 	getCarerMyJobs: async function(req, res)
 	{
 		const options = {
-			select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1 },
+			select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1 },
 			populate: [
 				{
 					path: "care_home",
@@ -277,5 +281,37 @@ module.exports = {
 
             res.json(response);
 		});
-	}
+	},
+
+    getNotifications: async function (req, res)
+    {
+        const options = {
+        	select: {
+        		title: 1,
+				description: 1,
+				job: 1,
+				created: 1,
+				status: 1
+			},
+            sort: { created: -1 },
+			lean: true,
+			leanWithId: false
+        };
+
+        const query = { carer: req.user._id };
+
+        //pagination and sending response
+        const notifications = await Utils.paginate(Notification, { query: query, options: options }, req);
+        let paginated = Utils.parsePaginatedResults(notifications);
+        paginated.results.map(notification => Notification.parse(notification));
+
+        res.json(paginated);
+
+        //updating status
+        Notification.update(
+        	{ _id: { $in: paginated.results.map(notification => notification._id ) } },
+			{ status: NotificationModel.statuses.READ },
+			{ multi: true, strict: false }
+		).catch(error => console.log(error));
+    }
 }
