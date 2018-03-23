@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 const mongoosePaginate = require('mongoose-paginate');
+const mongooseAggregatePaginate = require('mongoose-aggregate-paginate');
 const randomstring = require("randomstring");
 const JWT = require('jsonwebtoken');
 const async = require('async');
@@ -400,6 +401,7 @@ function handleStatus(user)
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been taken.' });
 schema.plugin(mongoosePaginate);
+schema.plugin(mongooseAggregatePaginate);
 
 module.exports.schema = mongoose.model("User", schema);
 module.exports.statuses = statuses;

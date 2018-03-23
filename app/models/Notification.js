@@ -24,7 +24,7 @@ const schema = mongoose.Schema({
     job: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Job",
-        required: [true, "{PATH} field is required."]
+        default: null
     },
     status: {
         type: String,

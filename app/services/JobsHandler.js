@@ -6,7 +6,7 @@ const JobModel = require("./../models/Job");
 const Job = JobModel.schema;
 const User = require("./../models/User").schema;
 const CarersHandler = require('./CarersHandler');
-const Setting = require('./../models/Setting').schema;
+
 
 module.exports = {
     getNewJobs: function(req, fromCareHome = null, withoutJob = null)
@@ -209,9 +209,6 @@ module.exports = {
                 conflictJobs: (callback) => {
 
                     const quarterOverlap = 1000 * 60 * 15;
-
-                    console.log(new Date(job.end_date + quarterOverlap));
-                    console.log(new Date(job.start_date - quarterOverlap) );
                     Job.find(
                         {
                             'assignment.carer': { $exists: true },
@@ -260,11 +257,77 @@ module.exports = {
         });
     },
     
-    assignBuckets: async function (users = [], priority = [])
+    assignBuckets: function (users = [], priority = [], jobStart, settings)
     {
-        //getting notifications settings
-        const settings = await Setting.findOne({ type: "notifications" }).exec();
+        let time = new Date();
+        let notifications = [];
 
+
+        const timeRangeName = getTimeRangeName(jobStart);
+        let applyTimeDelay = true;
+
+        JobModel.buckets.forEach(bucket => {
+
+            //time delay apply
+            applyTimeDelay ? time.setMinutes(time.getMinutes() + settings.value[bucket][timeRangeName]) : applyTimeDelay = true;
+
+            users.forEach(user => {
+
+                if(notifications.findIndex(notification => notification.user.toString() == user._id.toString()) == -1)
+                {
+                    if(
+                        (priority.indexOf(user._id.toString()) != -1 && bucket == "preferred") ||
+                        (bucket == "starsFourToFive" && user.carer.reviews.average > 4 && user.carer.reviews.average <= 5) ||
+                        (bucket == "starsThreeToFour" && user.carer.reviews.average > 3 && user.carer.reviews.average <= 4) ||
+                        (bucket == "unrated" && user.carer.reviews.count == 0) ||
+                        (bucket == "starsTwoToThree" && user.carer.reviews.average > 2 && user.carer.reviews.average <= 3) ||
+                        (bucket == "starsOneToTwo" && user.carer.reviews.average >= 1 && user.carer.reviews.average <= 2)
+                    )
+                        notifications.push({ user: user._id, bucket: bucket, time: new Date(time.getTime()) });
+                }
+            });
+
+            //if no notifications in current bucket than don't apply time delay in the next bucket
+            if(!notifications.filter(notification => notification.time.getTime() == time.getTime()).length)
+                applyTimeDelay = false;
+        });
+
+        return notifications;
 
     }
+}
+
+function getTimeRangeName(jobStart)
+{
+    const hoursToStart = Math.ceil((jobStart.getTime() - new Date().getTime()) / (1000 * 60 * 60));
+    const timeRanges = [
+        {
+            name: "lessThanFourHours",
+            upperBound: 4,
+        },
+        {
+            name: "betweenFourAndTwelveHours",
+            upperBound: 12,
+        },
+        {
+            name: "betweenTwelveAndTwentyFourHours",
+            upperBound: 24,
+        },
+        {
+            name: "moreThanTwentyFourHours",
+            upperBound: 840,
+        }
+    ];
+
+    let timeRangeName = "";
+
+    timeRanges.forEach(range => {
+        if(hoursToStart <= range.upperBound)
+            timeRangeName = range.name;
+
+        if(hoursToStart > 24)
+            timeRangeName = "moreThanTwentyFourHours";
+    });
+
+    return timeRangeName
 }

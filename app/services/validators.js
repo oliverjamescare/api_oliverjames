@@ -155,6 +155,21 @@ module.exports.futureDate = function(field)
     }
 };
 
+module.exports.dateMaxDaysForward = function(field, daysForward)
+{
+    return {
+        validator: function (value)
+        {
+            const forwardDate = new Date();
+            forwardDate.setDate(forwardDate.getDate() + daysForward);
+
+            const validationRequired = this.isNew || (this.initial[field] && value && new Date(this.initial[field]).getTime() != value.getTime()); //validates when object is new or value changed
+            return validationRequired ? !value || value.getTime() < forwardDate.getTime() : true;
+        },
+        message: "{PATH} cannot be greater than " + daysForward + " days forward."
+    }
+};
+
 module.exports.dateGreaterThanDateField = function (field)
 {
     return {

@@ -60,6 +60,9 @@ router.delete('/care-home/carers/:id/block', authenticate, security(["CARE_HOME_
 //Jobs
 router.post('/jobs', authenticate, security(["CARE_HOME_FULL"]), JobsController.addJobs);
 router.get('/jobs/carers', authenticate, security(["CARE_HOME_FULL"]), JobsController.checkCarersToContact);
+router.get('/jobs/:group/notifications/carers', authenticate, security(["CARE_HOME_FULL"]), JobsController.getJobNotificationsCarers);
+router.get('/jobs/:group/notifications/carers/:id', authenticate, security(["CARE_HOME_FULL"]), JobsController.removeJobNotificationCarer);
+
 router.get('/jobs/:id', authenticate, JobsController.getJobDetails);
 router.put('/jobs/:id/accept', authenticate, security(["CARER_FULL"]), JobsController.acceptJob);
 router.put('/jobs/:id/withdraw', authenticate, security(["CARER_FULL"]), JobsController.withdrawJob);

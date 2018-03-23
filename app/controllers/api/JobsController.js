@@ -7,13 +7,18 @@
 //core
 const async = require('async');
 const bcrypt = require('bcrypt-nodejs');
+const randomstring = require('randomstring');
+const ObjectId = require('mongoose').Types.ObjectId;
 
-//custom
+//models
 const JobModel = require("../../models/Job");
+const User = require("../../models/User").schema;
 const Job = JobModel.schema;
 const JobWithdrawal = require("../../models/JobWithdrawal").schema;
 const reviewStatuses = require("../../models/schemas/Review").reviewStatuses;
+const Setting = require('./../../models/Setting').schema;
 
+//services
 const fileHandler = require("../../services/fileHandler");
 const JobHandler = require('../../services/JobsHandler');
 const Utils = require("../../services/utils");
@@ -136,19 +141,24 @@ module.exports = {
 		}
 		catch (error) {}
 
+		const group = randomstring.generate(32);
+
 		//creating job objects
 		jobsObjects.forEach(jobObject => {
 			if (typeof jobObject == "object")
 			{
 				//generating multiple jobs
 				const carersAmount = (parseInt(jobObject[ "amount" ]) || 1) > 1 ? (parseInt(jobObject[ "amount" ]) || 1) : 1;
-				for (let i = 0; i < carersAmount; i++) {
+				for (let i = 0; i < carersAmount && i < 5; i++)
+				{
 					let job = new Job({
 						start_date: new Date(jobObject.start_date),
 						end_date: new Date(jobObject.end_date),
 						care_home: req.user._id,
 						role: jobObject.role,
 						notes: jobObject.notes,
+                        group: group,
+                        priority_carers: Array.isArray(jobObject.priority_carers) ? jobObject.priority_carers.filter(carerId => ObjectId.isValid(carerId)) : [],
                         gender_preference: Object.values(JobModel.genderPreferences).indexOf(req.body.gender_preference) != -1 ? req.body.gender_preference : JobModel.genderPreferences.NO_PREFERENCE,
 						general_guidance: {
 							superior_contact: validGeneralGuidance ? req.body.superior_contact || req.user.care_home.general_guidance.superior_contact : req.body.superior_contact,
@@ -177,23 +187,33 @@ module.exports = {
 						callback(error);
 					});
 			}),
-			(errors, results) => {
+			async (errors, results) => {
 
-				if (!res.headersSent && results)
+				if(!res.headersSent && results)
 				{
 					//sending response
-					res.status(201).json({ status: true });
+					res.status(201).json({ status: true, group: group });
 
-					//saving jobs
-					jobs.forEach(job => job.save().catch(error => console.log(error)));
-
-					//updating general guidance
-					if (!validGeneralGuidance && jobs.length)
+                    //updating general guidance
+                    if (jobs.length)
 						req.user.care_home.general_guidance = jobs[0].general_guidance;
 
-					//saving job references
-					jobs.forEach(job => req.user.care_home.jobs.push(job));
-					req.user.save().catch(error => console.log(error));
+                    //saving job references
+                    jobs.forEach(job => req.user.care_home.jobs.push(job));
+                    req.user.save().catch(error => console.log(error));
+
+                    //saving jobs and preparing notifications
+                    const settings = await Setting.findOne({ type: "notifications" }).exec();
+
+                    jobs.forEach(async job => {
+
+                            const availableCarers = await JobHandler.getAvailableCarers(job, req.user);
+                            const notifications = await JobHandler.assignBuckets(availableCarers, job.priority_carers, job.start_date, settings);
+                            notifications.forEach(notification => job.notifications.push(notification));
+
+                            job.save().catch(error => console.log(error))
+                        }
+                    );
 				}
 			}
 		);
@@ -233,6 +253,79 @@ module.exports = {
 
 
         return res.json({ jobs });
+    },
+
+    getJobNotificationsCarers: async function (req, res)
+    {
+        const group = req.params.group;
+        const jobs = await Job.find({ group: group, care_home: req.user._id });
+        const priorityCarers = [];
+        const carers = [];
+
+        //group not found
+        if(!jobs.length)
+            return res.status(404).json(Utils.parseStringError("Group not found", "group"));
+
+        jobs.forEach(job => {
+            job.notifications.forEach(notification => {
+                const index = carers.findIndex(carer => carer.id == notification.user.toString());
+                if(index == -1)
+                    carers.push({ id: notification.user.toString(), time: notification.time });
+                else
+                {
+                    if(carers[index].time.getTime() < notification.time)
+                        carers[index].time = notification.time;
+                }
+
+                if(priorityCarers.indexOf(notification.user.toString()) == -1 && notification.bucket == JobModel.buckets[0]) //is priority
+                    priorityCarers.push(notification.user.toString());
+            })
+        });
+
+        const query = User.aggregate([
+            {
+                $match: {
+                    carer: { $exists: true },
+                    _id: { $in: carers.map(carer => ObjectId(carer.id)) }
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    'carer.profile_image': 1,
+                    'carer.first_name': 1,
+                    'carer.surname': 1,
+                    'carer.reviews': 1,
+                    'carer.care_experience': 1,
+                    'isPriority': {
+                        $cond: {
+                            if: { $in: [ "$_id", priorityCarers.map(id => ObjectId(id)) ] },
+                            then: 1,
+                            else: 0
+                        }
+                    }
+                }
+            },
+            {
+                $sort : { isPriority : -1 }
+            }
+        ]);
+
+        const users = await Utils.paginate(User, { query: query, options: {} }, req, true);
+        let paginated = Utils.parsePaginatedResults(users);
+
+        paginated.results.map(user => {
+            user = User.parse(user, req);
+            return user;
+        });
+
+        res.json(paginated);
+
+    },
+
+    removeJobNotificationCarer: function(req, res)
+    {
+
     },
 
 	//only carer methods

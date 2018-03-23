@@ -7,6 +7,7 @@
 //core
 const ObjectId = require('mongoose').Types.ObjectId;
 const async = require("async");
+const randomstring = require('randomstring');
 
 //models
 const JobModel = require("../../models/Job");
@@ -472,6 +473,7 @@ module.exports = {
         }
         catch (error) {}
 
+        const group = randomstring.generate(32);
 
         //creating job objects
         jobsObjects.forEach(jobObject => {
@@ -487,6 +489,7 @@ module.exports = {
                         care_home: careHome._id,
                         role: jobObject.role,
                         notes: jobObject.notes,
+                        group: group,
                         gender_preference: Object.values(JobModel.genderPreferences).indexOf(req.body.gender_preference) != -1 ? req.body.gender_preference : JobModel.genderPreferences.NO_PREFERENCE,
                         manual_booking: jobObject.manual_booking || true,
                         general_guidance: {

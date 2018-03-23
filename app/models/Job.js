@@ -36,14 +36,18 @@ const jobNotificationStatuses = {
 	SCHEDULED: "SCHEDULED",
 	SENT: "SENT",
 	DUPLICATE: "DUPLICATE",
-	CARER_UNAVAILABLE: "CARER_UNAVAILABLE"
+	CARER_UNAVAILABLE: "CARER_UNAVAILABLE",
+	CANCELLED: "CANCELLED"
 };
+
+//notification job buckets
+const buckets = ["preferred", "starsFourToFive", "starsThreeToFour", "unrated", "starsTwoToThree", "starsOneToTwo" ];
 
 const schema = mongoose.Schema({
 	start_date: {
 		type: Date,
 		required: [ true, "{PATH} field is required." ],
-		validate: validators.futureDate('start_date'),
+		validate: [ validators.futureDate('start_date'), validators.dateMaxDaysForward('start_date', 35) ],
 	},
 	end_date: {
 		type: Date,
@@ -101,15 +105,24 @@ const schema = mongoose.Schema({
             ref: "User",
         }
     ],
+	priority_carers: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+        }
+	],
     notifications: [
         {
             user: {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "User",
 			},
-
             time: {
                 type: Date,
+                required: [ true, "{PATH} field is required." ]
+            },
+            bucket: {
+                type: String,
                 required: [ true, "{PATH} field is required." ]
             },
 			status: {
@@ -121,7 +134,7 @@ const schema = mongoose.Schema({
     ],
     group: {
         type: String,
-        required:
+        required: [ true, "{PATH} field is required." ]
     },
     status: {
         type: String,
@@ -276,3 +289,5 @@ schema.plugin(mongooseAggregatePaginate);
 module.exports.schema = mongoose.model("Job", schema);
 module.exports.statuses = statuses;
 module.exports.genderPreferences = genderPreferences;
+module.exports.jobNotificationStatuses = jobNotificationStatuses;
+module.exports.buckets = buckets;

@@ -10,6 +10,10 @@ const cron = require('node-cron');
 const JobModel = require("./../models/Job");
 const Job = JobModel.schema;
 
+//services
+const QueuesHandler = require('./../services/QueuesHandler');
+const NotificationsHandler = require('./../services/NotificationsHandler');
+
 //updates jobs which has not final status
 cron.schedule('* * * * *', () =>
 {
@@ -31,6 +35,17 @@ cron.schedule('* * * * *', () =>
 
                 if(job.initial.status != job.status) //if status changed
                     job.save().catch(error => console.log(error));
+            })
+        });
+
+
+    //sending scheduled notifications
+    const handler = new NotificationsHandler();
+    handler
+        .getScheduledNotificationsToSend()
+        .then(notifications => {
+            notifications.forEach(notification => {
+                QueuesHandler.publish({ user_id: notification.user_id, job_id: notification.job_id, type: "NEW_JOBS" }, { exchange: "notifications", queue: "notifications" })
             })
         });
 });

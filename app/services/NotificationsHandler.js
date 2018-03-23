@@ -37,9 +37,19 @@ const NOTIFICATIONS = {
     }
 }
 
+//core
 const request = require('request');
+const async = require('async');
 const endpoint = "https://fcm.googleapis.com/fcm/send";
+
+//models
 const Notification  = require('./../models/Notification').schema;
+const JobModel  = require('./../models/Job');
+const Job = JobModel.schema;
+const User = require('./../models/User').schema;
+
+//services
+const JobHandler = require("./JobsHandler");
 
 module.exports = class
 {
@@ -72,7 +82,7 @@ module.exports = class
             const notification = new Notification({
                 title: NOTIFICATIONS[type].title,
                 description: this.prepareDescription(NOTIFICATIONS[type].description, data.inputs || []),
-                job: data.job._id,
+                job:  NOTIFICATIONS[type].job_id ? data.job._id : null,
                 carer: data.user._id
             });
 
@@ -164,5 +174,55 @@ module.exports = class
             inputs.push(user.carer.reviews.average);
 
         return inputs;
+    }
+
+    getScheduledNotificationsToSend()
+    {
+        return new Promise(resolve => {
+
+            let groups = [];
+            const now = new Date();
+            let notifications = [];
+
+            Job.find({ 'notifications.status': JobModel.jobNotificationStatuses.SCHEDULED })
+                .then(async jobs => {
+                    await Promise.all(jobs.map(async job => {
+
+                        if(groups.indexOf(job.group) == -1)
+                        {
+                            //getting care home and checking if notification still should be sent
+                            const careHome = await User.findOne({ _id: job.care_home }).exec();
+                            const carers = await JobHandler.getAvailableCarers(job, careHome);
+
+                            job.notifications.forEach(async notification => {
+                                if(notification.status == JobModel.jobNotificationStatuses.SCHEDULED && notification.time.getTime() <= now.getTime())
+                                {
+                                    if(carers.findIndex(carer => carer._id.toString() == notification.user.toString()) == -1) //not found
+                                        notification.status = JobModel.jobNotificationStatuses.CARER_UNAVAILABLE;
+                                    else
+                                    {
+                                        notification.status = JobModel.jobNotificationStatuses.SENT;
+                                        notifications.push({ job_id: job._id, user_id: notification.user });
+                                    }
+                                }
+                            });
+
+                            groups.push(job.group);
+                        }
+                        //duplicated group
+                        else
+                        {
+                            job.notifications.forEach(notification => {
+                                notification.status != JobModel.jobNotificationStatuses.DUPLICATE;
+                            });
+                        }
+
+                        return notifications.length ? job.save(): true;
+                    }));
+
+                    resolve(notifications);
+                });
+        })
+
     }
 }
