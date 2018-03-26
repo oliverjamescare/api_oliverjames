@@ -303,7 +303,26 @@ module.exports = {
                             then: 1,
                             else: 0
                         }
-                    }
+                    },
+                    'carers': carers
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    'carer.profile_image': 1,
+                    'carer.first_name': 1,
+                    'carer.surname': 1,
+                    'carer.reviews': 1,
+                    'carer.care_experience': 1,
+                    'isPriority': {
+                        $cond: {
+                            if: { $in: [ "$_id", priorityCarers.map(id => ObjectId(id)) ] },
+                            then: 1,
+                            else: 0
+                        }
+                    },
+                    "c": { carers: { $elemMatch: { $eq:['$carers.id', "$id" ]}} }
                 }
             },
             {
