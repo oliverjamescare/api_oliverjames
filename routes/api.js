@@ -61,7 +61,7 @@ router.delete('/care-home/carers/:id/block', authenticate, security(["CARE_HOME_
 router.post('/jobs', authenticate, security(["CARE_HOME_FULL"]), JobsController.addJobs);
 router.get('/jobs/carers', authenticate, security(["CARE_HOME_FULL"]), JobsController.checkCarersToContact);
 router.get('/jobs/:group/notifications/carers', authenticate, security(["CARE_HOME_FULL"]), JobsController.getJobNotificationsCarers);
-router.get('/jobs/:group/notifications/carers/:id', authenticate, security(["CARE_HOME_FULL"]), JobsController.removeJobNotificationCarer);
+router.put('/jobs/:group/notifications/carers/:id', authenticate, security(["CARE_HOME_FULL"]), JobsController.removeJobNotificationCarer);
 
 router.get('/jobs/:id', authenticate, JobsController.getJobDetails);
 router.put('/jobs/:id/accept', authenticate, security(["CARER_FULL"]), JobsController.acceptJob);
@@ -75,7 +75,7 @@ router.post('/jobs/:id/carer/review', authenticate, security(["CARE_HOME_FULL"])
 router.post('/jobs/:id/challenge', authenticate, security(["CARE_HOME_FULL"]), JobsController.challengeJob);
 
 
-router.post('/jobs/:id/notification/test', authenticate, security(["CARER_FULL"]), JobsController.testNotification); //TO REMOVE
+router.post('/jobs/:id/notification/:type/test', authenticate, security(["CARER_FULL"]), JobsController.testNotification); //TO REMOVE
 
 //Payments
 router.put('/payments/card', authenticate, security(["CARE_HOME_FULL"]), PaymentsController.updateCard);

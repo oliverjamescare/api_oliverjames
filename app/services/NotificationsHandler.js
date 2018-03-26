@@ -104,14 +104,16 @@ module.exports = class
                     body: description,
                     sound: data.sound || true,
                     target: NOTIFICATIONS[type].target,
-                    job_id: data.job_id || null
+                    job_id: data.job_id || null,
+                    type: type
                 },
                 data: {
                     title: NOTIFICATIONS[type].title,
                     body: description,
                     sound: data.sound || true,
                     target: NOTIFICATIONS[type].target,
-                    job_id: data.job_id || null
+                    job_id: data.job_id || null,
+                    type: type
                 }
             }
 
@@ -186,7 +188,8 @@ module.exports = class
 
             Job.find({ 'notifications.status': JobModel.jobNotificationStatuses.SCHEDULED })
                 .then(async jobs => {
-                    await Promise.all(jobs.map(async job => {
+
+                    const callbacks = jobs.map(job => async (callback) => {
 
                         if(groups.indexOf(job.group) == -1)
                         {
@@ -194,7 +197,7 @@ module.exports = class
                             const careHome = await User.findOne({ _id: job.care_home }).exec();
                             const carers = await JobHandler.getAvailableCarers(job, careHome);
 
-                            job.notifications.forEach(async notification => {
+                            job.notifications.forEach(notification => {
                                 if(notification.status == JobModel.jobNotificationStatuses.SCHEDULED && notification.time.getTime() <= now.getTime())
                                 {
                                     if(carers.findIndex(carer => carer._id.toString() == notification.user.toString()) == -1) //not found
@@ -207,22 +210,22 @@ module.exports = class
                                 }
                             });
 
+
                             groups.push(job.group);
                         }
                         //duplicated group
                         else
                         {
                             job.notifications.forEach(notification => {
-                                notification.status != JobModel.jobNotificationStatuses.DUPLICATE;
+                                notification.status = JobModel.jobNotificationStatuses.DUPLICATE;
                             });
                         }
 
-                        return notifications.length ? job.save(): true;
-                    }));
+                        return notifications.length ? job.save(() => callback(null)): callback(null);
+                    });
 
-                    resolve(notifications);
+                    async.waterfall(callbacks, () => resolve(notifications));
                 });
         })
-
     }
 }
