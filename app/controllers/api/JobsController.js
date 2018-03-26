@@ -30,8 +30,8 @@ module.exports = {
 	//all
     getJobDetails: function(req, res)
     {
-        // const handler = new PaymentsHandler();
-        // handler.calculatePaymentTime(new Date("2018-03-02 12:59:59"));
+        const handler = new PaymentsHandler();
+        handler.calculatePaymentTime(new Date("2018-03-26 02:00:01"));
 
         // const handler = new NotificationsHandler();
         // const a = handler.isSilent(req.user.carer.silent_notifications_settings);

@@ -2436,13 +2436,20 @@ define({ "api": [
             "optional": false,
             "field": "status",
             "description": "<p>Operation status.</p>"
+          },
+          {
+            "group": "Success 201",
+            "type": "String",
+            "optional": false,
+            "field": "group",
+            "description": "<p>Group id.</p>"
           }
         ]
       },
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n   {\n      \"status\": true\n   }",
+          "content": "HTTP/1.1 201 OK\n   {\n      \"status\": true,\n      \"group\": \"5a814b8deb5cee1dc0720128\"\n   }",
           "type": "json"
         }
       ]

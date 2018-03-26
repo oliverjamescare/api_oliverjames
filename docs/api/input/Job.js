@@ -526,10 +526,12 @@
  * @apiParam {String} [superior_contact] Superior contact info. Required if not already exists.
  *
  * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccess (Success 201){String} group Group id.
  * @apiSuccessExample Success-Response:
- *   HTTP/1.1 200 OK
+ *   HTTP/1.1 201 OK
      {
-        "status": true
+        "status": true,
+        "group": "5a814b8deb5cee1dc0720128"
      }
  *
  * @apiError AccessDenied Access Denied.

@@ -54,8 +54,9 @@ module.exports = class
         });
     }
 
-    calculatePaymentTime(summaryDate)
+    calculatePaymentTime(startDate)
     {
+        //working days
         const workingDays = [
             {
                 day: "monday",
@@ -79,23 +80,82 @@ module.exports = class
             }
         ];
 
-        //checking if summary date is within working days and hours
-        let workingDayIndex = workingDays.findIndex(workingDay => workingDay.dayNumber == summaryDate.getDay());
+        console.log("Start date entry:", startDate);
+
+        //bounds in ms
+        const startBound = 1000  * 60 * 60 * 9;
+        const endBound = 1000 * 60 * 60 * 15;
         let timestampDelay = 1000 * 60 * 60  * 18; //three working days
-        let debitDate = new Date(summaryDate.getTime());
-        let processedDay = workingDayIndex != -1 ? workingDayIndex : 0;
+        let dailyDelay = 1000 * 60 * 60  * 6;
 
-        const startHourBound = 1000  * 60 * 60 * 9;
-        const endHourBound = 1000 * 60 * 60 * 15;
-        let summaryDateTimestamp = summaryDate.getMilliseconds() + (summaryDate.getSeconds() * 1000) + (summaryDate.getMinutes() * 60 * 1000) + (summaryDate.getHours() * 60 * 60 * 1000);
+        //preparing start date
+        let startDateWorkingDayIndex = workingDays.findIndex(startDateWorkingDay => startDateWorkingDay.dayNumber == startDate.getDay());
+        let startDateHours = startDate.getMilliseconds() + (startDate.getSeconds() * 1000) + (startDate.getMinutes() * 60 * 1000) + (startDate.getHours() * 60 * 60 * 1000);
 
-
-        if(workingDayIndex != -1 && (summaryDateTimestamp > startHourBound && summaryDateTimestamp <= endHourBound))
+        while (startDateWorkingDayIndex == -1 || startDateHours < startBound || startDateHours >= endBound)
         {
-            while (timestampDelay > 0)
+            if(startDateWorkingDayIndex == -1) //not working day then add one day, set hours to beginning and check again
             {
-                timestampDelay -= (endHourBound - summaryDateTimestamp);
+                startDate.setDate(startDate.getDate() + 1);
+                startDate.setHours(9,0,0,0);
             }
+            else if(startDateHours < startBound) // working day before working hours then set hours to beginning and check again
+                startDate.setHours(9,0,0,0);
+            else if(startDateHours > endBound)
+            {
+                startDate.setDate(startDate.getDate() + 1);
+                startDate.setHours(9,0,0,0);
+            }
+
+            //update
+            startDateWorkingDayIndex = workingDays.findIndex(startDateWorkingDay => startDateWorkingDay.dayNumber == startDate.getDay());
+            startDateHours = startDate.getMilliseconds() + (startDate.getSeconds() * 1000) + (startDate.getMinutes() * 60 * 1000) + (startDate.getHours() * 60 * 60 * 1000);
         }
+
+        console.log("Start date calculated:", startDate);
+
+        //Debit date calculation
+        let debitDate = new Date(startDate.getTime());
+
+        //preparing debit date
+        let debitDateWorkingDayIndex = workingDays.findIndex(debitDateWorkingDay => debitDateWorkingDay.dayNumber == debitDate.getDay());
+        let debitDateHours = debitDate.getMilliseconds() + (debitDate.getSeconds() * 1000) + (debitDate.getMinutes() * 60 * 1000) + (debitDate.getHours() * 60 * 60 * 1000);
+
+        while(timestampDelay > 0)
+        {
+            if(debitDateWorkingDayIndex != -1) // working day, before working hours then set hours to beginning and check again
+            {
+                let availableTime = 0;
+                let timeToDelay = 0;
+
+                if(debitDateHours < startBound) // full forking day to use
+                    availableTime = dailyDelay;
+                else if(debitDateHours >= startBound && debitDateHours < endBound) // time is between working hours
+                    availableTime = endBound - debitDateHours;
+
+
+                if(timestampDelay - availableTime >= 0)
+                {
+                    debitDate.setDate(debitDate.getDate() + 1);
+                    debitDate.setHours(9,0,0,0);
+                }
+                else
+                    debitDate.setTime(debitDate.getTime() + availableTime - timestampDelay)
+
+                timestampDelay -= availableTime; // reducing timestamp delay
+                
+            }
+            else
+            {
+                debitDate.setDate(debitDate.getDate() + 1);
+                debitDate.setHours(9,0,0,0);
+            }
+
+            //update
+            debitDateWorkingDayIndex = workingDays.findIndex(debitDateWorkingDay => debitDateWorkingDay.dayNumber == debitDate.getDay());
+            debitDateHours = debitDate.getMilliseconds() + (debitDate.getSeconds() * 1000) + (debitDate.getMinutes() * 60 * 1000) + (debitDate.getHours() * 60 * 60 * 1000);
+        }
+
+        console.log("Calculated debit date:", debitDate);
     }
 }
