@@ -2676,6 +2676,121 @@
   },
   {
     "type": "put",
+    "url": "/jobs/:group/notifications/carers/:id",
+    "title": "Cancel carer notification",
+    "version": "0.0.1",
+    "name": "Cancel_carer_notification",
+    "group": "Job",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "group",
+            "description": "<p>Group id.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Carer id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Boolean",
+            "optional": false,
+            "field": "status",
+            "description": "<p>Operation status.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n   \"status\": true\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "NotFound",
+            "description": "<p>Group not found.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 404 Group not found\n{\n     \"errors\": [\n         {\n              \"field\": \"group\",\n              \"message\": \"Group not found\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/api/input/Job.js",
+    "groupTitle": "Job"
+  },
+  {
+    "type": "put",
     "url": "/jobs/:id/cancel",
     "title": "Cancel job",
     "version": "0.0.1",
@@ -3666,6 +3781,114 @@
         {
           "title": "Error-Response:",
           "content": "HTTP/1.1 409 Carer of this job has already been rated\n{\n     \"errors\": [\n         {\n              \"field\": \"job\",\n              \"message\": \"Carer of this job has already been rated\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 410 Token expired\n{\n     \"errors\": [\n         {\n              \"field\": \"token\",\n              \"message\": \"Access token expired\"\n         }\n     ]\n }",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/api/input/Job.js",
+    "groupTitle": "Job"
+  },
+  {
+    "type": "get",
+    "url": "/jobs/:group/notifications/carers",
+    "title": "Submitted jobs notifications",
+    "version": "0.0.1",
+    "name": "Submitted_jobs_notifications",
+    "group": "Job",
+    "header": {
+      "fields": {
+        "Header": [
+          {
+            "group": "Header",
+            "type": "String",
+            "optional": false,
+            "field": "X-access-token",
+            "description": "<p>Access token</p>"
+          }
+        ]
+      }
+    },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "group",
+            "description": "<p>Group id.</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Object",
+            "optional": false,
+            "field": "results",
+            "description": "<p>Pagination results.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n   {\n       \"results\": [\n           {\n               \"_id\": \"5a9401138ce0962d6c988f90\",\n               \"carer\": {\n                   \"first_name\": \"Test\",\n                   \"surname\": \"Test\",\n                   \"profile_image\": null,\n                   \"care_experience\": {\n                       \"months\": 0,\n                       \"years\": 1\n                   },\n                   \"reviews\": {\n                       \"average\": 0,\n                       \"count\": 0\n                   }\n               },\n               \"isPriority\": true,\n               \"notification_time\": 1522073952622\n           },\n           {\n               \"_id\": \"5a9404d68ce0962d6c988f97\",\n               \"carer\": {\n                   \"first_name\": \"Test\",\n                   \"surname\": \"Test\",\n                   \"profile_image\": null,\n                   \"care_experience\": {\n                       \"months\": 0,\n                       \"years\": 1\n                   },\n                   \"reviews\": {\n                       \"average\": 0,\n                       \"count\": 0\n                   }\n               },\n               \"isPriority\": false,\n               \"notification_time\": 1522077552622\n           }\n       ],\n       \"pages\": 1,\n       \"total\": 2\n   }",
+          "type": "json"
+        }
+      ]
+    },
+    "error": {
+      "fields": {
+        "Error 4xx": [
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "AccessDenied",
+            "description": "<p>Access Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "PermissionDenied",
+            "description": "<p>Permission Denied.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "NotFound",
+            "description": "<p>Group not found.</p>"
+          },
+          {
+            "group": "Error 4xx",
+            "optional": false,
+            "field": "ExpiredToken",
+            "description": "<p>Token expired.</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 401 Access Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Access Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 403 Permission Denied\n{\n     \"errors\": [\n         {\n              \"field\": \"user\",\n              \"message\": \"Permission Denied\"\n         }\n     ]\n }",
+          "type": "json"
+        },
+        {
+          "title": "Error-Response:",
+          "content": "HTTP/1.1 404 Group not found\n{\n     \"errors\": [\n         {\n              \"field\": \"group\",\n              \"message\": \"Group not found\"\n         }\n     ]\n }",
           "type": "json"
         },
         {

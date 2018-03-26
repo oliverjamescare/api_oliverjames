@@ -1087,3 +1087,176 @@
  *          ]
  *      }
  */
+
+/**
+ * @api {get} /jobs/:group/notifications/carers Submitted jobs notifications
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Submitted jobs notifications
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} group Group id.
+ *
+ * @apiSuccess (Success 200){Object} results Pagination results.
+ * @apiSuccessExample Success-Response:
+ *   HTTP/1.1 200 OK
+     {
+         "results": [
+             {
+                 "_id": "5a9401138ce0962d6c988f90",
+                 "carer": {
+                     "first_name": "Test",
+                     "surname": "Test",
+                     "profile_image": null,
+                     "care_experience": {
+                         "months": 0,
+                         "years": 1
+                     },
+                     "reviews": {
+                         "average": 0,
+                         "count": 0
+                     }
+                 },
+                 "isPriority": true,
+                 "notification_time": 1522073952622
+             },
+             {
+                 "_id": "5a9404d68ce0962d6c988f97",
+                 "carer": {
+                     "first_name": "Test",
+                     "surname": "Test",
+                     "profile_image": null,
+                     "care_experience": {
+                         "months": 0,
+                         "years": 1
+                     },
+                     "reviews": {
+                         "average": 0,
+                         "count": 0
+                     }
+                 },
+                 "isPriority": false,
+                 "notification_time": 1522077552622
+             }
+         ],
+         "pages": 1,
+         "total": 2
+     }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Group not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Group not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "group",
+ *                   "message": "Group not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+
+/**
+ * @api {put} /jobs/:group/notifications/carers/:id Cancel carer notification
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Cancel carer notification
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} group Group id.
+ * @apiParam {String} id Carer id
+ *
+ * @apiSuccess (Success 200){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *      "status": true
+ *   }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Group not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Group not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "group",
+ *                   "message": "Group not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */

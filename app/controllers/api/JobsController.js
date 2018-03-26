@@ -268,9 +268,9 @@ module.exports = {
 
         jobs.forEach(job => {
             job.notifications.forEach(notification => {
-                const index = carers.findIndex(carer => carer.id == notification.user.toString());
+                const index = carers.findIndex(carer => carer.id.toString() == notification.user.toString());
                 if(index == -1)
-                    carers.push({ id: notification.user.toString(), time: notification.time });
+                    carers.push({ id: notification.user, time: notification.time });
                 else
                 {
                     if(carers[index].time.getTime() < notification.time)
@@ -291,7 +291,6 @@ module.exports = {
             },
             {
                 $project: {
-                    _id: 1,
                     'carer.profile_image': 1,
                     'carer.first_name': 1,
                     'carer.surname': 1,
@@ -304,8 +303,20 @@ module.exports = {
                             else: 0
                         }
                     },
-                    'carers': carers
+                    'carer_notification': {
+                        $filter: {
+                            input: carers,
+                            as: 'carer_notifications',
+                            cond: { $eq: [ "$$carer_notifications.id", "$_id" ] }
+                        }
+                    }
                 }
+            },
+            {
+                $unwind: "$carer_notification"
+            },
+            {
+                $sort : { isPriority : -1, 'carer_notification.time': 1 }
             },
             {
                 $project: {
@@ -315,26 +326,20 @@ module.exports = {
                     'carer.surname': 1,
                     'carer.reviews': 1,
                     'carer.care_experience': 1,
-                    'isPriority': {
-                        $cond: {
-                            if: { $in: [ "$_id", priorityCarers.map(id => ObjectId(id)) ] },
-                            then: 1,
-                            else: 0
-                        }
-                    },
-                    "c": { carers: { $elemMatch: { $eq:['$carers.id', "$id" ]}} }
+                    'isPriority': 1,
+                    'notification_time': "$carer_notification.time"
                 }
             },
-            {
-                $sort : { isPriority : -1 }
-            }
         ]);
 
+        //pagination and parsing
         const users = await Utils.paginate(User, { query: query, options: {} }, req, true);
         let paginated = Utils.parsePaginatedResults(users);
 
         paginated.results.map(user => {
             user = User.parse(user, req);
+            user.notification_time = user.notification_time ? user.notification_time.getTime() : null;
+            user.isPriority = Boolean(user.isPriority);
             return user;
         });
 
@@ -342,9 +347,28 @@ module.exports = {
 
     },
 
-    removeJobNotificationCarer: function(req, res)
+    removeJobNotificationCarer: async function(req, res)
     {
+        const group = req.params.group;
+        const jobs = await Job.find({ group: group, care_home: req.user._id });
+        const carerId = req.params.id;
 
+        //group not found
+        if(!jobs.length)
+            return res.status(404).json(Utils.parseStringError("Group not found", "group"));
+
+        //sending response
+        res.json({ status: true });
+
+        //updating jobs
+        jobs.forEach(job => {
+            job.notifications.forEach(notification => {
+                if(notification.status == JobModel.jobNotificationStatuses.SCHEDULED && notification.user.toString() == carerId)
+                    notification.status = JobModel.jobNotificationStatuses.CANCELLED;
+            });
+
+            job.save().catch(error => console.log(error));
+        });
     },
 
 	//only carer methods
@@ -746,12 +770,15 @@ module.exports = {
     {
         //getting job
         const job = await Job.findOne({ _id: req.params.id }).exec();
+        const type = req.params.type;
 
         //not found
         if(!job)
             return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-        QueuesHandler.publish({ user_id: req.user._id, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
+        const types = ["JOB_CANCELLED", "JOB_MODIFIED", "NEW_JOBS", "REVIEW_PUBLISHED"];
+        if(types.indexOf(type) != -1)
+            QueuesHandler.publish({ user_id: req.user._id, job_id: job._id, type: type }, { exchange: "notifications", queue: "notifications" })
 
         //sending response
         res.json({ status: true });
