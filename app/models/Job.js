@@ -3,12 +3,17 @@ const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate');
 const mongooseAggregatePaginate = require('mongoose-aggregate-paginate');
 
-//custom
+//services
 const validators = require('./../services/validators');
+
+//schemas
 const GeneralGuidance = require('./schemas/GeneralGuidance');
 const CarerRoles = require('./schemas/Carer').eligibleRoles;
 const ReviewSchema = require("./schemas/Review").schema;
 const Challenge = require("./schemas/Challenge");
+const Payment = require("./schemas/Payment").schema;
+const Charge = require("./schemas/Charge").schema;
+const Pricing = require("./schemas/Pricing");
 const SummarySheetSchema = require("./schemas/SummarySheet").schema;
 
 //settings
@@ -43,6 +48,8 @@ const jobNotificationStatuses = {
 //notification job buckets
 const buckets = ["preferred", "starsFourToFive", "starsThreeToFour", "unrated", "starsTwoToThree", "starsOneToTwo" ];
 
+
+
 const schema = mongoose.Schema({
 	start_date: {
 		type: Date,
@@ -63,19 +70,31 @@ const schema = mongoose.Schema({
 		type: Boolean,
 		default: false
 	},
+	booking_pricing: {
+		manual_booking_pricing: {
+			type: Number,
+            min: 0,
+            default: 0,
+		},
+		app_commission: {
+            type: Number,
+            min: 0,
+            max: 100,
+            default: 0,
+		},
+		pricing: Pricing.pricing_hours
+	},
+	charge: Charge,
 	assignment: {
 		carer: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User"
 		},
-		income: {
-			type: Number,
-			default: 0
-		},
-		created: Date,
+		payment: Payment,
 		summary_sheet: SummarySheetSchema,
 		review: ReviewSchema,
-		challenge: Challenge.schema
+		challenge: Challenge.schema,
+        created: Date
 	},
 	role: {
 		type: String,

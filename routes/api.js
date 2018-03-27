@@ -68,6 +68,7 @@ router.put('/jobs/:id/accept', authenticate, security(["CARER_FULL"]), JobsContr
 router.put('/jobs/:id/withdraw', authenticate, security(["CARER_FULL"]), JobsController.withdrawJob);
 router.put('/jobs/:id/decline', authenticate, security(["CARER_FULL"]), JobsController.declineJob);
 router.post('/jobs/:id/summary', authenticate, security(["CARER_FULL"]), JobsController.sendSummarySheet);
+router.get('/jobs/:id/income', authenticate, security(["CARER_FULL"]), JobsController.getProjectedIncome);
 router.put('/jobs/:id', authenticate, security(["CARE_HOME_FULL"]), JobsController.updateJob);
 router.put('/jobs/:id/cancel', authenticate, security(["CARE_HOME_FULL"]), JobsController.cancelJob);
 router.get('/jobs/:id/other-jobs', authenticate, security(["CARER_FULL"]), JobsController.getCareHomeOtherJobs);

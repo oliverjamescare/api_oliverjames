@@ -228,6 +228,7 @@
                         "start_date": 1518422931942,
                         "end_date": 1518425101942,
                         "role": "Senior Carer",
+                        "projected_income": 75,
                         "author": {
                             "_id": "5a71b2834f1f26305c6abf2a",
                             "care_home": {
@@ -332,6 +333,7 @@
                      "start_date": 1518422931942,
                      "end_date": 1518425101942,
                      "role": "Senior Carer",
+                     "projected_income": 75,
                      "author": {
                          "_id": "5a71b2834f1f26305c6abf2a",
                          "care_home": {
@@ -433,6 +435,7 @@
             "_id": "5a814b8deb5cee1dc0720128",
             "start_date": 1518422931942,
             "end_date": 1518425101942,
+            "projected_income": 75,
             "author": {
                 "_id": "5a71b2834f1f26305c6abf2a",
                 "care_home": {
@@ -535,6 +538,7 @@
             "_id": "5a814b8deb5cee1dc0720128",
             "start_date": 1518422931942,
             "end_date": 1518425101942,
+            "projected_income": 75,
             "author": {
                 "_id": "5a71b2834f1f26305c6abf2a",
                 "care_home": {

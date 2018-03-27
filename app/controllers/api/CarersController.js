@@ -123,7 +123,13 @@ module.exports = {
 					.exec();
 
 		//parsing
-        jobs.map(job => Job.parse(job, req));
+        jobs.map(job => {
+        	job = Job.parse(job, req);
+            job["projected_income"] = 75;
+
+            return job;
+        });
+
 		calendar.forEach(day => day["jobs"] = jobs.filter(job => moment(job.start_date).format("YYYY-MM-DD") == day.day));
 
         res.json({ calendar });
@@ -166,7 +172,12 @@ module.exports = {
                 .exec();
 
             //parsing
-            jobs.map(job => Job.parse(job, req));
+            jobs.map(job => {
+                job = Job.parse(job, req);
+                job["projected_income"] = 75;
+
+                return job;
+            });
             calendar.forEach(day => day["jobs"] = jobs.filter(job => moment(job.start_date).format("YYYY-MM-DD") == day.day));
 		}
 
@@ -182,7 +193,13 @@ module.exports = {
 				//pagination and parsing
 				const jobs = await Utils.paginate(Job, queryConfig, req, true);
 				let paginated = Utils.parsePaginatedResults(jobs);
-				paginated.results.map(job => Job.parse(job, req));
+
+                paginated.results.map(job => {
+                    job = Job.parse(job, req);
+                    job["projected_income"] = 75;
+
+                    return job;
+                });
 
 				res.json(paginated);
 			});
@@ -215,7 +232,13 @@ module.exports = {
 
 		const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
 		let paginated = Utils.parsePaginatedResults(jobs);
-		paginated.results.map(job => Job.parse(job, req));
+
+        paginated.results.map(job => {
+            job = Job.parse(job, req);
+            job["projected_income"] = 75;
+
+            return job;
+        });
 
 		res.json(paginated);
 	},

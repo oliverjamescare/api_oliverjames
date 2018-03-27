@@ -16,6 +16,7 @@
             "_id": "5a814b8deb5cee1dc0720128",
             "start_date": 1518422931942,
             "end_date": 1518425101942,
+            "projected_income": 75,
             "author": {
                 "_id": "5a71b2834f1f26305c6abf2a",
                 "care_home": {
@@ -432,7 +433,8 @@
  * @apiSuccessExample Success-Response:
  *   HTTP/1.1 200 OK
  *   {
- *       "status": true
+ *       "status": true,
+ *       "debit_date": 134555939455638
  *   }
  *
  * @apiError AccessDenied Access Denied.
@@ -491,6 +493,76 @@
  *              {
  *                   "field": "job",
  *                   "message": "You're not assigned to this job"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {get} /jobs/:id/income Get deducted income
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Get deducted income
+ * @apiGroup Job
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Job id
+ * @apiParam {Number} voluntary_deduction Number of deducted minutes. Min 0.
+ * @apiParam {Number} start_date Start date of job if it was different than original. Cannot be earlier than original start date. Timestamp formatted to UTC timezone.
+ * @apiParam {Number} end_date End date of job if it was different than original. Timestamp formatted to UTC timezone.
+ *
+ * @apiSuccess (Success 200){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *   HTTP/1.1 200 OK
+ *   {
+ *       "projected_income": 100,
+ *       "deducted": 50
+ *   }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Job not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Job not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "job",
+ *                   "message": "Job not found"
  *              }
  *          ]
  *      }
@@ -850,6 +922,7 @@
                 "_id": "5a814b8deb5cee1dc0720128",
                 "start_date": 1518422931942,
                 "end_date": 1518425101942,
+                "projected_income": 75,
                 "author": {
                     "_id": "5a71b2834f1f26305c6abf2a",
                     "care_home": {

@@ -23,20 +23,12 @@ const fileHandler = require("../../services/fileHandler");
 const JobHandler = require('../../services/JobsHandler');
 const Utils = require("../../services/utils");
 const PaymentsHandler = require('../../services/PaymentsHandler');
-const NotificationsHandler = require('../../services/NotificationsHandler');
 const QueuesHandler = require('../../services/QueuesHandler');
 
 module.exports = {
 	//all
     getJobDetails: function(req, res)
     {
-        const handler = new PaymentsHandler();
-        handler.calculatePaymentTime(new Date("2018-03-26 02:00:01"));
-
-        // const handler = new NotificationsHandler();
-        // const a = handler.isSilent(req.user.carer.silent_notifications_settings);
-
-
     	//for all
         const jobsQuery = Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1 })
             .populate("care_home",{
@@ -111,7 +103,11 @@ module.exports = {
                 if(!job)
                     return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-                res.json(Job.parse(job, req));
+                job = Job.parse(job, req);
+                if(req.user.carer)
+                    job["projected_income"] = 75;
+
+                res.json(job);
             });
     },
 
@@ -536,22 +532,42 @@ module.exports = {
         const uploader = fileHandler(req, res);
         const filePath = await uploader.handleSingleUpload("signature", "jobs/" + job._id, { allowedMimeTypes: [ "image/jpeg", "image/jpg", "image/png" ], maxFileSize: 10 });
 
+        //summary sheet
+        let now = new Date();
         job.assignment.summary_sheet = {
             signature: filePath,
             name: req.body.name,
             position: req.body.position,
             notes: req.body.notes || null,
-            start_date: req.body.start_date,
-            end_date: req.body.end_date,
+            start_date: parseInt(req.body.start_date),
+            end_date: parseInt(req.body.end_date),
             voluntary_deduction: parseInt(req.body.voluntary_deduction) || 0,
-            created: new Date()
+            created: now
+        };
+
+        //payment init and debit date calculation
+        const handler = new PaymentsHandler();
+        const debitDate = handler.calculateDebitDate(now);
+
+        job.assignment.payment = {
+            debit_date: debitDate
         };
 
 	    //saving signature and sending response
 	    job
 		    .save()
-		    .then(() => res.json({ status: true }))
+		    .then(() => res.json({ status: true, debit_date: debitDate.getTime() }))
 		    .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+    },
+
+    getProjectedIncome: function (req, res)
+    {
+        const startDate = parseInt(req.query.start_date) || 0;
+        const endDate = parseInt(req.query.end_date) || 0;
+        const deduction = parseInt(req.query.voluntary_deduction) || 0;
+
+
+        res.json({ projected_income: 100, deducted: 50 });
     },
 
 	updateJob: async function(req, res)
@@ -691,9 +707,13 @@ module.exports = {
                 //pagination and parsing
                 const jobs = await Utils.paginate(Job, queryConfig, req, true);
                 let paginated = Utils.parsePaginatedResults(jobs);
-                paginated.results.map(job => Job.parse(job, req));
 
-                res.json(paginated);
+                paginated.results.map(job => {
+                    job = Job.parse(job, req);
+                    job["projected_income"] = 75;
+
+                    return job;
+                });
             });
     },
 
