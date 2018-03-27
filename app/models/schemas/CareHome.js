@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 //custom
 const validators = require('./../../services/validators');
 const GeneralGuidance = require('./GeneralGuidance');
-const transactionSchema = require("./Transaction").schema;
+const Transaction = require("./Transaction");
 
 //settings
 const homeTypes = [
@@ -68,7 +68,7 @@ const schema = mongoose.Schema({
             default: null
         }
     },
-    transactions: [ transactionSchema ]
+    credits: [ Transaction.schema ]
 
 });
 
@@ -86,6 +86,14 @@ schema.methods.hasValidGeneralGuidance = function()
 	}
 
 	return valid;
+}
+
+schema.methods.getCreditsBalance = function()
+{
+    let balance = 0;
+    this.credits.forEach(creditTransaction => balance += creditTransaction.status == Transaction.transactionStatuses.CONFIRMED ? creditTransaction.amount : 0);
+
+    return balance;
 }
 
 module.exports.schema = schema;

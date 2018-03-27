@@ -4,7 +4,7 @@ const moment = require('moment');
 
 //custom
 const validators = require('./../../services/validators');
-const transactionSchema = require("./Transaction").schema;
+const Transaction = require("./Transaction");
 
 const eligibleRoles = {
 	CARER: "Carer",
@@ -343,7 +343,7 @@ const schema = mongoose.Schema({
 			default: null
 		}
 	},
-	transactions: [ transactionSchema ],
+	deductions: [ Transaction.schema ],
 	silent_notifications_settings: {
 		from: {
 			type: Number,
@@ -500,5 +500,20 @@ schema.methods.getAvailabilitySetForDay = function(date)
     return !specialWeek ? this.availability.general[weekdays[startOffset]] : specialWeek.days[weekdays[startOffset]];
 }
 
+schema.methods.getDeductionsBalance = function()
+{
+    let balance = 0;
+    this.deductions.forEach(deduction => balance += deduction.amount);
+
+    return balance;
+}
+
+schema.methods.getDeductionsBalance = function()
+{
+    let balance = 0;
+    this.deductions.forEach(deduction =>  balance += deduction.status == Transaction.transactionStatuses.CONFIRMED ? deduction.amount : 0);
+
+    return balance;
+}
 
 module.exports = { schema, eligibleRoles, shiftsRanges };

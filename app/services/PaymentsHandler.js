@@ -1,3 +1,10 @@
+
+//core
+const async = require("async");
+
+//models
+const User = require("./../models/User").schema;
+
 module.exports = class
 {
     constructor()
@@ -6,6 +13,7 @@ module.exports = class
         this.stripe = require("stripe")(config.STRIPE_KEY);
     }
 
+    //stripe methods
     createCustomer(token, user)
     {
         return this.stripe.customers.create({
@@ -54,6 +62,20 @@ module.exports = class
         });
     }
 
+    createChargeTransfer(amount, fee, customer, account)
+    {
+        return this.stripe.charges.create({
+            amount: amount * 100,
+            currency: "gbp",
+            source: customer,
+            application_fee: fee * 100,
+        },
+        {
+            stripe_account: account,
+        });
+    }
+
+    //payments methods
     calculateDebitDate(startDate)
     {
         //working days
@@ -153,5 +175,29 @@ module.exports = class
         }
 
         return debitDate;
+    }
+
+    processPayment(job)
+    {
+        return new Promise((resolve, reject) => {
+            async.parallel({
+                care_home: (callback) => User.findOne({ _id: job.care_home }).then(careHome => callback(null, careHome)),
+                carer: (callback) => User.findOne({ _id: job.assignment.carer }).then(carer => callback(null, carer)),
+            }, (errors, results) => {
+
+                if(results.care_home.payment_system.customer_id && results.carer.payment_system.account_id)
+                {
+                    this.createChargeTransfer(job.calculateJobCost(), results.care_home.payment_system.customer_id, results.carer.payment_system.account_id)
+                        .then(charge => {
+
+                            resolve(charge);
+                        })
+                        .catch(error => {
+                            reject(error);
+                        })
+                }
+            });
+        });
+
     }
 }

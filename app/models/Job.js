@@ -48,8 +48,6 @@ const jobNotificationStatuses = {
 //notification job buckets
 const buckets = ["preferred", "starsFourToFive", "starsThreeToFour", "unrated", "starsTwoToThree", "starsOneToTwo" ];
 
-
-
 const schema = mongoose.Schema({
 	start_date: {
 		type: Date,
@@ -205,6 +203,24 @@ schema.post('init', function(job)
     job.status = handleJobStatus(job);
 });
 
+//methods
+schema.methods.calculateJobCost = function()
+{
+	const startDate = (this.assignment && this.assignment.summary_sheet && this.assignment.summary_sheet.start_date) ? this.assignment.summary_sheet.start_date : this.start_date;
+	const endDate = (this.assignment && this.assignment.summary_sheet && this.assignment.summary_sheet.end_date) ? this.assignment.summary_sheet.end_date : this.end_date;
+	const deductedMinutes = this.assignment && this.assignment.summary_sheet && this.assignment.summary_sheet.voluntary_deduction ? this.assignment.summary_sheet.voluntary_deduction : 0;
+
+	const price = 11.5;
+	const manualBooking = 1;
+
+	const durationMinutes = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60));
+	const jobMinutes = Math.max((durationMinutes - deductedMinutes), 0);
+
+	const cost = ((jobMinutes / 60) * price + (this.manual_booking ? (jobMinutes / 60) * manualBooking : 0)).toPrecision(2);
+
+	console.log(cost);
+}
+
 //statics
 schema.statics.parse = function(job, req)
 {
@@ -294,7 +310,7 @@ function handleJobStatus(job)
         return statuses.ACCEPTED;
     else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
         return statuses.PENDING_SUMMARY_SHEET;
-    else if(job.assignment.carer && job.assignment.summary_sheet && (job.assignment.summary_sheet.created.getTime() + (1000 * 60 * 60 * 24 * 3)) > new  Date().getTime() && (!job.assignment.challenge || job.assignment.challenge.status == Challenge.challengeStatuses.CANCELLED) && job.status != statuses.CANCELLED)
+    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.payment && (job.assignment.payment.debit_date.getTime() > new Date().getTime()) && (!job.assignment.challenge || job.assignment.challenge.status == Challenge.challengeStatuses.CANCELLED) && job.status != statuses.CANCELLED)
         return statuses.PENDING_PAYMENT;
     else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge && job.assignment.challenge.status == Challenge.challengeStatuses.ACTIVE && job.status != statuses.CANCELLED)
         return statuses.CHALLENGED;

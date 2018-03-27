@@ -97,11 +97,13 @@ module.exports = {
 		}
 
         jobsQuery
-			.lean()
+			//.lean()
             .exec((error, job) => {
 
                 if(!job)
                     return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+                job.calculateJobCost();
 
                 job = Job.parse(job, req);
                 if(req.user.carer)

@@ -29,7 +29,7 @@ const schema = mongoose.Schema({
     },
     created: {
         type: Date,
-        required: [ true, "{PATH} field is required." ]
+        default: Date.now()
     }
 });
 
