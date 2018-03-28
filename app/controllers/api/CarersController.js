@@ -106,7 +106,8 @@ module.exports = {
 						start_date: { $gte:  new Date(calendar[0].day + " 00:00:00")},
 						end_date: { $lte: new Date(calendar[34].day + " 23:59:59")},
 						_id: { $in: req.user.carer.jobs },
-        				"assignment.summary_sheet": { $exists: false }
+        				"assignment.summary_sheet": { $exists: false },
+						status: { $ne: JobModel.statuses.CANCELLED }
 					},
             		{ start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1,  status: 1 }
             		)
@@ -155,7 +156,8 @@ module.exports = {
                     start_date: { $gte:  new Date(calendar[0].day + " 00:00:00")},
                     end_date: { $lte: new Date(calendar[calendar.length - 1].day + " 23:59:59")},
                     _id: { $in: req.user.carer.jobs },
-                    "assignment.summary_sheet": { $exists: false }
+                    "assignment.summary_sheet": { $exists: false },
+                    status: { $ne: JobModel.statuses.CANCELLED }
                 },
                 { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1,  status: 1 }
             )
@@ -228,7 +230,7 @@ module.exports = {
 			leanWithId: false
 		};
 
-		const query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } } ]};
+		const query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } }, { status: { $ne: JobModel.statuses.CANCELLED } } ]};
 
 		const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
 		let paginated = Utils.parsePaginatedResults(jobs);

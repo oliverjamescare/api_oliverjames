@@ -38,44 +38,132 @@ module.exports = class
         });
     }
 
-    createCustomAccount(token, user)
+    createCustomAccount(token, user, ip)
     {
         return this.stripe.accounts.create({
             country: 'GB',
             type: 'custom',
             external_account: token,
             email: user.email,
+            tos_acceptance: {
+                date: Math.floor(Date.now() / 1000),
+                ip: ip
+            },
             metadata: {
                 user_id: user.id
             }
         });
     }
 
-    updateCustomAccount(token, user)
+    updateCustomAccount(token, user, ip)
     {
         return this.stripe.accounts.update(user.carer.payment_system.account_id, {
-            external_account: token,
+            //external_account: token,
             email: user.email,
+            tos_acceptance: {
+                date: Math.floor(Date.now() / 1000),
+                ip: ip
+            },
             metadata: {
                 user_id: user.id
             }
+        });
+    }
+
+    getTransactionBalance(transaction, account)
+    {
+        return this.stripe.balance.retrieve({
+            stripe_account: account,
+        });
+    }
+
+    createCustomAccountPayout(amount, account)
+    {
+        return this.stripe.payouts.create({
+            amount: amount * 100,
+            currency: "gbp",
+        }, {
+            stripe_account: account,
         });
     }
 
     createChargeTransfer(amount, fee, customer, account)
     {
-        return this.stripe.charges.create({
-            amount: amount * 100,
-            currency: "gbp",
-            source: customer,
-            application_fee: fee * 100,
-        },
-        {
-            stripe_account: account,
+        return new Promise((resolve, reject) => {
+            this.stripe.tokens.create({
+                customer: customer,
+            }, {
+                stripe_account: account,
+            })
+            .then(token => {
+                return this.stripe.charges.create({
+                        amount: amount * 100,
+                        currency: "gbp",
+                        source: token.id,
+                        application_fee: fee * 100,
+                    },
+                    {
+                        stripe_account: account,
+                    });
+            })
+            .then(charge => resolve(charge))
+            .catch(error => reject(error));
         });
+
+        // return this.stripe.customers.list();
     }
 
     //payments methods
+    processPayment(job, req)
+    {
+        return new Promise((resolve, reject) => {
+            async.parallel({
+                care_home: (callback) => User.findOne({ _id: job.care_home }).then(careHome => callback(null, careHome)),
+                carer: (callback) => User.findOne({ _id: job.assignment.carer }).then(carer => callback(null, carer)),
+            }, (errors, results) => {
+
+                if(results.care_home.care_home.payment_system.customer_id && results.carer.carer.payment_system.account_id)
+                {
+                    const jobCost = job.calculateJobCost();
+                    const appFee = ((jobCost * 10) / 100).toPrecision(2);
+                    console.log(jobCost)
+                    console.log(appFee);
+
+
+                    // this.updateCustomAccount("123", results.carer,req.connection.remoteAddress)
+                    //     .then(charge => {
+                    //         resolve(charge);
+                    //     })
+                    //     .catch(error => {
+                    //         reject(error);
+                    //     })
+                    this.createCustomAccountPayout(299.05 - 0.1 - 2, results.carer.carer.payment_system.account_id)
+                        .then(charge => {
+                            resolve(charge);
+                        })
+                        .catch(error => {
+                            reject(error);
+                        })
+                    this.getTransactionBalance("txn_1CAciaDePpjss4klp3bzC6t0", results.carer.carer.payment_system.account_id)
+                        .then(charge => {
+                            resolve(charge);
+                        })
+                        .catch(error => {
+                            reject(error);
+                        })
+                    // this.createChargeTransfer(200, 10, results.care_home.care_home.payment_system.customer_id, results.carer.carer.payment_system.account_id)
+                    //     .then(charge => {
+                    //         resolve(charge);
+                    //     })
+                    //     .catch(error => {
+                    //         reject(error);
+                    //     })
+                }
+            });
+        });
+
+    }
+
     calculateDebitDate(startDate)
     {
         //working days
@@ -177,27 +265,4 @@ module.exports = class
         return debitDate;
     }
 
-    processPayment(job)
-    {
-        return new Promise((resolve, reject) => {
-            async.parallel({
-                care_home: (callback) => User.findOne({ _id: job.care_home }).then(careHome => callback(null, careHome)),
-                carer: (callback) => User.findOne({ _id: job.assignment.carer }).then(carer => callback(null, carer)),
-            }, (errors, results) => {
-
-                if(results.care_home.payment_system.customer_id && results.carer.payment_system.account_id)
-                {
-                    this.createChargeTransfer(job.calculateJobCost(), results.care_home.payment_system.customer_id, results.carer.payment_system.account_id)
-                        .then(charge => {
-
-                            resolve(charge);
-                        })
-                        .catch(error => {
-                            reject(error);
-                        })
-                }
-            });
-        });
-
-    }
 }

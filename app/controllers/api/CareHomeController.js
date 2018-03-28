@@ -8,7 +8,8 @@
 const moment = require("moment");
 
 //custom
-const Job = require("../../models/Job").schema;
+const JobModel = require("../../models/Job");
+const Job = JobModel.schema;
 const User = require("../../models/User").schema;
 const Utils = require("../../services/utils");
 
@@ -32,7 +33,9 @@ module.exports = {
 					{
 						start_date: { $gte:  new Date(calendar[0].day + " 00:00:00")},
 						end_date: { $lte: new Date(calendar[34].day + " 23:59:59")},
-						_id: { $in: req.user.care_home.jobs }
+						_id: { $in: req.user.care_home.jobs },
+        				"assignment.summary_sheet": { $exists: false },
+                        status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }
 					},
             		{ start_date: 1, end_date: 1, care_home: 1, role: 1, status: 1 }
             		)
@@ -78,7 +81,7 @@ module.exports = {
 	getCareHomeMyJobs: async function(req, res)
 	{
 		const options = {
-			select: { start_date: 1, end_date: 1, "assignment.carer": 1, status: 1 },
+			select: { start_date: 1, end_date: 1, "assignment.carer": 1, status: 1, created: 1 },
 			populate: [
 				{
 					path: "assignment.carer",
@@ -95,7 +98,7 @@ module.exports = {
 			leanWithId: false
 		};
 
-		const  query = { $and: [ { _id: {  $in: req.user.care_home.jobs } }, { "assignment.summary_sheet": { $exists: false } } ]};
+		const  query = { $and: [ { _id: {  $in: req.user.care_home.jobs } }, { "assignment.summary_sheet": { $exists: false } }, { status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }} ]};
 
 		const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
 		let paginated = Utils.parsePaginatedResults(jobs);

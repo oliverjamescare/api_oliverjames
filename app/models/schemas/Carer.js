@@ -395,6 +395,14 @@ const schema = mongoose.Schema({
 //methods
 schema.methods.checkAvailabilityForDateRange = function(start, end)
 {
+	//reversing dates
+	if(start.getTime() > end.getTime())
+	{
+		let tmp = start;
+		start = end;
+		end = tmp;
+	}
+
 	let available = true;
 	const dayShifts = this.getAllDayShiftsInRange(start, end);
 

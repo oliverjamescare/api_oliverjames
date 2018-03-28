@@ -195,7 +195,7 @@ module.exports = {
                 req.user.carer.max_job_distance = req.body.max_job_distance || req.user.carer.max_job_distance;
                 req.user.carer.eligible_roles = eligibleRoles.length ? eligibleRoles : req.user.carer.eligible_roles;
 
-                if(req.body.address_line_1 && req.body.city && req.body.postal_code) //if required fields are not present then don't update address
+                if(req.body.address_line_1 && req.body.city && req.body.postal_code && address.location) //if required fields are not present then don't update address
                     req.user.address = address;
 
                 //saving user and sending response
@@ -242,7 +242,7 @@ module.exports = {
 		req.user.care_home.general_guidance.floor_plan = filePath || req.user.care_home.general_guidance.floor_plan;
 
 
-		if(req.body.address_line_1 && req.body.city && req.body.postal_code) //if required fields are not present then don't update address
+		if(req.body.address_line_1 && req.body.city && req.body.postal_code && address.location) //if required fields are not present then don't update address
 			req.user.address = address;
 
 		//saving user and sending response
@@ -261,6 +261,5 @@ module.exports = {
 
         res.json({ status: true });
     }
-
 }
 

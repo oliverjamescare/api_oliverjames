@@ -34,6 +34,8 @@ module.exports = {
 
         //preparing address
 	    const address = await locationHandler.getCustomLocation(req.body);
+	    if(!address || !address.location)
+            return res.status(406).json(Utils.parseStringError("Unable to find address", "address"));
 
 	    //user
 	    let user = new User({

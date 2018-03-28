@@ -58,7 +58,7 @@ module.exports = {
 
         //create / update request
         const paymentsHandler = new PaymentsHandler();
-        const accountRequest = !req.user.carer.payment_system.account_id ? paymentsHandler.createCustomAccount(req.body.token, req.user) : paymentsHandler.updateCustomAccount(req.body.token, req.user);
+        const accountRequest = !req.user.carer.payment_system.account_id ? paymentsHandler.createCustomAccount(req.body.token, req.user, req.connection.remoteAddress) : paymentsHandler.updateCustomAccount(req.body.token, req.user, req.connection.remoteAddress);
 
         accountRequest
             .then(account => {

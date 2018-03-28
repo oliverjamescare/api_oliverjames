@@ -27,9 +27,18 @@ const QueuesHandler = require('../../services/QueuesHandler');
 
 module.exports = {
 	//all
-    getJobDetails: function(req, res)
+    getJobDetails: async function(req, res)
     {
-    	//for all
+
+        // console.log(req.connection.remoteAddress);
+        // const jb = await Job.findOne({ _id: req.params.id }).exec();
+        // const handler = new PaymentsHandler();
+        // handler.processPayment(jb, req).then(r => {
+        //     res.json(r);
+        // })
+        // .catch(e =>  res.json(e));
+
+        //for all
         const jobsQuery = Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1 })
             .populate("care_home",{
                 "email": 1,
@@ -42,8 +51,8 @@ module.exports = {
             });
 
         //request by care home
-		if(req.user.care_home)
-		{
+        if(req.user.care_home)
+        {
             jobsQuery
 				.populate({
                     path: "assignment.carer",
@@ -94,16 +103,14 @@ module.exports = {
                         }
                     }
                 })
-		}
+        }
 
         jobsQuery
-			//.lean()
+			.lean()
             .exec((error, job) => {
 
                 if(!job)
                     return res.status(404).json(Utils.parseStringError("Job not found", "job"));
-
-                job.calculateJobCost();
 
                 job = Job.parse(job, req);
                 if(req.user.carer)
@@ -472,13 +479,8 @@ module.exports = {
                     res.json({ status: true });
 
                     //adding new withdrawal
-                    JobWithdrawal.findOne({ carer: req.user._id , job: job._id }, (error,  withdrawal) => {
-                        if(!withdrawal)
-                        {
-                            let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job });
-                            jobWithdrawal.save().catch(error => console.log(error));
-                        }
-                    });
+                    let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job });
+                    jobWithdrawal.save().catch(error => console.log(error));
                 });
             }
             else
@@ -494,13 +496,8 @@ module.exports = {
                 res.json({ status: true });
 
                 //adding new withdrawal
-                JobWithdrawal.findOne({ carer: req.user._id , job: job._id }, (error,  withdrawal) => {
-                    if(!withdrawal)
-                    {
-                        let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job, message: req.body.message });
-                        jobWithdrawal.save().catch(error => console.log(error));
-                    }
-                });
+                let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job, message: req.body.message });
+                jobWithdrawal.save().catch(error => console.log(error));
             }
         });
     },
@@ -558,7 +555,7 @@ module.exports = {
 	    //saving signature and sending response
 	    job
 		    .save()
-		    .then(() => res.json({ status: true, debit_date: debitDate.getTime() }))
+		    .then(() => res.json({ status: true, debit_date: debitDate.getTime(), projected_income: 200 }))
 		    .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },
 
@@ -716,6 +713,8 @@ module.exports = {
 
                     return job;
                 });
+
+                res.json(paginated);
             });
     },
 

@@ -219,6 +219,8 @@ schema.methods.calculateJobCost = function()
 	const cost = ((jobMinutes / 60) * price + (this.manual_booking ? (jobMinutes / 60) * manualBooking : 0)).toPrecision(2);
 
 	console.log(cost);
+
+	return cost;
 }
 
 //statics
