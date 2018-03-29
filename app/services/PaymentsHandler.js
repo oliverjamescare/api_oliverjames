@@ -164,7 +164,7 @@ module.exports = class
 
     }
 
-    calculateDebitDate(startDate)
+    calculateDebitDate(input)
     {
         //working days
         const workingDays = [
@@ -197,7 +197,7 @@ module.exports = class
         let dailyDelay = 1000 * 60 * 60  * 6;
 
         //preparing start date
-        let startDate = new Date(startDate.getTime());
+        let startDate = new Date(input.getTime());
         let startDateWorkingDayIndex = workingDays.findIndex(startDateWorkingDay => startDateWorkingDay.dayNumber == startDate.getDay());
         let startDateHours = startDate.getMilliseconds() + (startDate.getSeconds() * 1000) + (startDate.getMinutes() * 60 * 1000) + (startDate.getHours() * 60 * 60 * 1000);
 
