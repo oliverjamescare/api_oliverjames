@@ -5,6 +5,7 @@ const router = express.Router();
 //controllers
 const AuthController = require('../app/controllers/admin/AuthController');
 const AdminController = require('../app/controllers/admin/AdminController');
+const CareHomesController = require('../app/controllers/admin/CareHomesController');
 const CarersController = require('../app/controllers/admin/CarersController');
 const JobsController = require('../app/controllers/admin/JobsController');
 
@@ -16,6 +17,9 @@ router.post('/login', AuthController.login);
 
 //Admin
 router.get('/home', adminAuthenticate, AdminController.home);
+
+//Carers
+router.get('/carehomes', adminAuthenticate, CareHomesController.getCareHomes);
 
 //Carers
 router.get('/carers', adminAuthenticate, CarersController.getCarers);
