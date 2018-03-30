@@ -809,7 +809,7 @@ module.exports = {
     testMethods: async function (req, res)
     {
         //for all
-        let job = await Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1 })
+        let job = await Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1, gender_preference: 1 })
             .populate("care_home",{
                 "email": 1,
                 "phone_number": 1,
