@@ -16,37 +16,16 @@ module.exports = {
 		//params
 		const sort = req.query.sort;
         const search = req.query.search || "";
-        const statusFilter = req.query["status_filter"]
         const pattern = new RegExp("^.*" + search + ".*$");
 
-
-		const query = {
-			care_home: { $exists: true }
-		};
+        const query = {
+            care_home: { $exists: true },
+            $or:[{'care_home.name': { $regex: pattern, $options: "xi" } }]
+        };
 
 		//search by id
-		if(ObjectId.isValid(search))
-		    query.$or.push({ _id: search });
-
-
-		//status filter
-		switch (statusFilter)
-        {
-            case UserModel.statuses.CREATED:
-            {
-                query["status"] = UserModel.statuses.CREATED;
-                break;
-            }
-            case UserModel.statuses.ACTIVE:
-            {
-                query["status"] = UserModel.statuses.ACTIVE;
-                break;
-            }
-            case UserModel.statuses.BANNED:
-            {
-                query["status"] = UserModel.statuses.BANNED;
-                break;
-            }
+		if(ObjectId.isValid(search)){
+            query.$or.push({ _id: search });
         }
 
         const options = {
@@ -54,12 +33,11 @@ module.exports = {
             	activation_date: 1,
 				status: 1,
 				banned_until: 1,
-				notes: 1,
-            	'carer.first_name': 1,
-            	'carer.surname': 1,
-            	'carer.surname': 1,
-				'carer.date_of_birth': 1,
-				'carer.reviews': 1,
+                notes: 1,
+                created: 1,
+                address: 1,
+            	'care_home.name': 1,
+            	'care_home.care_service_name': 1
 			},
 			lean: true,
 			leanWithId: false
@@ -75,22 +53,22 @@ module.exports = {
             }
             case "name_asc":
             {
-                options["sort"] = { 'carer.first_name': 1 };
+                options["sort"] = { 'care_home.name': 1 };
                 break
             }
             case "name_desc":
             {
-                options["sort"] = { 'carer.first_name': -1 };
+                options["sort"] = { 'care_home.name': -1 };
                 break
             }
-            case "date_of_birth_asc":
+            case "care_service_name":
             {
-                options["sort"] = { 'carer.date_of_birth': 1 };
+                options["sort"] = { 'care_home.care_service_name': 1 };
                 break
             }
-            case "date_of_birth_desc":
+            case "care_service_name":
             {
-                options["sort"] = { 'carer.date_of_birth': -1 };
+                options["sort"] = { 'care_home.care_service_name': -1 };
                 break
             }
             case "activation_date_asc":
@@ -101,16 +79,6 @@ module.exports = {
             case "activation_date_desc":
             {
                 options["sort"] = { activation_date: -1 };
-                break
-            }
-            case "rating_asc":
-            {
-                options["sort"] = { 'carer.reviews.average': 1 };
-                break
-            }
-            case "rating_desc":
-            {
-                options["sort"] = { 'carer.reviews.average': -1 };
                 break
             }
             case "status_asc":
@@ -138,13 +106,21 @@ module.exports = {
 				options["sort"] = { _id: 1 };
 				break;
 			}
-		}
+        }
+        
+        // const carehomes  = await User.find(
+        //     {
+        //         $or: [
+        //             { 'care_home': { $exists: true } }
+        //         ]
+        //     }).select('-care_home.jobs')
+        //     .exec();
 
 		//pagination and parsing
 		const carehomes = await Utils.paginate(User, { query: query, options: options }, req);
         let paginated = Utils.parsePaginatedResults(carehomes);
         paginated.results.map(user => User.parse(user, req));
 
-        res.json(paginated);
+        res.json(carehomes);
     }
 }
