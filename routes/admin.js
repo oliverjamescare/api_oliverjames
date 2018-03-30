@@ -20,6 +20,8 @@ router.get('/home', adminAuthenticate, AdminController.home);
 
 //Carers
 router.get('/carehomes', adminAuthenticate, CareHomesController.getCareHomes);
+router.get('/carehomes/:id', adminAuthenticate, CareHomesController.getCareHome);
+router.put('/carehomes/:id', adminAuthenticate, CareHomesController.updateCareHome);
 
 //Carers
 router.get('/carers', adminAuthenticate, CarersController.getCarers);

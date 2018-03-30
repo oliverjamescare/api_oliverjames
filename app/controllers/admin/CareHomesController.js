@@ -9,6 +9,7 @@ const User = UserModel.schema;
 
 //services
 const Utils = require("../../services/utils");
+const fileHandler = require("../../services/fileHandler");
 
 module.exports = {
 	getCareHomes: async function(req, res)
@@ -122,5 +123,69 @@ module.exports = {
         paginated.results.map(user => User.parse(user, req));
 
         res.json(carehomes);
+    },
+
+    getCareHome: async function(req, res)
+    {
+        const careHome = await User.find(
+            { care_home: { $exists: true }, _id: req.params.id }
+        ).select('-care_home.jobs')
+        .exec();
+        res.json(careHome)
+    },
+
+//     "care_home": {
+//         "care_service_name": "Michal",
+//         "type_of_home": "Residential",
+//         "name": "Michal",
+//         "_id": "5a93f6cae13b802cf2471ffe",
+//         "general_guidance": {
+//           "floor_plan": "users/5a93f6cae13b802cf2471ffd/1519654131670michal-hajduga.pdf",
+//           "parking": "adadadsad",
+//           "notes_for_carers": "dadadasdas",
+//           "emergency_guidance": "dasdaddsd",
+//           "report_contact": "dasdsadas",
+//           "superior_contact": "sdasdas"
+//         },
+//   }
+
+    updateCareHome: async function(req, res)
+    {
+        //getting user
+        const user = await User.findOne({ care_home: { $exists: true }, _id: req.params.id } );
+
+        //user not found
+        if(!user)
+            return res.status(404).json(Utils.parseStringError("User not found", "user"));
+
+        //cv upload
+        const uploader = fileHandler(req, res);
+        const filePath = await uploader.handleSingleUpload("cv", "users/" , {
+            allowedMimeTypes: [
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/pdf",
+                "image/png",
+                "image/jpg",
+                "image/jpeg",
+            ],
+            maxFileSize: 10,
+            skipCondition: () => !req.body.first_name || !req.body.surname
+        });
+
+        console.log(req.body)
+        console.log(req.params)
+
+        const body = req.body;
+
+        user.care_home.set({
+            care_service_name: body.care_service_name || user.care_service_name,
+            type_of_home: body.type_of_home || user.type_of_home,
+            name: body.name || user.name
+        })
+
+        user.save()
+        .then(() => res.json({status: true}))
+        .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)))
     }
 }
