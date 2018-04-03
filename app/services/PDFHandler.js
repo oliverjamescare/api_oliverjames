@@ -24,18 +24,19 @@ module.exports = class
 
         data.assets = (assetPath) => (this.req.secure ? "https://" : "http://") + this.req.headers.host + assetPath;
         data.moment = moment;
+
         jade.renderFile(pdfTemplatesPath + "job-acceptance.jade", data, (error, html) => {
             if(error)
                 console.log(error);
 
             if(html)
             {
-                console.log(html);
                 const options = {
-                    format: 'Letter'
+                    format: 'Letter',
+                    border: "40px"
                 };
 
-                pdf.create(html, options).toFile(pdfOutputPath + "test.pdf", (err, res) => {
+                pdf.create(html, options).toFile(pdfOutputPath + "test.pdf", (error, res) => {
 
                     console.log('PDF completed!')
                 });

@@ -49,11 +49,6 @@ block content
             p.content #{job.notes || 'None'}
 
     br
-    br
-    br
-    br
-    br
-    br
 
     //carer details
     h3 Carer details
@@ -124,8 +119,22 @@ block content
                 span.label Safeguarding:
                 p.content #{moment(job.carer.carer.training_record.safeguarding).format("YYYY-MM-DD")}
 
+    br
+
     //carer reviews
     h3 Reviews
-    ul
-        each val in [1, 2, 3, 4, 5]
-            li= val
+    if(job.carer.carer.jobs.length)
+        ul.reviews
+            each review in job.carer.carer.jobs
+                li.review-item
+                    div.review-content-container
+                        p.review #{review.review.description}
+                        p.author By #{review.author.care_home.care_service_name}, #{moment(review.review.created).format("YYYY-MM-DD")}
+                    div.rating-container
+                        i.fa.fa-star
+                        span #{review.review.rate}
+
+    if(!job.carer.carer.jobs.length)
+        p This carer has no reviews
+
+

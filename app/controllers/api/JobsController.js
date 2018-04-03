@@ -881,7 +881,6 @@ module.exports = {
         const handler = new PDFHandler(req);
         handler.generatePdf("test", "jobs/" + job._id, { job });
 
-console.log(job.carer.re);
         // //sending response
         res.json({ status: true });
     }
