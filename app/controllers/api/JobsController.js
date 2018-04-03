@@ -878,10 +878,10 @@ module.exports = {
 
         job = Job.parse(job, req);
 
-        const handler = new PDFHandler();
+        const handler = new PDFHandler(req);
         handler.generatePdf("test", "jobs/" + job._id, { job });
 
-
+console.log(job.carer.re);
         // //sending response
         res.json({ status: true });
     }

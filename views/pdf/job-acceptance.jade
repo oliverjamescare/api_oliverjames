@@ -1,0 +1,131 @@
+extends _base
+
+block content
+    p Please find a summary of your job and the assigned carer attached. This can be kept for your records, but it will be accessible from online account
+
+    -    var address = function (address) { return (address.company ? address.company + ", " : "") + address.address_line_1 + ", " + (address.address_line_2 ? address.address_line_2 + ", " : "") + address.city + ", "+ address.postal_code };
+
+    //job details
+    h3 Job details
+    ul.details-list
+        li
+            span.label Job ID:
+            p.content #{job._id}
+        li
+            span.label Start:
+            p.content #{moment(job.start_date).format('YYYY-MM-DD')}
+        li
+            span.label Time:
+            p.content #{moment(job.start_date).format('h:mm A')} till #{moment(job.end_date).format('h:mm A')}
+        li
+            span.label Role:
+            p.content #{job.role}
+        li
+            span.label Gender preference:
+            p.content #{job.gender_preference}
+        li
+            span.label Care home:
+            p.content #{job.author.care_home.care_service_name}
+        li
+            span.label Phone:
+            p.content #{job.author.phone_number}
+        li
+            span.label Address:
+            p.content #{address(job.author.address)}
+        li
+            span.label Who to speak to if calling the service:
+            p.content #{job.general_guidance.superior_contact}
+        li
+            span.label Where to report to on arrival:
+            p.content #{job.general_guidance.report_contact}
+        li
+            span.label In event of fire:
+            p.content #{job.general_guidance.emergency_guidance}
+        li
+            span.label Parking:
+            p.content #{job.general_guidance.parking}
+        li
+            span.label Notes for carers:
+            p.content #{job.notes || 'None'}
+
+    br
+    br
+    br
+    br
+    br
+    br
+
+    //carer details
+    h3 Carer details
+    div.carer
+        div.profile-image-container
+            if job.carer.carer.profile_image
+                img.profile-image(src=job.carer.carer.profile_image)
+        div.details
+            h4.fullname #{job.carer.carer.first_name} #{job.carer.carer.surname}
+            div.star-container
+                i.fa.fa-star
+            div.reviews-container
+                span #{job.carer.carer.reviews.count > 0 ? job.carer.carer.reviews.average + ' from ' + job.carer.carer.reviews.count : 'No reviews so far'}
+                br
+                span #{job.carer.carer.care_experience.years } #{job.carer.carer.care_experience.years > 1 ? ' years ': ' year '} #{(job.carer.carer.care_experience.months > 0)? ' and ' + job.carer.carer.care_experience.months + (job.carer.carer.care_experience.months > 1 ? ' months ' : ' month ') : ''} care experience
+
+    div.clear
+    br
+    br
+
+    ul.details-list
+        li
+            span.label Telephone number:
+            p.content #{job.carer.phone_number}
+
+        if job.carer.carer.training_record.dementia
+            li
+                span.label Dementia:
+                p.content #{moment(job.carer.carer.training_record.dementia).format("YYYY-MM-DD")}
+
+        if job.carer.carer.training_record.fire_safety
+            li
+                span.label Fire safety:
+                p.content #{moment(job.carer.carer.training_record.fire_safety).format("YYYY-MM-DD")}
+
+        if job.carer.carer.training_record.first_aid_and_basic_life_support
+            li
+                span.label First aid and basic life support:
+                p.content #{moment(job.carer.carer.training_record.first_aid_and_basic_life_support).format("YYYY-MM-DD")}
+
+        if job.carer.carer.training_record.first_aid_awareness
+            li
+                span.label First aid awareness:
+                p.content #{moment(job.carer.carer.training_record.first_aid_awareness).format("YYYY-MM-DD")}
+
+        if job.carer.carer.training_record.h_and_s
+            li
+                span.label H & S:
+                p.content #{moment(job.carer.carer.training_record.h_and_s).format("YYYY-MM-DD")}
+
+        if job.carer.carer.training_record.infection_control
+            li
+                span.label Infection control:
+                p.content #{moment(job.carer.carer.training_record.infection_control).format("YYYY-MM-DD")}
+
+        if job.carer.carer.training_record.manual_handling_people
+            li
+                span.label Manual handling people:
+                p.content #{moment(job.carer.carer.training_record.manual_handling_people).format("YYYY-MM-DD")}
+
+        if job.carer.carer.training_record.medication_management
+            li
+                span.label Medication managment:
+                p.content #{moment(job.carer.carer.training_record.medication_management).format("YYYY-MM-DD")}
+
+        if job.carer.carer.training_record.safeguarding
+            li
+                span.label Safeguarding:
+                p.content #{moment(job.carer.carer.training_record.safeguarding).format("YYYY-MM-DD")}
+
+    //carer reviews
+    h3 Reviews
+    ul
+        each val in [1, 2, 3, 4, 5]
+            li= val

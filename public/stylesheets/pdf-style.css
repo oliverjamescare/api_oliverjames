@@ -1,0 +1,91 @@
+/*
+    main
+*/
+body
+{
+    padding: 50px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+}
+#logo
+{
+    max-width: 250px;
+    margin-bottom: 10px;
+}
+
+h3
+{
+    font-size: 20px;
+}
+.clear
+{
+    clear: both;
+}
+
+/*
+    details list
+ */
+.details-list
+{
+    list-style: none;
+    padding-left: 0;
+}
+.details-list .label
+{
+    color: #03c88b;
+    font-weight: bold;
+}
+.details-list p
+{
+    margin: 5px 0 10px;
+    color: #4a4a4a;
+}
+.details-list li
+{
+    margin: 5px 0 10px;
+    border-bottom: 1px solid #4a4a4a;
+}
+.details-list li:last-child
+{
+    border-bottom: none;
+}
+
+/*
+    carer
+ */
+.carer .details, .carer .profile-image-container, .carer .star-container, .carer .reviews-container
+{
+    float: left;
+}
+.profile-image-container
+{
+    width: 55px;
+    height: 55px;
+    background: #4a4a4a;
+    border-radius: 50%;
+}
+.profile-image
+{
+    border-radius: 50%;
+    height: 55px;
+    max-width: 100%;
+}
+.carer .details
+{
+    margin-left: 30px;
+}
+.fullname
+{
+    margin: 5px 0;
+}
+.fa.fa-star
+{
+    font-size: 18px;
+    color: #03c88b;
+}
+.carer .reviews-container
+{
+    margin-left: 10px;
+    font-size: 12px;
+    color: #4a4a4a;
+}
