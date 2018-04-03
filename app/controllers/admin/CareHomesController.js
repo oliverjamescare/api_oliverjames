@@ -108,14 +108,6 @@ module.exports = {
 				break;
 			}
         }
-        
-        // const carehomes  = await User.find(
-        //     {
-        //         $or: [
-        //             { 'care_home': { $exists: true } }
-        //         ]
-        //     }).select('-care_home.jobs')
-        //     .exec();
 
 		//pagination and parsing
 		const carehomes = await Utils.paginate(User, { query: query, options: options }, req);
@@ -134,21 +126,6 @@ module.exports = {
         res.json(careHome)
     },
 
-//     "care_home": {
-//         "care_service_name": "Michal",
-//         "type_of_home": "Residential",
-//         "name": "Michal",
-//         "_id": "5a93f6cae13b802cf2471ffe",
-//         "general_guidance": {
-//           "floor_plan": "users/5a93f6cae13b802cf2471ffd/1519654131670michal-hajduga.pdf",
-//           "parking": "adadadsad",
-//           "notes_for_carers": "dadadasdas",
-//           "emergency_guidance": "dasdaddsd",
-//           "report_contact": "dasdsadas",
-//           "superior_contact": "sdasdas"
-//         },
-//   }
-
     updateCareHome: async function(req, res)
     {
         //getting user
@@ -160,7 +137,7 @@ module.exports = {
 
         //cv upload
         const uploader = fileHandler(req, res);
-        const filePath = await uploader.handleSingleUpload("cv", "users/" , {
+        var filePath = await uploader.handleSingleUpload("file", "users" , {
             allowedMimeTypes: [
                 "application/msword",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -169,12 +146,8 @@ module.exports = {
                 "image/jpg",
                 "image/jpeg",
             ],
-            maxFileSize: 10,
-            skipCondition: () => !req.body.first_name || !req.body.surname
+            maxFileSize: 10
         });
-
-        console.log(req.body)
-        console.log(req.params)
 
         const body = req.body;
 
@@ -182,6 +155,21 @@ module.exports = {
             care_service_name: body.care_service_name || user.care_service_name,
             type_of_home: body.type_of_home || user.type_of_home,
             name: body.name || user.name
+        })
+
+        if(filePath == undefined){
+            filePath = user.care_home.general_guidance.floor_plan
+        }
+
+        user.care_home.set({
+            general_guidance: {
+                superior_contact: body.superior_contact || user.care_home.superior_contact,
+                report_contact: body.report_contact || user.report_contact.report_contact,
+                emergency_guidance: body.emergency_guidance || user.care_home.emergency_guidance,
+                notes_for_carers: body.notes_for_carers || user.care_home.notes_for_carers,
+                parking: body.parking || user.care_home.parking,
+                floor_plan: filePath
+            }
         })
 
         user.save()
