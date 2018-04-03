@@ -137,7 +137,7 @@ module.exports = {
 
         //cv upload
         const uploader = fileHandler(req, res);
-        var filePath = await uploader.handleSingleUpload("file", "users" , {
+        const filePath = await uploader.handleSingleUpload("file", "users" + user._id , {
             allowedMimeTypes: [
                 "application/msword",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -157,9 +157,9 @@ module.exports = {
             name: body.name || user.name
         })
 
-        if(filePath == undefined){
-            filePath = user.care_home.general_guidance.floor_plan
-        }
+        // if(filePath == undefined){
+        //     filePath =
+        // }
 
         user.care_home.set({
             general_guidance: {
@@ -168,7 +168,7 @@ module.exports = {
                 emergency_guidance: body.emergency_guidance || user.care_home.emergency_guidance,
                 notes_for_carers: body.notes_for_carers || user.care_home.notes_for_carers,
                 parking: body.parking || user.care_home.parking,
-                floor_plan: filePath
+                floor_plan: filePath || user.care_home.general_guidance.floor_plan
             }
         })
 

@@ -18,7 +18,7 @@ router.post('/login', AuthController.login);
 //Admin
 router.get('/home', adminAuthenticate, AdminController.home);
 
-//Carers
+//Care homes
 router.get('/carehomes', adminAuthenticate, CareHomesController.getCareHomes);
 router.get('/carehomes/:id', adminAuthenticate, CareHomesController.getCareHome);
 router.put('/carehomes/:id', adminAuthenticate, CareHomesController.updateCareHome);
