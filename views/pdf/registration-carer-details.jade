@@ -1,0 +1,42 @@
+extends _base
+
+block content
+    br
+    h3 Carer personal details
+    ul.details-list
+        li
+            span.label Email:
+            p.content #{user.email}
+        li
+            span.label Phone number:
+            p.content #{user.phone_number}
+        li
+            span.label First name:
+            p.content #{user.carer.first_name}
+        li
+            span.label Middle names:
+            p.content #{user.carer.middle_name || "None"}
+        li
+            span.label Surname:
+            p.content #{user.carer.surname}
+        li
+            span.label Date of birth:
+            p.content #{moment(user.carer.date_of_birth).format("YYYY-MM-DD")}
+        li
+            span.label Postcode:
+            p.content #{user.address.postal_code}
+        li
+            span.label Company name / Carer name:
+            p.content #{user.address.company || "None"}
+        li
+            span.label Address line 1:
+            p.content #{user.address.address_line_1}
+        li
+            span.label Address line 2:
+            p.content #{user.address.address_line_2 || "None"}
+        li
+            span.label Town / city:
+            p.content #{user.address.city}
+        li
+            span.label What job roles are you interested in:
+            p.content #{user.carer.eligible_roles.join(", ")}

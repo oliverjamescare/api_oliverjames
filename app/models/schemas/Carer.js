@@ -1,6 +1,9 @@
 //core
 const mongoose = require('mongoose');
 const moment = require('moment');
+const async = require("async");
+const fs = require("fs");
+const config = process.env;
 
 //custom
 const validators = require('./../../services/validators');
@@ -389,7 +392,13 @@ const schema = mongoose.Schema({
                 default: false
             }
 		}
-	}
+	},
+    documents: [
+        {
+            type: String,
+            required: [ true, "{PATH} field is required." ]
+        }
+    ]
 });
 
 //methods
@@ -522,6 +531,39 @@ schema.methods.getDeductionsBalance = function()
     this.deductions.forEach(deduction =>  balance += deduction.status == Transaction.transactionStatuses.CONFIRMED ? deduction.amount : 0);
 
     return balance;
+}
+
+schema.methods.sendApplication = function(mailer)
+{
+    const carer = this;
+
+    //preparing paths
+    const paths = []
+
+    if(this.cv_uploads[0])
+        paths.push(__dirname + "/../../../public/uploads/" + this.cv_uploads[0]);
+
+    this.documents.forEach(documentPath => paths.push(__dirname + "/../../../public/uploads/" + documentPath));
+
+    //getting attachments
+    const pathFunctions = paths.map(path => (callback) => fs.readFile(path, 'utf8', (error, data) => callback(null, path, data)));
+
+    async.parallel(pathFunctions, (errors, results) => {
+
+        const attachments = results.map(fileResult => {
+            return { filename: fileResult[0].substr(fileResult[0].lastIndexOf("/") + 1), content: fileResult[1]};
+        });
+
+        //console.log(attachments);
+
+        //sending email
+        mailer.send(__dirname + "/../../../views/emails/carer-registered", {
+            to: config.CONTACT_EMAIL,
+            subject: "Oliver James application - " + carer.first_name + " " + carer.surname,
+            carer: carer,
+            attachments: attachments
+        }, (error) => console.log(error));
+    });
 }
 
 module.exports = { schema, eligibleRoles, shiftsRanges };

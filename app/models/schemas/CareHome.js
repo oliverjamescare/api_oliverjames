@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const validators = require('./../../services/validators');
 const GeneralGuidance = require('./GeneralGuidance');
 const Transaction = require("./Transaction");
+const config = process.env;
 
 //settings
 const homeTypes = [
@@ -94,6 +95,18 @@ schema.methods.getCreditsBalance = function()
     this.credits.forEach(creditTransaction => balance += creditTransaction.status == Transaction.transactionStatuses.CONFIRMED ? creditTransaction.amount : 0);
 
     return balance;
+}
+
+schema.methods.sendRegisterConfirmation = function(mailer)
+{
+    const care_home = this;
+
+    //sending email
+    mailer.send(__dirname + "/../../../views/emails/care-home-registered", {
+        to: config.CONTACT_EMAIL,
+        subject: care_home.care_service_name + " has signed up",
+        care_home: care_home,
+    }, (error) => console.log(error));
 }
 
 module.exports.schema = schema;

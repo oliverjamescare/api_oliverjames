@@ -879,7 +879,9 @@ module.exports = {
         job = Job.parse(job, req);
 
         const handler = new PDFHandler(req);
-        handler.generatePdf("test", "jobs/" + job._id, { job });
+        handler.generatePdf("CARER_REGISTRATION_QUESTIONNAIRE", "users/" + req.user._id, { user: req.user }).then(r => {
+            console.log(r);
+        });
 
         // //sending response
         res.json({ status: true });

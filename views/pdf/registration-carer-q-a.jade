@@ -1,0 +1,68 @@
+extends _base
+
+block content
+    br
+    h3 Carer questionnaire
+    ul.details-list
+        - const criminal_record_options = ["Yes", "No"];
+        li
+            span.label Do you have a criminal record or any police convictions (you will be DBS checked):
+            p.content #{criminal_record_options[user.carer.q_a_form.criminal_record.value]}
+        li
+            span.label Explanation:
+            p.content #{user.carer.q_a_form.criminal_record.text || "None"}
+
+        - const physical_issues_options = ["Yes", "No"];
+        li
+            span.label Do you have any of the following physical issues: Working with hazardous materials (e.g. bleach):
+            p.content #{physical_issues_options[ user.carer.q_a_form.physical_issues.value ]}
+
+        - const engaging_in_moving_options = ["Yes", "No"];
+        li
+            span.label Engaging in moving and handling (of residents and objects):
+            p.content #{engaging_in_moving_options[user.carer.q_a_form.engaging_in_moving.value]}
+        li
+            span.label Explanation:
+            p.content #{user.carer.q_a_form.engaging_in_moving.text || "None"}
+
+        -
+            const personal_care_for_resident_options = [
+               "Cream them, lower body, upper body face, dress them",
+               "Face, upper body, lower body, creams, dress them",
+               "Face, lower body, upper body, dress them, creams",
+               "I’m not sure"
+            ];
+        li
+            span.label Typically, in what order would you carry out personal care for a resident who could not do it for themselves?:
+            p.content #{personal_care_for_resident_options[ user.carer.q_a_form.personal_care_for_resident.value ]}
+
+        -
+            const you_are_late_options = [
+                "I’d accept I’m going to be late and focus on getting there ASAP to minimise delay",
+                "I’d take 2 minutes to call the client and let them know I’m running late.",
+                "15 minutes is too long. I’d call them and advise them to find someone else to cover the shift",
+                "I’m not sure"
+            ];
+        li
+            span.label It’s 7.30am. You realise you are going to be 15 minutes late to your 8am booking (6 hour shift). What do you do?:
+            p.content #{you_are_late_options[ user.carer.q_a_form.you_are_late.value ]}
+
+        -
+             const find_fallen_resident_options = [
+                 "Help the resident get up. Maintain their dignity. Then ring the emergency bell.",
+                 "Ring the emergency bell. Comfort the resident but not move them. Wait for other carers",
+                 "Check for injuries. If they say they are fine, help them up by myself. Make a note to tell care team when I see them."
+             ];
+        li
+            span.label What procedure do you follow if you find a resident fallen on the floor in their room?:
+            p.content #{find_fallen_resident_options[ user.carer.q_a_form.find_fallen_resident.value ]}
+
+        -
+            const serve_lunch_meals_options = [
+                 "This isn’t right – can someone please stay with me this time",
+                 "Where can I find the care plans – I will check each one to be safe and sure",
+                 "Who are the residents with swallowing or choking risks. Should I be aware of any other issues before I serve – like diabetic meals?"
+             ];
+        li
+             span.label You are asked to serve the lunch meals to a home’s 20 residents. Meals are not labelled with resident names. What would you ask the other carers before serving?:
+             p.content #{serve_lunch_meals_options[ user.carer.q_a_form.serve_lunch_meals.value ]}
