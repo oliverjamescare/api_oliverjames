@@ -9,10 +9,14 @@ var apiRoutes = require('./routes/api');
 var adminRoutes = require('./routes/admin');
 var expressValidator = require('express-validator');
 var cors = require('cors');
+var helmet = require('helmet')
 var app = express();
 
 //CORS ALLOW
 app.use(cors());
+
+//Security headers
+app.use(helmet());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

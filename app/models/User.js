@@ -17,6 +17,7 @@ const permissions = require('./../../config/permissions');
 const careHomeSchema = require("./schemas/CareHome").schema;
 const carerSchema = require('./schemas/Carer').schema;
 const addressSchema = require("./schemas/Address").address;
+const transactionSchema = require("./schemas/Transaction").schema;
 
 //settings
 const passwordRegExp = /^(?=.*[A-Za-z])(?=.*[0-9])[A-Za-z0-9]{6,}$/;
@@ -140,6 +141,8 @@ const schema = mongoose.Schema({
             enum: permissions.permissions
         }
     ],
+    transactions: [ transactionSchema ],
+
     created: {
         type: Date,
         default: Date.now()
