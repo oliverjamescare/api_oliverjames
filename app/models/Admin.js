@@ -1,6 +1,7 @@
 //core
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
+const mongoosePaginate = require('mongoose-paginate');
 const randomstring = require("randomstring");
 
 //custom
@@ -67,4 +68,6 @@ schema.methods.generateAccessTokens = function()
 }
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been taken.' });
+schema.plugin(mongoosePaginate);
+
 module.exports.schema = mongoose.model("Admin", schema);

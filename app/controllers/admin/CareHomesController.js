@@ -174,7 +174,7 @@ module.exports = {
         .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)))
     },
 
-    addCarer: async function (req, res)
+    addCareHome: async function (req, res)
     {
         //getting new user id and preparing address
         const id = mongoose.Types.ObjectId();

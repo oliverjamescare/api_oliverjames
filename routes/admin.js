@@ -17,11 +17,17 @@ router.post('/login', AuthController.login);
 
 //Admin
 router.get('/home', adminAuthenticate, AdminController.home);
+router.get('/admins', adminAuthenticate, AdminController.getAdminsList);
+router.post('/admins', adminAuthenticate, AdminController.addAdmin);
+router.put('/admins/:id', adminAuthenticate, AdminController.updateAdmin);
+router.put('/admins/:id/pass', adminAuthenticate, AdminController.changePassAdmin);
+router.put('/admins/:id/passown', adminAuthenticate, AdminController.changeOwnPassAdmin);
+router.put('/admins/:id/delete', adminAuthenticate, AdminController.removeAdminAccount);
 
 //Care homes
 router.get('/carehomes', adminAuthenticate, CareHomesController.getCareHomes);
 router.get('/carehomes/:id', adminAuthenticate, CareHomesController.getCareHome);
-router.post('/carehomes/', adminAuthenticate, CareHomesController.addCarer);
+router.post('/carehomes', adminAuthenticate, CareHomesController.addCareHome);
 router.put('/carehomes/:id', adminAuthenticate, CareHomesController.updateCareHome);
 
 //Carers
