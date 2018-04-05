@@ -10,6 +10,7 @@ const User = UserModel.schema;
 //services
 const Utils = require("../../services/utils");
 const fileHandler = require("../../services/fileHandler");
+const locationHandler = require('../../services/locationHandler');
 
 module.exports = {
 	getCareHomes: async function(req, res)
@@ -180,7 +181,7 @@ module.exports = {
 
         //cv upload
         const uploader = fileHandler(req, res);
-        const filePath = await uploader.handleSingleUpload("file", "users" + user._id , {
+        const filePath = await uploader.handleSingleUpload("file", "users" + id , {
             allowedMimeTypes: [
                 "application/msword",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -194,7 +195,9 @@ module.exports = {
 
         const body = req.body;
         //preparing address
-        const address = await locationHandler.getCustomLocation(body.address);
+        const address = await locationHandler.getCustomLocation(body);
+        if(!address || !address.location)
+            return res.status(406).json(Utils.parseStringError("Unable to find address", "address"));
 
         //user
         let user = new User({
@@ -209,11 +212,13 @@ module.exports = {
             banned_until: null
         })
 
-        user.care_home.set({
-            care_service_name: body.care_service_name ,
-            type_of_home: body.type_of_home ,
-            name: body.name,
-            gender_preference: body.gender_preference
+        user.set({
+            care_home: {
+                care_service_name: body.care_service_name ,
+                type_of_home: body.type_of_home ,
+                name: body.name,
+                gender_preference: body.gender_preference
+            }
         })
 
         user.care_home.set({
@@ -226,8 +231,6 @@ module.exports = {
                 floor_plan: filePath
             }
         })
-
-
 
         user
             .validate()
