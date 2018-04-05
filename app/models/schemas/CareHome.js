@@ -102,11 +102,13 @@ schema.methods.sendRegisterConfirmation = function(mailer)
     const care_home = this;
 
     //sending email
-    mailer.send(__dirname + "/../../../views/emails/care-home-registered", {
+    mailer.send(__dirname + "/../../../views/emails/care-home-registered.jade", {
         to: config.CONTACT_EMAIL,
         subject: care_home.care_service_name + " has signed up",
-        care_home: care_home,
-    }, (error) => console.log(error));
+    },
+    {
+        care_home: care_home
+    },(error) => console.log(error));
 }
 
 module.exports.schema = schema;

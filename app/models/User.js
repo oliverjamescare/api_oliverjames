@@ -8,6 +8,7 @@ const JWT = require('jsonwebtoken');
 const async = require('async');
 const config = process.env;
 const moment = require('moment');
+const nodemailer = require("nodemailer");
 
 //custom
 const validators = require('./../services/validators');
@@ -244,9 +245,11 @@ schema.methods.addEmailConfirmationHandle = function(email, mailer)
     this.email_confirmations.push({ email });
 
     //sending email
-    mailer.send(__dirname + "/../../views/emails/confirmation-email", {
+    mailer.send(__dirname + "/../../views/emails/confirmation-email.jade", {
         to: email,
-        subject: "Oliver James Email Verification",
+        subject: "Oliver James Email Verification"
+    },
+    {
         emailConfirmation: this.email_confirmations.slice().pop(),
         config: config,
         paths: paths
@@ -272,9 +275,11 @@ schema.methods.addPasswordRemindHandle = function(mailer)
     this.password_resets.push({ _id: mongoose.Types.ObjectId()});
 
     //sending email
-    mailer.send(__dirname + "/../../views/emails/password-reset", {
+    mailer.send(__dirname + "/../../views/emails/password-reset.jade", {
         to: this.email,
-        subject: "Oliver James - password reset request",
+        subject: "Oliver James - password reset request"
+    },
+    {
         passwordReminder: this.password_resets.slice().pop(),
         config: config,
         paths: paths
@@ -366,7 +371,6 @@ schema.statics.parse = function(user, req)
         //CV
         if(user.carer.cv_uploads)
             user.carer.cv_uploads = user.carer.cv_uploads.map(file => fileHandler.getFileUrl(file));
-
 
         //jobs
         if(user.carer.jobs)

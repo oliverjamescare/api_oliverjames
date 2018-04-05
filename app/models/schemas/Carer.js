@@ -545,25 +545,18 @@ schema.methods.sendApplication = function(mailer)
 
     this.documents.forEach(documentPath => paths.push(__dirname + "/../../../public/uploads/" + documentPath));
 
-    //getting attachments
-    const pathFunctions = paths.map(path => (callback) => fs.readFile(path, 'utf8', (error, data) => callback(null, path, data)));
-
-    async.parallel(pathFunctions, (errors, results) => {
-
-        const attachments = results.map(fileResult => {
-            return { filename: fileResult[0].substr(fileResult[0].lastIndexOf("/") + 1), content: fileResult[1]};
-        });
-
-        //console.log(attachments);
-
-        //sending email
-        mailer.send(__dirname + "/../../../views/emails/carer-registered", {
-            to: config.CONTACT_EMAIL,
-            subject: "Oliver James application - " + carer.first_name + " " + carer.surname,
-            carer: carer,
-            attachments: attachments
-        }, (error) => console.log(error));
-    });
+    //sending email
+    mailer.send(__dirname + "/../../../views/emails/carer-registered.jade", {
+        to: config.CONTACT_EMAIL,
+        subject: "Oliver James application - " + carer.first_name + " " + carer.surname,
+        attachments: paths.map(path => {
+            return { path }
+        })
+    },
+    {
+        carer: carer
+    },
+    (error) => console.log(error));
 }
 
 module.exports = { schema, eligibleRoles, shiftsRanges };
