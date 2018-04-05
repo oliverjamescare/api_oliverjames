@@ -2,15 +2,20 @@
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate');
 const mongooseAggregatePaginate = require('mongoose-aggregate-paginate');
+const moment = require('moment');
 
 //services
 const validators = require('./../services/validators');
+const PDFHandler = require('./../services/PDFHandler');
+const JobHandler = require('./../services/JobsHandler');
 
 //schemas
 const GeneralGuidance = require('./schemas/GeneralGuidance');
 const CarerRoles = require('./schemas/Carer').eligibleRoles;
-const ReviewSchema = require("./schemas/Review").schema;
-const Challenge = require("./schemas/Challenge");
+const ReviewSchema = require("./schemas/Review");
+const Review = ReviewSchema.schema;
+const ChallengeSchema = require("./schemas/Challenge");
+const Challenge = ChallengeSchema.schema;
 const Payment = require("./schemas/Payment").schema;
 const Charge = require("./schemas/Charge").schema;
 const Pricing = require("./schemas/Pricing");
@@ -90,9 +95,13 @@ const schema = mongoose.Schema({
 		},
 		payment: Payment,
 		summary_sheet: SummarySheetSchema,
-		review: ReviewSchema,
-		challenge: Challenge.schema,
-        created: Date
+		review: Review,
+		challenge: Challenge,
+        acceptance_document: String,
+        created: {
+		    type: Date,
+            required: validators.required_if_present('assignment.carer')
+        }
 	},
 	role: {
 		type: String,
@@ -223,6 +232,63 @@ schema.methods.calculateJobCost = function()
 	return cost;
 }
 
+schema.methods.sendJobAcceptance = function(req, careHome)
+{
+    const job = this;
+    //fetching full detailed job
+
+    console.log(job._id);
+    JobHandler
+        .getJobDetailsQuery(job._id, true)
+        .lean()
+        .exec((error, detailedJob) => {
+            if(detailedJob)
+            {
+                //generating pdf, sending email and saving object
+                detailedJob = mongoose.model("Job", schema).parse(detailedJob, req);
+
+                const handler = new PDFHandler(req);
+                handler.generatePdf("JOB_ACCEPTANCE", "jobs/" + job._id, { job: detailedJob })
+                    .then(pdfPath => {
+
+                        job.assignment.acceptance_document = pdfPath;
+                        job.save().catch(error => console.log(error));
+
+                        //sending email
+                        req.app.mailer.send(__dirname + "/../../views/emails/job-accepted.jade",
+                            {
+                                to: careHome.email,
+                                subject: "Booking confirmation – " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " – " + moment(job.start_date.getTime()).format("h:mm A"),
+                                attachments: [
+                                    {
+                                        path: __dirname + "/../../public/uploads/" + pdfPath
+                                    }
+                                ]
+                            },
+                            { user: req.user }, (error) => console.log(error));
+
+                    });
+            }
+        });
+}
+
+schema.methods.sendJobWithdrawal = function(mailer, carer, careHome, withdrawal)
+{
+    const job = this;
+
+    //sending email
+    mailer.send(__dirname + "/../../views/emails/job-withdrawed.jade",
+    {
+        to: careHome.email,
+        subject: carer.carer.first_name + " has cancelled a job – " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " – " + moment(job.start_date.getTime()).format("h:mm A"),
+    },
+    {
+        user: carer,
+        job: job,
+        withdrawal: withdrawal
+    }, (error) => console.log(error));
+}
+
 //statics
 schema.statics.parse = function(job, req)
 {
@@ -312,9 +378,9 @@ function handleJobStatus(job)
         return statuses.ACCEPTED;
     else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
         return statuses.PENDING_SUMMARY_SHEET;
-    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.payment && (job.assignment.payment.debit_date.getTime() > new Date().getTime()) && (!job.assignment.challenge || job.assignment.challenge.status == Challenge.challengeStatuses.CANCELLED) && job.status != statuses.CANCELLED)
+    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.payment && (job.assignment.payment.debit_date.getTime() > new Date().getTime()) && (!job.assignment.challenge || job.assignment.challenge.status == ChallengeSchema.challengeStatuses.CANCELLED) && job.status != statuses.CANCELLED)
         return statuses.PENDING_PAYMENT;
-    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge && job.assignment.challenge.status == Challenge.challengeStatuses.ACTIVE && job.status != statuses.CANCELLED)
+    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge && job.assignment.challenge.status == ChallengeSchema.challengeStatuses.ACTIVE && job.status != statuses.CANCELLED)
         return statuses.CHALLENGED;
     else
         return job.status;

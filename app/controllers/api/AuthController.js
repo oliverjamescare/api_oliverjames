@@ -16,7 +16,6 @@ const CareHomeWaitingUser = require("../../models/CareHomeWaitingUser").schema;
 module.exports = {
     register: async function (req, res)
     {
-        const s = new Date();
         //getting new user id and preparing address
 	    const id = mongoose.Types.ObjectId();
 
@@ -159,11 +158,8 @@ module.exports = {
                 ],(errors, results) => {
 
                     user.addEmailConfirmationHandle(user.email, req.app.mailer);
-                    //user.save().catch(error => console.log(error));
+                    user.save().catch(error => console.log(error));
 
-                    console.log("Pdfs processed!");
-                    console.log("id", id);
-                    console.log("Processing time", new Date().getTime() - s.getTime())
                     user.carer ? user.carer.sendApplication(req.app.mailer) : user.care_home.sendRegisterConfirmation(req.app.mailer);
                 });
 		    })

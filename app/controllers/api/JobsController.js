@@ -8,6 +8,7 @@
 const async = require('async');
 const bcrypt = require('bcrypt-nodejs');
 const randomstring = require('randomstring');
+const moment = require('moment');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 //models
@@ -39,75 +40,8 @@ module.exports = {
         // })
         // .catch(e =>  res.json(e));
 
-        //for all
-        const jobsQuery = Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1 })
-            .populate("care_home",{
-                "email": 1,
-                "phone_number": 1,
-                "address": 1,
-                "care_home": 1,
-                "care_home.care_service_name": 1,
-                "care_home.type_of_home": 1,
-                "care_home.name": 1
-            });
-
-        //request by care home
-        if(req.user.care_home)
-        {
-            jobsQuery
-				.populate({
-                    path: "assignment.carer",
-                    select: {
-                        "phone_number": 1,
-                        "email": 1,
-                        "carer.first_name": 1,
-                        "carer.surname": 1,
-                        "carer.profile_image": 1,
-                        "carer.training_record.qualifications": 1,
-                        "carer.training_record.safeguarding": 1,
-                        "carer.training_record.manual_handling_people": 1,
-                        "carer.training_record.medication_management": 1,
-                        "carer.training_record.infection_control": 1,
-                        "carer.training_record.first_aid_and_basic_life_support": 1,
-                        "carer.training_record.first_aid_awareness": 1,
-                        "carer.training_record.h_and_s": 1,
-                        "carer.training_record.dementia": 1,
-                        "carer.training_record.fire_safety": 1,
-                        "carer.dbs.status": 1,
-                        "carer.dbs.dbs_date": 1,
-                        "carer.reviews": 1,
-                        "carer.care_experience": 1,
-                        "carer.jobs": 1,
-                    },
-                    populate: {
-                        path: 'carer.jobs',
-                        match: { 'assignment.review': { $exists: true }, 'assignment.review.status': reviewStatuses.PUBLISHED },
-                        sort: { 'assignment.review.created': "DESC" },
-                        limit: 10,
-                        select: {
-                            'assignment.review.created': 1,
-                            'assignment.review.description': 1,
-                            'assignment.review.rate': 1,
-                            'care_home': 1
-                        },
-                        populate: {
-                            path: 'care_home',
-                            select: {
-                                "email": 1,
-                                "phone_number": 1,
-                                "address": 1,
-                                "care_home": 1,
-                                "care_home.care_service_name": 1,
-                                "care_home.type_of_home": 1,
-                                "care_home.name": 1
-                            }
-                        }
-                    }
-                })
-        }
-
-        jobsQuery
-			.lean()
+        JobHandler.getJobDetailsQuery(req.params.id, req.user.care_home ? true : false)
+            .lean()
             .exec((error, job) => {
 
                 if(!job)
@@ -378,129 +312,145 @@ module.exports = {
     },
 
 	//only carer methods
-    acceptJob: function(req, res)
+    acceptJob: async function(req, res)
     {
-        Job.findOne({ _id: req.params.id }, (error, job) => {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
 
-        	//not found
-            if(!job)
-                return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-            //accepted job
-			if(job.assignment.carer)
-                return res.status(409).json(Utils.parseStringError("This job has already been accepted", "job"));
+        //accepted job
+        if(job.assignment.carer)
+            return res.status(409).json(Utils.parseStringError("This job has already been accepted", "job"));
 
-			//expired job
-            if(job.status == JobModel.statuses.EXPIRED)
-                return res.status(409).json(Utils.parseStringError("This job is expired", "job"));
+        //expired job
+        if(job.status == JobModel.statuses.EXPIRED)
+            return res.status(409).json(Utils.parseStringError("This job is expired", "job"));
 
-            //cancelled job
-            if(job.status == JobModel.statuses.CANCELLED)
-                return res.status(409).json(Utils.parseStringError("This job is cancelled", "job"));
+        //cancelled job
+        if(job.status == JobModel.statuses.CANCELLED)
+            return res.status(409).json(Utils.parseStringError("This job is cancelled", "job"));
 
-            //availability failure
-			if(!req.user.carer.checkAvailabilityForDateRange(job.start_date, job.end_date))
-                return res.status(409).json(Utils.parseStringError("You're not available during this job. Check your availability.", "job"));
+        //required gender preference
+        if(job.gender_preference != JobModel.genderPreferences.NO_PREFERENCE && job.gender_preference != req.user.carer.gender)
+            return res.status(409).json(Utils.parseStringError("This job requires gender to be " + job.gender_preference + " .", "job"));
 
-			//required gender preference
-			if(job.gender_preference != JobModel.genderPreferences.NO_PREFERENCE && job.gender_preference != req.user.carer.gender)
-                return res.status(409).json(Utils.parseStringError("This job requires gender to be " + job.gender_preference + " .", "job"));
+        //required role
+        if(req.user.carer.eligible_roles.indexOf(job.role) == -1)
+            return res.status(409).json(Utils.parseStringError("This job requires role to be " + job.role + " .", "job"));
 
-			//required role
-			if(req.user.carer.eligible_roles.indexOf(job.role) == -1)
-                return res.status(409).json(Utils.parseStringError("This job requires role to be " + job.role + " .", "job"));
+        //availability failure
+        if(!req.user.carer.checkAvailabilityForDateRange(job.start_date, job.end_date))
+            return res.status(409).json(Utils.parseStringError("You're not available during this job. Check your availability.", "job"));
 
-			//finding my jobs in this time
-			Job.count({ $and: [{_id: { $in: req.user.carer.jobs }}, { start_date: { $lte: job.end_date }},  { end_date: { $gte: job.end_date }}, { 'assignment.summary_sheet': { $exists: false }} ]})
-				.then(amount => {
-					if(Boolean(amount))
-                        return res.status(409).json(Utils.parseStringError("Conflict! You already have job in this time.", "job"));
+        //checking if care home hasn't blocked this carer
+        const careHome = await User.findOne({ _id: job.care_home, care_home: { $exists: true }}).exec();
+        if(careHome.care_home.blocked_carers.find(carerId => carerId.toString() == req.user._id.toString()))
+            return res.status(409).json(Utils.parseStringError("You are blocked by this care home.", "job"));
 
-					//sending response
-                    res.json({ status: true });
+        //finding my jobs in this time
+        const conflicts = await Job.count({ $and: [{_id: { $in: req.user.carer.jobs }}, { start_date: { $lte: job.end_date }},  { end_date: { $gte: job.end_date }}, { 'assignment.summary_sheet': { $exists: false }} ]});
+        if(Boolean(conflicts))
+            return res.status(409).json(Utils.parseStringError("Conflict! You already have job in this time.", "job"));
 
-					//saving assignment
-					job.assignment.carer = req.user;
-					job.assignment.created = new Date();
-					job.save().catch(error => console.log(error))
+        //sending response
+        res.json({ status: true });
 
-				});
-		})
+        //saving assignment
+        job.assignment.carer = req.user;
+        job.assignment.created = new Date();
+
+        job.save()
+            .then(() => {
+                job.sendJobAcceptance(req, careHome);
+        })
+        .catch(error => console.log(error));
     },
 
-	declineJob: function (req, res)
+	declineJob: async function (req, res)
 	{
-        Job.findOne({ _id: req.params.id }, (error, job) => {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
 
-            //not found
-            if(!job)
-                return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-            if(job.assignment.carer && job.assignment.carer.toString() == req.user._id.toString())
-                return res.status(409).json(Utils.parseStringError("You can't decline previously accepted job", "job"));
+        if(job.assignment.carer && job.assignment.carer.toString() == req.user._id.toString())
+            return res.status(409).json(Utils.parseStringError("You can't decline previously accepted job", "job"));
 
-            //sending response
-            res.json({ status: true });
+        //sending response
+        res.json({ status: true });
 
-            //adding job decline if not exists
-            if(req.user.carer.job_declines.indexOf(job._id) == -1 && job.declines.indexOf(req.user._id) == -1)
-            {
-				req.user.carer.job_declines.push(job);
-                req.user.save().catch(error => console.log(error));
+        //adding job decline if not exists
+        if(req.user.carer.job_declines.indexOf(job._id) == -1 && job.declines.indexOf(req.user._id) == -1)
+        {
+            req.user.carer.job_declines.push(job);
+            req.user.save().catch(error => console.log(error));
 
-                job.declines.push(req.user);
-                job.save().catch(error => console.log(error));
-            }
-        })
+            job.declines.push(req.user);
+            job.save().catch(error => console.log(error));
+        }
 	},
 
-    withdrawJob: function(req, res)
+    withdrawJob: async function(req, res)
     {
-        Job.findOne({ _id: req.params.id }, (error, job) => {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
 
-            //not found
-            if(!job)
-                return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-            if(!job.assignment.carer || (job.assignment.carer && job.assignment.carer.toString() != req.user._id.toString()))
-                return res.status(409).json(Utils.parseStringError("You are not assigned to this job", "job"));
+        if(!job.assignment.carer || (job.assignment.carer && job.assignment.carer.toString() != req.user._id.toString()))
+            return res.status(409).json(Utils.parseStringError("You are not assigned to this job", "job"));
 
-            if(job.assignment.summary_sheet)
-                return res.status(409).json(Utils.parseStringError("You can't withdraw from job which has summary sheet sent", "job"));
+        if(job.assignment.summary_sheet)
+            return res.status(409).json(Utils.parseStringError("You can't withdraw from job which has summary sheet sent", "job"));
 
-            if(job.start_date.getTime() < new Date().getTime())
+        //getting care home
+        const careHome = await User.findOne({ _id: job.care_home }).exec();
+
+        if(job.start_date.getTime() < new Date().getTime())
+        {
+            bcrypt.compare(req.body["password"], req.user.password, (error, status) =>
             {
-                bcrypt.compare(req.body["password"], req.user.password, (error, status) =>
-                {
-                    //wrong password
-                    if (!status)
-                        return res.status(406).json(Utils.parseStringError("Wrong password", "password"));
-
-                    //sending response
-                    res.json({ status: true });
-
-                    //adding new withdrawal
-                    let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job });
-                    jobWithdrawal.save().catch(error => console.log(error));
-                });
-            }
-            else
-            {
-                //validation
-                let errors;
-                req.check("message").notEmpty().withMessage('Message field is required.').isLength({ max: 200 }).withMessage('Message cannot be longer than 200 characters.');
-
-                if (errors = req.validationErrors())
-                   return res.status(406).json({ errors: errors });
+                //wrong password
+                if (!status)
+                    return res.status(406).json(Utils.parseStringError("Wrong password", "password"));
 
                 //sending response
                 res.json({ status: true });
 
                 //adding new withdrawal
-                let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job, message: req.body.message });
+                let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job });
                 jobWithdrawal.save().catch(error => console.log(error));
-            }
-        });
+
+                //sending withdrawal to care home
+                job.sendJobWithdrawal(req.app.mailer, req.user, careHome, jobWithdrawal)
+            });
+        }
+        else
+        {
+            //validation
+            let errors;
+            req.check("message").notEmpty().withMessage('Message field is required.').isLength({ max: 200 }).withMessage('Message cannot be longer than 200 characters.');
+
+            if (errors = req.validationErrors())
+                return res.status(406).json({ errors: errors });
+
+            //sending response
+            res.json({ status: true });
+
+            //adding new withdrawal
+            let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job, message: req.body.message });
+            jobWithdrawal.save().catch(error => console.log(error));
+
+            //sending withdrawal to care home
+            job.sendJobWithdrawal(req.app.mailer, req.user, careHome, jobWithdrawal)
+        }
     },
 
     sendSummarySheet: async function(req, res)

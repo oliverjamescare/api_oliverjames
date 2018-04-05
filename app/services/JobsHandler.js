@@ -4,6 +4,8 @@ const async = require("async");
 //custom
 const JobModel = require("./../models/Job");
 const Job = JobModel.schema;
+const ReviewSchema = require("./../models/schemas/Review");
+
 const User = require("./../models/User").schema;
 const CarersHandler = require('./CarersHandler');
 
@@ -294,6 +296,80 @@ module.exports = {
 
         return notifications;
 
+    },
+
+    getJobDetailsQuery: function(id, withCarerDetails = false)
+    {
+        const JobModel = require("./../models/Job");
+        const Job = JobModel.schema;
+
+        const jobQuery = Job.findOne({_id: id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1 })
+            .populate("care_home",{
+                "email": 1,
+                "phone_number": 1,
+                "address": 1,
+                "care_home": 1,
+                "care_home.care_service_name": 1,
+                "care_home.type_of_home": 1,
+                "care_home.name": 1
+            });
+
+        //request by care home
+        if(withCarerDetails)
+        {
+            jobQuery
+                .populate({
+                    path: "assignment.carer",
+                    select: {
+                        "phone_number": 1,
+                        "email": 1,
+                        "carer.first_name": 1,
+                        "carer.surname": 1,
+                        "carer.profile_image": 1,
+                        "carer.training_record.qualifications": 1,
+                        "carer.training_record.safeguarding": 1,
+                        "carer.training_record.manual_handling_people": 1,
+                        "carer.training_record.medication_management": 1,
+                        "carer.training_record.infection_control": 1,
+                        "carer.training_record.first_aid_and_basic_life_support": 1,
+                        "carer.training_record.first_aid_awareness": 1,
+                        "carer.training_record.h_and_s": 1,
+                        "carer.training_record.dementia": 1,
+                        "carer.training_record.fire_safety": 1,
+                        "carer.dbs.status": 1,
+                        "carer.dbs.dbs_date": 1,
+                        "carer.reviews": 1,
+                        "carer.care_experience": 1,
+                        "carer.jobs": 1,
+                    },
+                    populate: {
+                        path: 'carer.jobs',
+                        match: { 'assignment.review': { $exists: true }, 'assignment.review.status': ReviewSchema.reviewStatuses.PUBLISHED },
+                        sort: { 'assignment.review.created': "DESC" },
+                        limit: 10,
+                        select: {
+                            'assignment.review.created': 1,
+                            'assignment.review.description': 1,
+                            'assignment.review.rate': 1,
+                            'care_home': 1
+                        },
+                        populate: {
+                            path: 'care_home',
+                            select: {
+                                "email": 1,
+                                "phone_number": 1,
+                                "address": 1,
+                                "care_home": 1,
+                                "care_home.care_service_name": 1,
+                                "care_home.type_of_home": 1,
+                                "care_home.name": 1
+                            }
+                        }
+                    }
+                });
+        }
+
+        return jobQuery;
     }
 }
 

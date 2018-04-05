@@ -44,8 +44,11 @@ schema.pre("save", function (next)
         Job.findOne({ _id: withdrawal.job }).then(job => {
             job.withdrawals.push(withdrawal);
             job.assignment.carer = undefined;
+            job.assignment.created = undefined;
+            job.assignment.acceptance_document = undefined;
 
             job.save().catch(error => console.log(error));
+
         });
 	}
 

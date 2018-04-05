@@ -14,7 +14,7 @@ module.exports.configure = function(app)
     const transporter = nodemailer.createTransport(config);
 
     app.mailer = {
-        send: function(templatePath, mailData, templateData, callback)
+        send: function(templatePath, mailData, templateData = {}, callback)
         {
             jade.renderFile(templatePath, templateData, (error, html) => {
                 if(error && callback)
