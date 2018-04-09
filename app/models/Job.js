@@ -6,11 +6,11 @@ const moment = require('moment');
 
 //services
 const validators = require('./../services/validators');
-const PDFHandler = require('./../services/PDFHandler');
-const JobHandler = require('./../services/JobsHandler');
 
 //schemas
 const GeneralGuidance = require('./schemas/GeneralGuidance');
+const Pricing = require("./schemas/Pricing");
+
 const CarerRoles = require('./schemas/Carer').eligibleRoles;
 const ReviewSchema = require("./schemas/Review");
 const Review = ReviewSchema.schema;
@@ -18,8 +18,7 @@ const ChallengeSchema = require("./schemas/Challenge");
 const Challenge = ChallengeSchema.schema;
 const Payment = require("./schemas/Payment").schema;
 const Charge = require("./schemas/Charge").schema;
-const Pricing = require("./schemas/Pricing");
-const SummarySheetSchema = require("./schemas/SummarySheet").schema;
+const SummarySheet = require("./schemas/SummarySheet").schema;
 
 //settings
 const statuses = {
@@ -88,13 +87,34 @@ const schema = mongoose.Schema({
 		pricing: Pricing.pricing_hours
 	},
 	charge: Charge,
+    cost: {
+        job_cost: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+        manual_booking_cost: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+        total_cost: {
+            type: Number,
+            min: 0,
+            default: 0
+        }
+    },
 	assignment: {
+	    projected_income: {
+            type: Number,
+            min: 0
+        },
 		carer: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User"
 		},
 		payment: Payment,
-		summary_sheet: SummarySheetSchema,
+		summary_sheet: SummarySheet,
 		review: Review,
 		challenge: Challenge,
         acceptance_document: String,
@@ -184,6 +204,12 @@ schema.pre("save", function (next)
 	this.updated = new Date();
 	this.status = handleJobStatus(this);
 
+	//cost calculation
+    const JobsHandler = require("./../services/JobsHandler");
+    const costs = JobsHandler.calculateJobCost(this);
+    this.cost = { job_cost: costs.job_cost, manual_booking_cost: costs.manual_booking_cost, total_cost: costs.total_cost }
+    this.assignment.projected_income  = costs.job_income;
+
 	if(this.assignment.carer)
 	{
 		//removing decline
@@ -213,63 +239,19 @@ schema.post('init', function(job)
 });
 
 //methods
-schema.methods.calculateJobCost = function()
-{
-	const startDate = (this.assignment && this.assignment.summary_sheet && this.assignment.summary_sheet.start_date) ? this.assignment.summary_sheet.start_date : this.start_date;
-	const endDate = (this.assignment && this.assignment.summary_sheet && this.assignment.summary_sheet.end_date) ? this.assignment.summary_sheet.end_date : this.end_date;
-	const deductedMinutes = this.assignment && this.assignment.summary_sheet && this.assignment.summary_sheet.voluntary_deduction ? this.assignment.summary_sheet.voluntary_deduction : 0;
-
-	const price = 11.5;
-	const manualBooking = 1;
-
-	const durationMinutes = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60));
-	const jobMinutes = Math.max((durationMinutes - deductedMinutes), 0);
-
-	const cost = ((jobMinutes / 60) * price + (this.manual_booking ? (jobMinutes / 60) * manualBooking : 0)).toPrecision(2);
-
-	console.log(cost);
-
-	return cost;
-}
-
-schema.methods.sendJobAcceptance = function(req, careHome)
+schema.methods.sendJobAcceptance = function(pdfPath, mailer, careHome, carer)
 {
     const job = this;
-    //fetching full detailed job
+    job.assignment.acceptance_document = pdfPath;
 
-    console.log(job._id);
-    JobHandler
-        .getJobDetailsQuery(job._id, true)
-        .lean()
-        .exec((error, detailedJob) => {
-            if(detailedJob)
-            {
-                //generating pdf, sending email and saving object
-                detailedJob = mongoose.model("Job", schema).parse(detailedJob, req);
-
-                const handler = new PDFHandler(req);
-                handler.generatePdf("JOB_ACCEPTANCE", "jobs/" + job._id, { job: detailedJob })
-                    .then(pdfPath => {
-
-                        job.assignment.acceptance_document = pdfPath;
-                        job.save().catch(error => console.log(error));
-
-                        //sending email
-                        req.app.mailer.send(__dirname + "/../../views/emails/job-accepted.jade",
-                            {
-                                to: careHome.email,
-                                subject: "Booking confirmation – " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " – " + moment(job.start_date.getTime()).format("h:mm A"),
-                                attachments: [
-                                    {
-                                        path: __dirname + "/../../public/uploads/" + pdfPath
-                                    }
-                                ]
-                            },
-                            { user: req.user }, (error) => console.log(error));
-
-                    });
-            }
-        });
+    //sending email
+    mailer.send(__dirname + "/../../views/emails/job-accepted.jade",
+        {
+            to: careHome.email,
+            subject: "Booking confirmation – " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " – " + moment(job.start_date.getTime()).format("h:mm A"),
+            attachments: [ { path: __dirname + "/../../public/uploads/" + pdfPath } ]
+        },
+        { user: carer }, (error) => console.log(error));
 }
 
 schema.methods.sendJobWithdrawal = function(mailer, carer, careHome, withdrawal)
@@ -278,15 +260,16 @@ schema.methods.sendJobWithdrawal = function(mailer, carer, careHome, withdrawal)
 
     //sending email
     mailer.send(__dirname + "/../../views/emails/job-withdrawed.jade",
-    {
-        to: careHome.email,
-        subject: carer.carer.first_name + " has cancelled a job – " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " – " + moment(job.start_date.getTime()).format("h:mm A"),
-    },
-    {
-        user: carer,
-        job: job,
-        withdrawal: withdrawal
-    }, (error) => console.log(error));
+        {
+            to: careHome.email,
+            subject: carer.carer.first_name + " has cancelled a job – " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " – " + moment(job.start_date.getTime()).format("h:mm A"),
+        },
+        {
+            user: carer,
+            job: job,
+            withdrawal: withdrawal,
+            moment: moment
+        }, (error) => console.log(error));
 }
 
 //statics
@@ -357,6 +340,10 @@ schema.statics.parse = function(job, req)
 
                 job.summary_sheet = job.assignment.summary_sheet;
             }
+
+            //projected income
+            if(job.assignment.projected_income)
+                job.projected_income = job.assignment.projected_income;
 
 	        delete job.assignment;
 		}

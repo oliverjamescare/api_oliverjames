@@ -6,6 +6,7 @@ const validators = require("./../../services/validators");
 
 //settings
 const statuses = {
+    IN_PROGRESS: "IN_PROGRESS",
     CHARGED: "CHARGED",
     REJECTED: "REJECTED",
     CANCELLED: "CANCELLED"
@@ -13,6 +14,16 @@ const statuses = {
 
 const schema = mongoose.Schema({
     deductions: {
+        type: Number,
+        min: 0,
+        required: [ true, "{PATH} field is required." ]
+    },
+    job_cost: {
+        type: Number,
+        min: 0,
+        required: [ true, "{PATH} field is required." ]
+    },
+    manual_booking_cost: {
         type: Number,
         min: 0,
         required: [ true, "{PATH} field is required." ]
@@ -30,6 +41,7 @@ const schema = mongoose.Schema({
     status: {
         type: String,
         enum: Object.values(statuses),
+        default: statuses.IN_PROGRESS
     },
     charge_date: {
         type: Date,

@@ -8,7 +8,6 @@
 const async = require('async');
 const bcrypt = require('bcrypt-nodejs');
 const randomstring = require('randomstring');
-const moment = require('moment');
 const ObjectId = require('mongoose').Types.ObjectId;
 
 //models
@@ -21,7 +20,7 @@ const Setting = require('./../../models/Setting').schema;
 
 //services
 const fileHandler = require("../../services/fileHandler");
-const JobHandler = require('../../services/JobsHandler');
+const JobsHandler = require('../../services/JobsHandler');
 const Utils = require("../../services/utils");
 const PaymentsHandler = require('../../services/PaymentsHandler');
 const QueuesHandler = require('../../services/QueuesHandler');
@@ -40,16 +39,15 @@ module.exports = {
         // })
         // .catch(e =>  res.json(e));
 
-        JobHandler.getJobDetailsQuery(req.params.id, req.user.care_home ? true : false)
+        JobsHandler.getJobDetailsQuery(req.params.id, req.user.care_home ? true : false)
             .lean()
             .exec((error, job) => {
-
                 if(!job)
                     return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
                 job = Job.parse(job, req);
-                if(req.user.carer)
-                    job["projected_income"] = 75;
+                if(req.user.care_home)
+                    job.projected_income = undefined;
 
                 res.json(job);
             });
@@ -363,10 +361,13 @@ module.exports = {
         job.assignment.created = new Date();
 
         job.save()
-            .then(() => {
-                job.sendJobAcceptance(req, careHome);
-        })
-        .catch(error => console.log(error));
+            .then(job => JobsHandler.generateJobAcceptanceDocument(job, req))
+            .then(documentPath => {
+
+                job.sendJobAcceptance(documentPath, req.app.mailer, careHome, req.user);
+                job.save().catch(error => console.log(error));
+            })
+            .catch(error => console.log(error));
     },
 
 	declineJob: async function (req, res)
@@ -510,14 +511,37 @@ module.exports = {
 		    .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },
 
-    getProjectedIncome: function (req, res)
+    getProjectedIncome: async function (req, res)
     {
-        const startDate = parseInt(req.query.start_date) || 0;
-        const endDate = parseInt(req.query.end_date) || 0;
-        const deduction = parseInt(req.query.voluntary_deduction) || 0;
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
+
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
 
-        res.json({ projected_income: 100, deducted: 50 });
+        let startDate = parseInt(req.query.start_date) || 0;
+        let endDate = parseInt(req.query.end_date) || 0;
+        let deduction = Math.max((parseInt(req.query.voluntary_deduction) || 0),0);
+
+        if(startDate > endDate)
+        {
+            const tmp = startDate;
+            startDate = endDate;
+            endDate = startDate;
+        }
+
+        //fake assignment
+        job.assignment.summary_sheet = {
+            start_date: new Date(startDate),
+            end_date: new Date(endDate),
+            voluntary_deduction: deduction
+        }
+
+        //sending response
+        const { job_income, deducted_minutes_cost } = JobsHandler.calculateJobCost(job);
+        res.json({ projected_income: job_income, deducted: deducted_minutes_cost });
     },
 
 	updateJob: async function(req, res)
@@ -650,20 +674,14 @@ module.exports = {
         if(!job)
             return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-        JobHandler
+        JobsHandler
             .getNewJobs(req, job.care_home, job._id)
             .then(async (queryConfig) => {
 
                 //pagination and parsing
                 const jobs = await Utils.paginate(Job, queryConfig, req, true);
                 let paginated = Utils.parsePaginatedResults(jobs);
-
-                paginated.results.map(job => {
-                    job = Job.parse(job, req);
-                    job["projected_income"] = 75;
-
-                    return job;
-                });
+                paginated.results.map(job => Job.parse(job, req));
 
                 res.json(paginated);
             });
@@ -682,20 +700,13 @@ module.exports = {
         if(req.user._id.toString() != job.care_home.toString())
             return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
 
-        const availableStatuses = [
-            JobModel.statuses.PAID,
-            JobModel.statuses.PAYMENT_REJECTED,
-            JobModel.statuses.PAYMENT_CANCELLED
-        ];
-
-        //not payment stadium
-        if(availableStatuses.indexOf(job.status) == -1)
+        //without assignment or job summary
+        if(!job.assignment || !job.assignment.summary_sheet)
             return res.status(409).json(Utils.parseStringError("This job cannot be rated yet.", "job"));
 
         //review exists
         if(job.assignment.review)
             return res.status(409).json(Utils.parseStringError("Carer of this job has already been rated.", "carer"));
-
 
         job.assignment.review = {
             rate: req.body.rate,
@@ -737,25 +748,6 @@ module.exports = {
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
 
     },
-
-    testNotification: async function(req, res)
-    {
-        //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
-        const type = req.params.type;
-
-        //not found
-        if(!job)
-            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
-
-        const types = ["JOB_CANCELLED", "JOB_MODIFIED", "NEW_JOBS", "REVIEW_PUBLISHED"];
-        if(types.indexOf(type) != -1)
-            QueuesHandler.publish({ user_id: req.user._id, job_id: job._id, type: type }, { exchange: "notifications", queue: "notifications" })
-
-        //sending response
-        res.json({ status: true });
-    },
-
     testMethods: async function (req, res)
     {
         //for all

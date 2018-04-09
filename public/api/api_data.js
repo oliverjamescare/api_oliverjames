@@ -1338,7 +1338,7 @@ define({ "api": [
             "type": "String",
             "optional": true,
             "field": "sort",
-            "description": "<p>Sort parameter. Available options: roleASC - by role ascending, roleDESC - by role descending, startDESC - by start date descending, startASC(default) - by start date ascending, endDESC - by end date descending, endASC - by end date ascending</p>"
+            "description": "<p>Sort parameter. Available options: roleASC - by role ascending, roleDESC - by role descending, startDESC - by start date descending, startASC(default) - by start date ascending, endDESC - by end date descending, endASC - by end date ascending, incomeDESC - by projected income descending, incomeASC - by projected income ascending</p>"
           }
         ]
       }
@@ -3839,6 +3839,20 @@ define({ "api": [
             "optional": false,
             "field": "id",
             "description": "<p>Job id.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "rate",
+            "description": "<p>Rate. Min 1, max 5.</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "description",
+            "description": "<p>Review description</p>"
           }
         ]
       }

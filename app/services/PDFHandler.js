@@ -30,7 +30,7 @@ module.exports = class
         return new Promise((resolve, reject) => {
             if(Object.keys(types).indexOf(type) != -1)
             {
-                const fileName = types[type] + randomstring.generate(16) + ".pdf";
+                const fileName = types[type] + "-" + randomstring.generate(16) + ".pdf";
 
                 async.waterfall([
                     (callback) => jade.renderFile(pdfTemplatesPath + types[type] + ".jade", data, (error, html) => callback(null, html)),
