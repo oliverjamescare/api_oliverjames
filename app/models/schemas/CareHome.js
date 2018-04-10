@@ -89,12 +89,42 @@ schema.methods.hasValidGeneralGuidance = function()
 	return valid;
 }
 
+//credits methods
 schema.methods.getCreditsBalance = function()
 {
     let balance = 0;
     this.credits.forEach(creditTransaction => balance += creditTransaction.status == Transaction.transactionStatuses.CONFIRMED ? creditTransaction.amount : 0);
 
     return balance;
+}
+
+schema.methods.addCredits = function(amount, job = null, description = null, status = Transaction.transactionStatuses.PENDING)
+{
+    let balance = this.getCreditsBalance();
+    let addingCreditsAllowed = true;
+
+    //protecting against duplicated credit for single job
+    if(job)
+    {
+        let transaction = this.credits.find(creditTransaction => creditTransaction.job && job._id.toString() == creditTransaction.job.toString());
+        if(transaction)
+            addingCreditsAllowed = false;
+    }
+
+    if(addingCreditsAllowed)
+    {
+        let creditedAmount = job ? Math.min(amount, balance) : amount;
+        if(creditedAmount > 0)
+        {
+            this.credits.push({
+                amount: job ? - creditedAmount : creditedAmount, //if job exists than this is reducer
+                job: job || null,
+                description: description || "Credits used for Job ID: " + job._id,
+                status: status
+            });
+        }
+
+    }
 }
 
 schema.methods.sendRegisterConfirmation = function(mailer)

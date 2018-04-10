@@ -341,10 +341,32 @@ const schema = mongoose.Schema({
 			type: String,
 			default: null
 		},
+        identity_document: {
+            type: String,
+            default: null
+        },
 		bank_number: {
 			type: String,
 			default: null
-		}
+		},
+        verification: {
+            details: {
+                type: String,
+                default: null
+            },
+            details_code: {
+                type: String,
+                default: null,
+            },
+            document: {
+                type: String,
+                default: null,
+            },
+            status: {
+                type: String,
+                default: null,
+            }
+        }
 	},
 	deductions: [ Transaction.schema ],
 	silent_notifications_settings: {
@@ -520,18 +542,39 @@ schema.methods.getAvailabilitySetForDay = function(date)
 schema.methods.getDeductionsBalance = function()
 {
     let balance = 0;
-    this.deductions.forEach(deduction => balance += deduction.amount);
+    this.deductions.forEach(deduction => balance += deduction.status == Transaction.transactionStatuses.CONFIRMED ? deduction.amount : 0);
 
     return balance;
 }
 
-schema.methods.getDeductionsBalance = function()
+schema.methods.addDeduction = function(amount, job = null, description = null, status = Transaction.transactionStatuses.PENDING)
 {
-    let balance = 0;
-    this.deductions.forEach(deduction =>  balance += deduction.status == Transaction.transactionStatuses.CONFIRMED ? deduction.amount : 0);
+    let balance = this.getDeductionsBalance();
+    let addingDeductionAllowed = true;
 
-    return balance;
+    //protecting against duplicated deduction for single job
+    if(job)
+    {
+        let transaction = this.deductions.find(deduction => deduction.job && job._id.toString() == deduction.job.toString());
+        if(transaction)
+            addingDeductionAllowed = false;
+    }
+
+    if(addingDeductionAllowed)
+    {
+        let deductedAmount = job ? Math.min(amount, balance) : amount;
+        if(deductedAmount > 0)
+        {
+            this.deductions.push({
+                amount: job ? - deductedAmount : deductedAmount,  //if job exists than this is reducer
+                job: job || null,
+                description: description || "Deduction reduce for Job ID: " + job._id,
+                status: status
+            });
+        }
+    }
 }
+
 
 schema.methods.sendApplication = function(mailer)
 {

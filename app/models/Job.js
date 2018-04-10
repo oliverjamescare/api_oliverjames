@@ -84,6 +84,12 @@ const schema = mongoose.Schema({
             max: 100,
             default: 0,
 		},
+        max_to_deduct: {
+            type: Number,
+            min: 0,
+            max: 100,
+            default: 0,
+        },
 		pricing: Pricing.pricing_hours
 	},
 	charge: Charge,

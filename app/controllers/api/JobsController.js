@@ -31,26 +31,25 @@ module.exports = {
     getJobDetails: async function(req, res)
     {
 
-        // console.log(req.connection.remoteAddress);
-        // const jb = await Job.findOne({ _id: req.params.id }).exec();
-        // const handler = new PaymentsHandler();
-        // handler.processPayment(jb, req).then(r => {
-        //     res.json(r);
-        // })
-        // .catch(e =>  res.json(e));
+        const jb = await Job.findOne({ _id: req.params.id }).exec();
+        const handler = new PaymentsHandler();
+        handler.processPayment(jb, req).then(result => {
+            res.json({ result });
+        })
+        .catch(e =>  res.json(e));
 
-        JobsHandler.getJobDetailsQuery(req.params.id, req.user.care_home ? true : false)
-            .lean()
-            .exec((error, job) => {
-                if(!job)
-                    return res.status(404).json(Utils.parseStringError("Job not found", "job"));
-
-                job = Job.parse(job, req);
-                if(req.user.care_home)
-                    job.projected_income = undefined;
-
-                res.json(job);
-            });
+        // JobsHandler.getJobDetailsQuery(req.params.id, req.user.care_home ? true : false)
+        //     .lean()
+        //     .exec((error, job) => {
+        //         if(!job)
+        //             return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+        //
+        //         job = Job.parse(job, req);
+        //         if(req.user.care_home)
+        //             job.projected_income = undefined;
+        //
+        //         res.json(job);
+        //     });
     },
 
 	//only care home methods
@@ -145,8 +144,8 @@ module.exports = {
 
                     jobs.forEach(async job => {
 
-                            const availableCarers = await JobHandler.getAvailableCarers(job, req.user);
-                            const notifications = await JobHandler.assignBuckets(availableCarers, job.priority_carers, job.start_date, settings);
+                            const availableCarers = await JobsHandler.getAvailableCarers(job, req.user);
+                            const notifications = await JobsHandler.assignBuckets(availableCarers, job.priority_carers, job.start_date, settings);
                             notifications.forEach(notification => job.notifications.push(notification));
 
                             job.save().catch(error => console.log(error))
@@ -182,7 +181,7 @@ module.exports = {
                     gender_preference: Object.values(JobModel.genderPreferences).indexOf(gender) != -1 ? gender : JobModel.genderPreferences.NO_PREFERENCE
                 }
 
-                const availableCarers = await JobHandler.getAvailableCarers(job, req.user);
+                const availableCarers = await JobsHandler.getAvailableCarers(job, req.user);
                 job["carersToContact"] = availableCarers.length;
 
                 return job;
@@ -490,8 +489,8 @@ module.exports = {
             name: req.body.name,
             position: req.body.position,
             notes: req.body.notes || null,
-            start_date: parseInt(req.body.start_date),
-            end_date: parseInt(req.body.end_date),
+            start_date: req.body.start_date,
+            end_date: req.body.end_date,
             voluntary_deduction: parseInt(req.body.voluntary_deduction) || 0,
             created: now
         };
@@ -507,7 +506,7 @@ module.exports = {
 	    //saving signature and sending response
 	    job
 		    .save()
-		    .then(() => res.json({ status: true, debit_date: debitDate.getTime(), projected_income: 200 }))
+		    .then(() => res.json({ status: true, debit_date: debitDate.getTime(), projected_income: 200, minutes: 67 }))
 		    .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },
 
@@ -827,6 +826,25 @@ module.exports = {
 
         // //sending response
         res.json({ status: true });
+    },
+
+    testNotification: async function(req, res)
+    {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const type = req.params.type;
+
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+        const types = ["JOB_CANCELLED", "JOB_MODIFIED", "NEW_JOBS", "REVIEW_PUBLISHED"];
+        if(types.indexOf(type) != -1)
+            QueuesHandler.publish({ user_id: req.user._id, job_id: job._id, type: type }, { exchange: "notifications", queue: "notifications" })
+
+        //sending response
+        res.json({ status: true });
     }
+
 }
 

@@ -404,6 +404,7 @@ module.exports = {
         const endDate = (job.assignment && job.assignment.summary_sheet && job.assignment.summary_sheet.end_date) ? job.assignment.summary_sheet.end_date : job.end_date;
         const deductedMinutes = job.assignment && job.assignment.summary_sheet && job.assignment.summary_sheet.voluntary_deduction ? job.assignment.summary_sheet.voluntary_deduction : 0;
 
+
         //calculating full price
         let totalCost = 0;
         let durationMinutes = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60));
