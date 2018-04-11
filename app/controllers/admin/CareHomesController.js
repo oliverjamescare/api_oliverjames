@@ -10,6 +10,7 @@ const User = UserModel.schema;
 //services
 const Utils = require("../../services/utils");
 const fileHandler = require("../../services/fileHandler");
+const locationHandler = require('../../services/locationHandler');
 
 module.exports = {
 	getCareHomes: async function(req, res)
@@ -135,7 +136,7 @@ module.exports = {
         if(!user)
             return res.status(404).json(Utils.parseStringError("User not found", "user"));
 
-        //cv upload
+        //file upload
         const uploader = fileHandler(req, res);
         const filePath = await uploader.handleSingleUpload("file", "users" + user._id , {
             allowedMimeTypes: [
@@ -157,10 +158,6 @@ module.exports = {
             name: body.name || user.name
         })
 
-        // if(filePath == undefined){
-        //     filePath =
-        // }
-
         user.care_home.set({
             general_guidance: {
                 superior_contact: body.superior_contact || user.care_home.superior_contact,
@@ -175,5 +172,82 @@ module.exports = {
         user.save()
         .then(() => res.json({status: true}))
         .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)))
+    },
+
+    addCareHome: async function (req, res)
+    {
+        //getting new user id and preparing address
+        const id = mongoose.Types.ObjectId();
+
+        //cv upload
+        const uploader = fileHandler(req, res);
+        const filePath = await uploader.handleSingleUpload("file", "users" + id , {
+            allowedMimeTypes: [
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "application/pdf",
+                "image/png",
+                "image/jpg",
+                "image/jpeg",
+            ],
+            maxFileSize: 10
+        });
+
+        const body = req.body;
+        //preparing address
+        const address = await locationHandler.getCustomLocation(body);
+        if(!address || !address.location)
+            return res.status(406).json(Utils.parseStringError("Unable to find address", "address"));
+
+        //user
+        let user = new User({
+            _id: id,
+            email: body.email,
+            password: body.password,
+            phone_number: body.phone_number,
+            notes: body.notes || null,
+            address: address,
+            activation_date: new Date(),
+            roles: ["CARE_HOME"],
+            banned_until: null
+        })
+
+        user.set({
+            care_home: {
+                care_service_name: body.care_service_name ,
+                type_of_home: body.type_of_home ,
+                name: body.name,
+                gender_preference: body.gender_preference
+            }
+        })
+
+        user.care_home.set({
+            general_guidance: {
+                superior_contact: body.superior_contact,
+                report_contact: body.report_contact,
+                emergency_guidance: body.emergency_guidance,
+                notes_for_carers: body.notes_for_carers,
+                parking: body.parking,
+                floor_plan: filePath
+            }
+        })
+
+        user
+            .validate()
+            .then(() => {
+
+                //sending response
+                res.status(201).json({ status: true, _id: id });
+
+                //hashing password, sending email verification and saving user
+                bcrypt.hash(user.password, null, null, (error, hash) => {
+                    user.addEmailConfirmationHandle(user.email, req.app.mailer);
+                    user.password = hash;
+
+                    user.save().catch(error => console.log(error));
+                });
+            })
+            .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     }
+
 }
