@@ -305,6 +305,13 @@ schema.statics.parse = function(job, req)
             delete job.care_home;
 		}
 
+		//charge
+        if(job.charge)
+        {
+            if(job.charge.charge_date)
+                job.charge.charge_date = job.charge.charge_date.getTime();
+        }
+
 		if(job.assignment)
 		{
 			//carer
@@ -350,6 +357,18 @@ schema.statics.parse = function(job, req)
             //projected income
             if(job.assignment.projected_income)
                 job.projected_income = job.assignment.projected_income;
+
+            //payment
+            if(job.assignment.payment)
+            {
+                if(job.assignment.payment.debit_date)
+                    job.assignment.payment.debit_date = job.assignment.payment.debit_date.getTime();
+
+                if(job.assignment.payment.payment_date)
+                    job.assignment.payment.payment_date = job.assignment.payment.payment_date.getTime();
+
+                job.payment = job.assignment.payment;
+            }
 
 	        delete job.assignment;
 		}

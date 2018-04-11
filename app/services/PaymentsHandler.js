@@ -286,6 +286,8 @@ module.exports = class
                                     return resolve(job);
                                 }
 
+                                job.status = JobModel.statuses.PAID;
+
                                 //saving charge
                                 job.charge = {
                                     deductions: reducedCredits,
@@ -333,7 +335,7 @@ module.exports = class
 
 
                                 console.log(job);
-                                resolve(result);
+                                resolve(job);
 
                             })
                         })

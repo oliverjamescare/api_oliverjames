@@ -31,28 +31,29 @@ module.exports = {
     getJobDetails: async function(req, res)
     {
 
-        const jb = await Job.findOne({ _id: req.params.id }).exec();
+        // const jb = await Job.findOne({ _id: req.params.id }).exec();
         // jb.save();
         // res.json({ status: true })
 
-        const handler = new PaymentsHandler();
-        handler.processPayment(jb, req).then(result => {
-            res.json({ result });
-        })
-        .catch(e =>  res.json(e));
+        // const handler = new PaymentsHandler();
+        // handler.processPayment(jb, req).then(result => {
+        //     result.save();
+        //     res.json({ result });
+        // })
+        // .catch(e =>  res.json(e));
 
-        // JobsHandler.getJobDetailsQuery(req.params.id, req.user.care_home ? true : false)
-        //     .lean()
-        //     .exec((error, job) => {
-        //         if(!job)
-        //             return res.status(404).json(Utils.parseStringError("Job not found", "job"));
-        //
-        //         job = Job.parse(job, req);
-        //         if(req.user.care_home)
-        //             job.projected_income = undefined;
-        //
-        //         res.json(job);
-        //     });
+        JobsHandler.getJobDetailsQuery(req.params.id, req.user.care_home ? true : false)
+            .lean()
+            .exec((error, job) => {
+                if(!job)
+                    return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+                job = Job.parse(job, req);
+                if(req.user.care_home)
+                    job.projected_income = undefined;
+
+                res.json(job);
+            });
     },
 
 	//only care home methods
