@@ -17,18 +17,25 @@ router.post('/login', AuthController.login);
 
 //Admin
 router.get('/home', adminAuthenticate, AdminController.home);
+router.get('/profile', adminAuthenticate, AdminController.getProfile);
+router.put('/profile', adminAuthenticate, AdminController.updateProfile);
+router.put('/password', adminAuthenticate, AdminController.changePassword);
+
 router.get('/admins', adminAuthenticate, AdminController.getAdminsList);
 router.post('/admins', adminAuthenticate, AdminController.addAdmin);
 router.put('/admins/:id', adminAuthenticate, AdminController.updateAdmin);
-router.put('/admins/:id/pass', adminAuthenticate, AdminController.changePassAdmin);
-router.put('/admins/:id/passown', adminAuthenticate, AdminController.changeOwnPassAdmin);
-router.put('/admins/:id/delete', adminAuthenticate, AdminController.removeAdminAccount);
+router.put('/admins/:id/password', adminAuthenticate, AdminController.changeAdminPassword);
+router.delete('/admins/:id', adminAuthenticate, AdminController.removeAdminAccount);
 
 //Care homes
-router.get('/carehomes', adminAuthenticate, CareHomesController.getCareHomes);
-router.get('/carehomes/:id', adminAuthenticate, CareHomesController.getCareHome);
-router.post('/carehomes', adminAuthenticate, CareHomesController.addCareHome);
-router.put('/carehomes/:id', adminAuthenticate, CareHomesController.updateCareHome);
+router.get('/care-homes', adminAuthenticate, CareHomesController.getCareHomes);
+router.post('/care-homes', adminAuthenticate, CareHomesController.addCareHome);
+router.get('/care-homes/waiting-list', adminAuthenticate, CareHomesController.getCareHomesWaitingList);
+router.delete('/care-homes/waiting-list/:id', adminAuthenticate, CareHomesController.deleteCareHomesWaitingUser);
+router.get('/care-homes/:id', adminAuthenticate, CareHomesController.getCareHome);
+router.put('/care-homes/:id', adminAuthenticate, CareHomesController.updateCareHome);
+router.post('/care-homes/:id/credits', adminAuthenticate, CareHomesController.addCredits);
+router.post('/care-homes/:id/jobs', adminAuthenticate, JobsController.addJobs);
 
 //Carers
 router.get('/carers', adminAuthenticate, CarersController.getCarers);
@@ -37,6 +44,7 @@ router.get('/carers/:id', adminAuthenticate, CarersController.getCarer);
 router.put('/carers/:id', adminAuthenticate, CarersController.updateCarer);
 router.post('/carers/:id/:resource/upload', adminAuthenticate, CarersController.uploadCarerResource);
 router.delete('/carers/:id/:resource/upload', adminAuthenticate, CarersController.deleteCarerResourceFile);
+router.post('/carers/:id/deductions', adminAuthenticate, CarersController.addDeduction);
 
 //Jobs
 router.get('/jobs', adminAuthenticate, JobsController.getJobs);
@@ -46,10 +54,6 @@ router.put('/jobs/:id/payment-retry', adminAuthenticate, JobsController.retryJob
 router.put('/jobs/:id/challenge', adminAuthenticate, JobsController.resolveJobChallenge);
 router.put('/jobs/:id', adminAuthenticate, JobsController.updateJob);
 router.put('/jobs/:id/cancel', adminAuthenticate, JobsController.cancelJob);
-
-
-//Jobs
-router.post('/care-homes/:id/jobs', adminAuthenticate, JobsController.addJobs);
 
 
 //documentation

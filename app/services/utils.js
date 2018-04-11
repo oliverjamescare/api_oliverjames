@@ -54,7 +54,7 @@ module.exports.parsePaginatedResults = function(paginatorResponse)
     return {
         results: paginatorResponse.docs || paginatorResponse.data,
         pages: paginatorResponse.pages || paginatorResponse.pageCount,
-        total: paginatorResponse.total || paginatorResponse.totalCount
+        total: paginatorResponse.total || paginatorResponse.totalCount || 0
     }
 }
 

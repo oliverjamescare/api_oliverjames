@@ -142,8 +142,6 @@ const schema = mongoose.Schema({
             enum: permissions.permissions
         }
     ],
-    transactions: [ transactionSchema ],
-
     created: {
         type: Date,
         default: Date.now()
@@ -328,6 +326,21 @@ schema.statics.parse = function(user, req)
         //distance
 	    if(user.distance != undefined)
 		    user.distance = parseFloat(user.distance.toFixed(2));
+
+        //credits
+        if(user.care_home.credits)
+        {
+            let totalBalance = 0;
+            user.care_home.credits.forEach(credit => {
+
+                totalBalance += credit.amount;
+                credit["balance"] = totalBalance;
+
+                if(credit.created)
+                    credit.created = credit.created.getTime();
+
+            })
+        }
     }
 
     //carer
@@ -377,6 +390,21 @@ schema.statics.parse = function(user, req)
         {
             const Job = require("./Job").schema;
             user.carer.jobs.map(job => Job.parse(job));
+        }
+
+        //deductions
+        if(user.carer.deductions)
+        {
+            let totalBalance = 0;
+            user.carer.deductions.forEach(deduction => {
+
+                totalBalance += deduction.amount;
+                deduction["balance"] = totalBalance;
+
+                if(deduction.created)
+                    deduction.created = deduction.created.getTime();
+
+            })
         }
     }
 

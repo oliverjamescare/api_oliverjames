@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt-nodejs');
 
 //models
 const UserModel = require("../../models/User");
+const TransactionSchema = require("./../../models/schemas/Transaction");
 const User = UserModel.schema;
 
 //services
@@ -27,133 +28,169 @@ module.exports = {
         const statusFilter = req.query["status_filter"]
         const pattern = new RegExp("^.*" + search + ".*$");
 
-
-		const query = {
-			carer: { $exists: true },
-			$or:[
-                { 'carer.first_name': { $regex: pattern, $options: "xi" } },
-				{'carer.surname': { $regex: pattern, $options: "xi" } }
-            ]
-		};
+		const pipeline = [
+            {
+                $project: {
+                    activation_date: 1,
+                    status: 1,
+                    banned_until: 1,
+                    notes: 1,
+                    'carer.first_name': 1,
+                    'carer.surname': 1,
+                    'carer.surname': 1,
+                    'carer.date_of_birth': 1,
+                    'carer.reviews': 1,
+                    'fullname': { $concat: [ '$carer.first_name', " ", '$carer.surname' ] },
+                    'confirmed_deductions': {
+                        $filter: {
+                            input: '$carer.deductions',
+                            as: "deduction",
+                            cond: {
+                                $eq: [ '$$deduction.status', TransactionSchema.transactionStatuses.CONFIRMED ]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    carer: { $exists: true },
+                    $or:[
+                        { 'carer.first_name': { $regex: pattern, $options: "xi" } },
+                        { 'carer.surname': { $regex: pattern, $options: "xi" } },
+                        { 'fullname': { $regex: pattern, $options: "i" } },
+                    ],
+                }
+            },
+            {
+                $project: {
+                    activation_date: 1,
+                    status: 1,
+                    banned_until: 1,
+                    notes: 1,
+                    'carer.first_name': 1,
+                    'carer.surname': 1,
+                    'carer.surname': 1,
+                    'carer.date_of_birth': 1,
+                    'carer.reviews': 1,
+                    'carer.deductions_balance': { $sum: '$confirmed_deductions.amount' }
+                }
+            },
+        ];
 
 		//search by id
 		if(ObjectId.isValid(search))
-		    query.$or.push({ _id: search });
+            pipeline[1].$match.$or.push({ _id: ObjectId(search) });
 
-
-		//status filter
-		switch (statusFilter)
+        //status filter
+        switch (statusFilter)
         {
             case UserModel.statuses.CREATED:
             {
-                query["status"] = UserModel.statuses.CREATED;
+                pipeline[1].$match["status"] = UserModel.statuses.CREATED;
                 break;
             }
             case UserModel.statuses.ACTIVE:
             {
-                query["status"] = UserModel.statuses.ACTIVE;
+                pipeline[1].$match["status"] = UserModel.statuses.ACTIVE;
                 break;
             }
             case UserModel.statuses.BANNED:
             {
-                query["status"] = UserModel.statuses.BANNED;
+                pipeline[1].$match["status"] = UserModel.statuses.BANNED;
                 break;
             }
         }
 
-        const options = {
-            select: {
-            	activation_date: 1,
-				status: 1,
-				banned_until: 1,
-				notes: 1,
-            	'carer.first_name': 1,
-            	'carer.surname': 1,
-            	'carer.surname': 1,
-				'carer.date_of_birth': 1,
-				'carer.reviews': 1,
-			},
-			lean: true,
-			leanWithId: false
-        };
+        const options = {};
 
         //sort
         switch (sort)
 		{
             case "id_desc":
             {
-                options["sort"] = { _id: -1 };
+                options["sortBy"] = { _id: -1 };
                 break
             }
             case "name_asc":
             {
-                options["sort"] = { 'carer.first_name': 1 };
+                options["sortBy"] = { 'carer.first_name': 1 };
                 break
             }
             case "name_desc":
             {
-                options["sort"] = { 'carer.first_name': -1 };
+                options["sortBy"] = { 'carer.first_name': -1 };
                 break
             }
             case "date_of_birth_asc":
             {
-                options["sort"] = { 'carer.date_of_birth': 1 };
+                options["sortBy"] = { 'carer.date_of_birth': 1 };
                 break
             }
             case "date_of_birth_desc":
             {
-                options["sort"] = { 'carer.date_of_birth': -1 };
+                options["sortBy"] = { 'carer.date_of_birth': -1 };
                 break
             }
             case "activation_date_asc":
             {
-                options["sort"] = { activation_date: 1 };
+                options["sortBy"] = { activation_date: 1 };
                 break
             }
             case "activation_date_desc":
             {
-                options["sort"] = { activation_date: -1 };
+                options["sortBy"] = { activation_date: -1 };
                 break
             }
             case "rating_asc":
             {
-                options["sort"] = { 'carer.reviews.average': 1 };
+                options["sortBy"] = { 'carer.reviews.average': 1 };
                 break
             }
             case "rating_desc":
             {
-                options["sort"] = { 'carer.reviews.average': -1 };
+                options["sortBy"] = { 'carer.reviews.average': -1 };
                 break
             }
             case "status_asc":
             {
-                options["sort"] = { status: 1 };
+                options["sortBy"] = { status: 1 };
                 break
             }
             case "status_desc":
             {
-                options["sort"] = { status: -1 };
+                options["sortBy"] = { status: -1 };
                 break
             }
             case "banned_until_asc":
             {
-                options["sort"] = { banned_until: 1 };
+                options["sortBy"] = { banned_until: 1 };
                 break
             }
             case "banned_until_desc":
             {
-                options["sort"] = { banned_until: -1 };
+                options["sortBy"] = { banned_until: -1 };
+                break
+            }
+            case "deductions_balance_asc":
+            {
+                options["sortBy"] = { 'carer.deductions_balance': 1 };
+                break
+            }
+            case "deductions_balance_desc":
+            {
+                options["sortBy"] = { 'carer.deductions_balance': -1 };
                 break
             }
             default:
 			{
-				options["sort"] = { _id: 1 };
+				options["sortBy"] = { _id: 1 };
 				break;
 			}
 		}
 
 		//pagination and parsing
-		const carers = await Utils.paginate(User, { query: query, options: options }, req);
+		const carers = await Utils.paginate(User, { query: User.aggregate(pipeline), options: options }, req, true);
         let paginated = Utils.parsePaginatedResults(carers);
         paginated.results.map(user => User.parse(user, req));
 
@@ -162,7 +199,7 @@ module.exports = {
 	
 	getCarer: async function (req, res)
     {
-		const user = await User.findOne(
+		let user = await User.findOne(
 				{ carer: { $exists: true }, _id: req.params.id },
 				{
 					'carer.first_name': 1,
@@ -177,6 +214,10 @@ module.exports = {
 					'carer.reference.references.type': 1,
 					'carer.reference.files': 1,
 					'carer.eligible_roles': 1,
+                    'carer.deductions.amount': 1,
+                    'carer.deductions.description': 1,
+                    'carer.deductions.created': 1,
+                    'carer.deductions.status': 1,
 					notes: 1,
 					status: 1,
                     banned_until: 1
@@ -187,7 +228,10 @@ module.exports = {
 		if(!user)
             return res.status(404).json(Utils.parseStringError("User not found", "user"));
 
-        res.json(User.parse(user, req));
+		user = User.parse(user, req);
+		user.carer["deductions_balance"] = user.carer.deductions.reduce((acumulator, item) => item.status == TransactionSchema.transactionStatuses.CONFIRMED ? acumulator + item.amount : acumulator, 0)
+
+        res.json(user);
     },
 
 	updateCarer: async function(req, res)
@@ -464,6 +508,39 @@ module.exports = {
                     user.save().catch(error => console.log(error));
                 });
             })
+            .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+    },
+
+    addDeduction: async function(req, res)
+    {
+        //getting user
+        const user = await User.findOne({ carer: { $exists: true }, _id: req.params.id } );
+
+        //user not found
+        if(!user)
+            return res.status(404).json(Utils.parseStringError("User not found", "user"));
+
+        //deduction type handle
+        const deductionTypes = ["DEBIT", "CREDIT"]
+        const type = req.body.type;
+
+        if(deductionTypes.indexOf(type) == -1)
+            return res.status(406).json(Utils.parseStringError("Invalid type", "type"));
+
+        //amount
+        const amount = parseFloat(req.body.amount)
+        if(amount <= 0 || isNaN(amount))
+            return res.status(406).json(Utils.parseStringError("Amount must be greater than 0", "amount"));
+
+        //adding deduction and checking balance
+        user.carer.addDeduction(type == "DEBIT" ? - amount : amount, null, req.body.description || " ", TransactionSchema.transactionStatuses.CONFIRMED);
+        const balance = user.carer.getDeductionsBalance();
+        if(balance < 0)
+            return res.status(406).json(Utils.parseStringError("Can't add deduction, because this will cause negative balance", "amount"));
+
+        user
+            .save()
+            .then(() => res.status(201).json({ status: true }))
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     }
 }

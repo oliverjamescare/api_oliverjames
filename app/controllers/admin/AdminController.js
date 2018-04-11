@@ -85,10 +85,59 @@ module.exports = {
         })
     },
 
+    getProfile: function(req, res)
+    {
+        const admin = {
+            _id: req.user._id,
+            email: req.user.email,
+            first_name: req.user.first_name,
+            surname: req.user.surname
+        }
+        res.json(admin);
+    },
+
+    updateProfile: function(req, res)
+    {
+        //updating admin
+        req.user.set({
+            email: req.body.email || req.user.email,
+            first_name: req.body.first_name || req.user.first_name,
+            surname: req.body.surname || req.user.surname,
+        });
+
+        req.user
+            .save()
+            .then(() => res.json({ status: true }))
+            .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+    },
+    changePassword: function(req, res)
+    {
+        bcrypt.compare(req.body["old_password"], req.user.password, (error, status) =>
+        {
+            //wrong password
+            if (!status)
+                return res.status(406).json(Utils.parseStringError("Wrong old password", "password"));
+
+            req.user.password = req.body["new_password"];
+            req.user
+                .validate()
+                .then(() => {
+
+                    //sending response
+                    res.status(200).json({ status: true });
+
+                    //hashing password and saving user
+                    bcrypt.hash(req.user.password, null, null, (error, hash) => {
+                        req.user.password = hash;
+                        req.user.save().catch(error => console.log(error));
+                    });
+                })
+                .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+        });
+    },
+
     getAdminsList: async function(req, res)
     {
-        const query = {};
-
         const options = {
             select: {
             	email: 1,
@@ -101,17 +150,22 @@ module.exports = {
         };
 
         //pagination and parsing
-		const adminsList = await Utils.paginate(Admin, { query: query, options: options }, req);
+		const adminsList = await Utils.paginate(Admin, { query: { _id: { $ne: req.user._id }}, options: options }, req);
         let paginated = Utils.parsePaginatedResults(adminsList);
+        paginated.results.map(admin => {
+            if(admin.created)
+                admin.created = admin.created.getTime();
 
-        res.json(adminsList);
+            return admin;
+        });
+
+        res.json(paginated);
     },
 
     addAdmin: async function(req, res)
     {
-        const body = req.body;
-
         //admin
+        const body = req.body;
         let admin = new Admin({
             email: body.email,
             password: body.password,
@@ -119,91 +173,85 @@ module.exports = {
             surname: body.surname
         })
 
-        admin.validate().then(() => {
-            bcrypt.hash(admin.password, null, null, (error, hash) =>
-            {
-                admin.set({ password: hash, password_resets: [] });
-                admin.save().catch(error => console.log(error));
-            });
-            res.status(201).json({status: true})
+        admin
+            .validate()
+            .then(() => {
 
-        })
-        .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+                //sending response
+                res.status(201).json({status: true })
+
+                //hashing password and saving admin
+                bcrypt.hash(admin.password, null, null, (error, hash) => {
+                    admin.set({ password: hash });
+                    admin.save().catch(error => console.log(error));
+                });
+            })
+            .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },
 
     updateAdmin: async function(req, res)
     {
+        //getting admin
         const body = req.body
-        //getting user
-        const user = await Admin.findOne( { _id: req.params.id } );
+        const admin = await Admin.findOne( { $and: [{  _id: req.params.id }, {  _id: { $ne: req.user._id } }] } );
 
-        user.set({
-            email: body.email || user.email,
-            first_name: body.first_name || user.first_name,
-            surname: body.surname || user.surname
+        //user not found
+        if(!admin)
+            return res.status(404).json(Utils.parseStringError("Admin not found", "admin"));
+
+        admin.set({
+            email: body.email || admin.email,
+            first_name: body.first_name || admin.first_name,
+            surname: body.surname || admin.surname
         })
 
-        user.save()
-        .then(() => res.json({status: true}))
-        .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)))
+        //updating admin
+        admin
+            .save()
+            .then(() => res.json({ status: true }))
+            .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)))
     },
 
-    changePassAdmin: async function(req, res)
+    changeAdminPassword: async function(req, res)
     {
-        const body = req.body
         //getting user
-        const user = await Admin.findOne( { _id: req.params.id } );
+        const admin = await Admin.findOne( { $and: [{  _id: req.params.id }, {  _id: { $ne: req.user._id } }] } );
 
-        if(!body.password)
-            return res.status(404).json("Missing password param");
+        //user not found
+        if(!admin)
+            return res.status(404).json(Utils.parseStringError("Admin not found", "admin"));
 
-        bcrypt.hash(body.password, null, null, (error, hash) =>
-        {
-            user.set({ password: hash});
-            user.save().catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
-            res.status(201).json({status: true})
-            
-        });
-    },
+        admin.password = req.body.password;
+        admin
+            .validate()
+            .then(() => {
 
-    changeOwnPassAdmin: async function(req, res)
-    {
-        const body = req.body
-        //getting user
-        const user = await Admin.findOne( { _id: req.params.id } );
+                //sending response
+                res.status(200).json({ status: true });
 
-        if(!body.password)
-            return res.status(400).json({status: "Missing password param" });
+                //hashing password and updating admin
+                bcrypt.hash(admin.password, null, null, (error, hash) => {
 
-        if(!body.password_new)
-            return res.status(400).json({status: "Missing password_new param" });
-
-
-        bcrypt.compare(body.password, user.password, (error, status) =>
-        {
-            //wrong password
-            if (!status)
-                return res.status(401).json({status: "Password doeasnt match" });
-
-                bcrypt.hash(body.password_new, null, null, (error, hash) =>
-                {
-                    user.set({ password: hash});
-                    user.save().catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
-                    res.status(201).json({status: true})
+                    admin.password = hash;
+                    admin.save().catch(error => console.log(error));
                 });
-        });
+            })
+            .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)))
     },
 
     removeAdminAccount: async function(req, res)
     {
-        const user = await Admin.findOne({ _id: req.params.id } );
-        Admin.remove({ _id: req.params.id }, (error) => {
-            if(error){
-                console.log(error)
-                res.status(401).json({status: "Error during delete" })
-            }else{
-                res.status(201).json({status: true})
-            }
-        })
+        //getting user
+        const admin = await Admin.findOne( { $and: [{  _id: req.params.id }, {  _id: { $ne: req.user._id } }] } );
+
+        //user not found
+        if(!admin)
+            return res.status(404).json(Utils.parseStringError("Admin not found", "admin"));
+
+        //sending response
+        res.status(200).json({ status: true });
+
+        //deleting admin
+        admin.remove();
     }
 }

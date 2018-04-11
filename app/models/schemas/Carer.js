@@ -563,7 +563,7 @@ schema.methods.addDeduction = function(amount, job = null, description = null, s
     if(addingDeductionAllowed)
     {
         let deductedAmount = job ? Math.min(amount, balance) : amount;
-        if(deductedAmount > 0)
+        if((deductedAmount > 0 && job) || !job)
         {
             this.deductions.push({
                 amount: job ? - deductedAmount : deductedAmount,  //if job exists than this is reducer

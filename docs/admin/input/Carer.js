@@ -11,8 +11,7 @@
  * @apiParam {Number} [page] Page number.
  * @apiParam {Number} [results] Results per page. Default 10.
  * @apiParam {Number} [status_filter] Available options: ALL(default) - all carers, CREATED - created carers, ACTIVE - activated carers, BANNED - banned carers.
- * @apiParam {String} [sort] Available options: id_asc(default) - by id ascending, id_desc - by id descending, name_asc - by name ascending, name_desc - by name descending, date_of_birth_asc - by date of birth ascending, date_of_birth_desc - by date of birth desc, activation_date_asc - by activation date ascending, activation_date_desc - by activation date descending, rating_asc - by rating ascending, rating_desc - by rating descending, status_asc - by status ascending, status_desc - by status descending, banned_until_asc - by banned date ascending, banned_until_desc - by banned date descending.
-
+ * @apiParam {String} [sort] Available options: id_asc(default) - by id ascending, id_desc - by id descending, name_asc - by name ascending, name_desc - by name descending, date_of_birth_asc - by date of birth ascending, date_of_birth_desc - by date of birth desc, activation_date_asc - by activation date ascending, activation_date_desc - by activation date descending, rating_asc - by rating ascending, rating_desc - by rating descending, status_asc - by status ascending, status_desc - by status descending, banned_until_asc - by banned date ascending, banned_until_desc - by banned date descending, deductions_balance_asc - by deductions balance ascending, deductions_balance_desc - by deductions balance descending .
 
  * @apiSuccess (Success 200){Object} results Pagination results.
  * @apiSuccessExample Success-Response:
@@ -25,6 +24,7 @@
                     "first_name": "Test",
                     "surname": "Test",
                     "date_of_birth": "1995-02-15",
+                    "deductions_balance": 20,
                     "reviews": {
                         "average": 5,
                         "count": 1
@@ -114,7 +114,17 @@
                 ],
                 "cv_uploads": [
                     "http://localhost:8000/uploads/users/5a9418e7e33cb930aa7c384f/151965514364612.-tst.docx"
-                ]
+                ],
+                "deductions": [
+                    {
+                        "amount": 20,
+                        "description": "Dementia training",
+                        "created": 1523366751295,
+                        "status": "CONFIRMED",
+                        "balance": 20
+                    }
+                ],
+                "deductions_balance": 23
             },
             "status": "ACTIVE",
             "notes": "Carer notes",
@@ -447,6 +457,63 @@
  *              {
  *                   "field": "carer.training_record.fire_safety",
  *                   "message": "Carer training record fire safety must be valid date timestamp."
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {post} /carers/:id/deductions Add deduction
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Add deduction
+ * @apiGroup Carer
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Carer id
+ * @apiParam {String} description Deduction description
+ * @apiParam {Number} amount Amount of deduction. Must be greater than 0.
+ * @apiParam {String} type Deduction type. Available types: DEBIT, CREDIT
+ *
+ * @apiSuccess (Success 200){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *        "status": true
+ *     }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Not Found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not Found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Carer not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError WrongParameters Wrong parameters.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 406 Wrong parameters
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "amount",
+ *                   "message": "Amount must be greater than 0"
  *              }
  *          ]
  *      }

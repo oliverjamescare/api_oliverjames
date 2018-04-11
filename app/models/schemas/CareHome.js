@@ -114,7 +114,7 @@ schema.methods.addCredits = function(amount, job = null, description = null, sta
     if(addingCreditsAllowed)
     {
         let creditedAmount = job ? Math.min(amount, balance) : amount;
-        if(creditedAmount > 0)
+        if((creditedAmount > 0 && job) || !job)
         {
             this.credits.push({
                 amount: job ? - creditedAmount : creditedAmount, //if job exists than this is reducer
@@ -142,3 +142,5 @@ schema.methods.sendRegisterConfirmation = function(mailer)
 }
 
 module.exports.schema = schema;
+module.exports.genderPreferences = genderPreferences;
+module.exports.homeTypes = homeTypes;

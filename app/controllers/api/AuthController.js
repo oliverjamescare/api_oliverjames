@@ -115,6 +115,10 @@ module.exports = {
 	    else
 		    return res.status(406).json(Utils.parseStringError("You have to provide all carer or care home fields", "user_type"));
 
+	    //automatically activation of care home
+        if(user.care_home)
+            user.activation_date = new Date();
+
 	    user
 		    .validate()
 		    .then(() => {

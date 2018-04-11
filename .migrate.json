@@ -1,7 +1,7 @@
 {
   "basepath": "migrations",
   "connection": "mongodb://localhost/OliverJames",
-  "current_timestamp": 1523358495496,
+  "current_timestamp": 1523455911915,
   "models": {
     "User": "app/models/User.js",
     "Job": "app/models/Job.js",
