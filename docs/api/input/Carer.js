@@ -527,7 +527,7 @@
  * @apiParam {Number} [results] Results per page. Default 10.
  * @apiParam {Number} [dont_meet_criteria] Filter which disables availability checking. Available options 1 - enabled, 0(default) - disabled.
  * @apiParam {Number} [distance] Filter by distance.
- * @apiParam {String} [sort] Sort parameter. Available options: roleASC - by role ascending, roleDESC - by role descending, startDESC - by start date descending, startASC(default) - by start date ascending, endDESC - by end date descending, endASC - by end date ascending
+ * @apiParam {String} [sort] Sort parameter. Available options: roleASC - by role ascending, roleDESC - by role descending, startDESC - by start date descending, startASC(default) - by start date ascending, endDESC - by end date descending, endASC - by end date ascending, incomeDESC - by projected income descending, incomeASC - by projected income ascending
  *
  * @apiSuccess (Success 200){Object} results Pagination results.
  * @apiSuccessExample Success-Response:

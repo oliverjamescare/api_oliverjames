@@ -27,6 +27,9 @@
                 "created": 1519666191786,
                 "status": "CANCELLED",
                 "manual_booking": false,
+                "cost": {
+                    "total_cost": 8.63
+                },
                 "author": {
                     "_id": "5a71b2834f1f26305c6abf2a",
                     "care_home": {
@@ -109,6 +112,19 @@
             "notes": null,
             "gender_preference": "No preference",
             "manual_booking": false,
+            "cost": {
+                "total_cost": 103.5,
+                "manual_booking_cost": 51.75,
+                "job_cost": 51.75
+            },
+            "charge": {
+                "charge_date": 1523440106660,
+                "net_cost": 93.5,
+                "total_cost": 103.5,
+                "manual_booking_cost": 51.75,
+                "job_cost": 51.75,
+                "deductions": 10
+            },
             "author": {
                 "_id": "5a9419d8e33cb930aa7c3856",
                 "care_home": {
@@ -160,6 +176,16 @@
                 "position": "CEO",
                 "name": "Richard",
                 "signature": "http://localhost:8000/uploads/jobs/5a95290a1e28cd1d88ea64cd/152162607972516344484_1321466411247611_2119070772_n.jpg"
+            },
+            "payment": {
+                "transaction_charge": 2.91,
+                "application_fee": 5.17,
+                "deductions": 9.32,
+                "job_income": 46.58,
+                "net_income": 34.35,
+                "status": "PAID",
+                "payment_date": 1523440106661,
+                "debit_date": 1522879200000
             }
         }
  *

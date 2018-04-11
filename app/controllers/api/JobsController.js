@@ -20,7 +20,7 @@ const Setting = require('./../../models/Setting').schema;
 
 //services
 const fileHandler = require("../../services/fileHandler");
-const JobHandler = require('../../services/JobsHandler');
+const JobsHandler = require('../../services/JobsHandler');
 const Utils = require("../../services/utils");
 const PaymentsHandler = require('../../services/PaymentsHandler');
 const QueuesHandler = require('../../services/QueuesHandler');
@@ -31,91 +31,26 @@ module.exports = {
     getJobDetails: async function(req, res)
     {
 
-        // console.log(req.connection.remoteAddress);
         // const jb = await Job.findOne({ _id: req.params.id }).exec();
+        // jb.save();
+        // res.json({ status: true })
+
         // const handler = new PaymentsHandler();
-        // handler.processPayment(jb, req).then(r => {
-        //     res.json(r);
+        // handler.processPayment(jb, req).then(result => {
+        //     result.save();
+        //     res.json({ result });
         // })
         // .catch(e =>  res.json(e));
 
-        //for all
-        const jobsQuery = Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1 })
-            .populate("care_home",{
-                "email": 1,
-                "phone_number": 1,
-                "address": 1,
-                "care_home": 1,
-                "care_home.care_service_name": 1,
-                "care_home.type_of_home": 1,
-                "care_home.name": 1
-            });
-
-        //request by care home
-        if(req.user.care_home)
-        {
-            jobsQuery
-				.populate({
-                    path: "assignment.carer",
-                    select: {
-                        "phone_number": 1,
-                        "email": 1,
-                        "carer.first_name": 1,
-                        "carer.surname": 1,
-                        "carer.profile_image": 1,
-                        "carer.training_record.qualifications": 1,
-                        "carer.training_record.safeguarding": 1,
-                        "carer.training_record.manual_handling_people": 1,
-                        "carer.training_record.medication_management": 1,
-                        "carer.training_record.infection_control": 1,
-                        "carer.training_record.first_aid_and_basic_life_support": 1,
-                        "carer.training_record.first_aid_awareness": 1,
-                        "carer.training_record.h_and_s": 1,
-                        "carer.training_record.dementia": 1,
-                        "carer.training_record.fire_safety": 1,
-                        "carer.dbs.status": 1,
-                        "carer.dbs.dbs_date": 1,
-                        "carer.reviews": 1,
-                        "carer.care_experience": 1,
-                        "carer.jobs": 1,
-                    },
-                    populate: {
-                        path: 'carer.jobs',
-                        match: { 'assignment.review': { $exists: true }, 'assignment.review.status': reviewStatuses.PUBLISHED },
-                        sort: { 'assignment.review.created': "DESC" },
-                        limit: 10,
-                        select: {
-                            'assignment.review.created': 1,
-                            'assignment.review.description': 1,
-                            'assignment.review.rate': 1,
-                            'care_home': 1
-                        },
-                        populate: {
-                            path: 'care_home',
-                            select: {
-                                "email": 1,
-                                "phone_number": 1,
-                                "address": 1,
-                                "care_home": 1,
-                                "care_home.care_service_name": 1,
-                                "care_home.type_of_home": 1,
-                                "care_home.name": 1
-                            }
-                        }
-                    }
-                })
-        }
-
-        jobsQuery
-			.lean()
+        JobsHandler.getJobDetailsQuery(req.params.id, req.user.care_home ? true : false)
+            .lean()
             .exec((error, job) => {
-
                 if(!job)
                     return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
                 job = Job.parse(job, req);
-                if(req.user.carer)
-                    job["projected_income"] = 75;
+                if(req.user.care_home)
+                    job.projected_income = undefined;
 
                 res.json(job);
             });
@@ -213,8 +148,8 @@ module.exports = {
 
                     jobs.forEach(async job => {
 
-                            const availableCarers = await JobHandler.getAvailableCarers(job, req.user);
-                            const notifications = await JobHandler.assignBuckets(availableCarers, job.priority_carers, job.start_date, settings);
+                            const availableCarers = await JobsHandler.getAvailableCarers(job, req.user);
+                            const notifications = await JobsHandler.assignBuckets(availableCarers, job.priority_carers, job.start_date, settings);
                             notifications.forEach(notification => job.notifications.push(notification));
 
                             job.save().catch(error => console.log(error))
@@ -250,7 +185,7 @@ module.exports = {
                     gender_preference: Object.values(JobModel.genderPreferences).indexOf(gender) != -1 ? gender : JobModel.genderPreferences.NO_PREFERENCE
                 }
 
-                const availableCarers = await JobHandler.getAvailableCarers(job, req.user);
+                const availableCarers = await JobsHandler.getAvailableCarers(job, req.user);
                 job["carersToContact"] = availableCarers.length;
 
                 return job;
@@ -378,129 +313,148 @@ module.exports = {
     },
 
 	//only carer methods
-    acceptJob: function(req, res)
+    acceptJob: async function(req, res)
     {
-        Job.findOne({ _id: req.params.id }, (error, job) => {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
 
-        	//not found
-            if(!job)
-                return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-            //accepted job
-			if(job.assignment.carer)
-                return res.status(409).json(Utils.parseStringError("This job has already been accepted", "job"));
+        //accepted job
+        if(job.assignment.carer)
+            return res.status(409).json(Utils.parseStringError("This job has already been accepted", "job"));
 
-			//expired job
-            if(job.status == JobModel.statuses.EXPIRED)
-                return res.status(409).json(Utils.parseStringError("This job is expired", "job"));
+        //expired job
+        if(job.status == JobModel.statuses.EXPIRED)
+            return res.status(409).json(Utils.parseStringError("This job is expired", "job"));
 
-            //cancelled job
-            if(job.status == JobModel.statuses.CANCELLED)
-                return res.status(409).json(Utils.parseStringError("This job is cancelled", "job"));
+        //cancelled job
+        if(job.status == JobModel.statuses.CANCELLED)
+            return res.status(409).json(Utils.parseStringError("This job is cancelled", "job"));
 
-            //availability failure
-			if(!req.user.carer.checkAvailabilityForDateRange(job.start_date, job.end_date))
-                return res.status(409).json(Utils.parseStringError("You're not available during this job. Check your availability.", "job"));
+        //required gender preference
+        if(job.gender_preference != JobModel.genderPreferences.NO_PREFERENCE && job.gender_preference != req.user.carer.gender)
+            return res.status(409).json(Utils.parseStringError("This job requires gender to be " + job.gender_preference + " .", "job"));
 
-			//required gender preference
-			if(job.gender_preference != JobModel.genderPreferences.NO_PREFERENCE && job.gender_preference != req.user.carer.gender)
-                return res.status(409).json(Utils.parseStringError("This job requires gender to be " + job.gender_preference + " .", "job"));
+        //required role
+        if(req.user.carer.eligible_roles.indexOf(job.role) == -1)
+            return res.status(409).json(Utils.parseStringError("This job requires role to be " + job.role + " .", "job"));
 
-			//required role
-			if(req.user.carer.eligible_roles.indexOf(job.role) == -1)
-                return res.status(409).json(Utils.parseStringError("This job requires role to be " + job.role + " .", "job"));
+        //availability failure
+        if(!req.user.carer.checkAvailabilityForDateRange(job.start_date, job.end_date))
+            return res.status(409).json(Utils.parseStringError("You're not available during this job. Check your availability.", "job"));
 
-			//finding my jobs in this time
-			Job.count({ $and: [{_id: { $in: req.user.carer.jobs }}, { start_date: { $lte: job.end_date }},  { end_date: { $gte: job.end_date }}, { 'assignment.summary_sheet': { $exists: false }} ]})
-				.then(amount => {
-					if(Boolean(amount))
-                        return res.status(409).json(Utils.parseStringError("Conflict! You already have job in this time.", "job"));
+        //checking if care home hasn't blocked this carer
+        const careHome = await User.findOne({ _id: job.care_home, care_home: { $exists: true }}).exec();
+        if(careHome.care_home.blocked_carers.find(carerId => carerId.toString() == req.user._id.toString()))
+            return res.status(409).json(Utils.parseStringError("You are blocked by this care home.", "job"));
 
-					//sending response
-                    res.json({ status: true });
+        //finding my jobs in this time
+        const conflicts = await Job.count({ $and: [{_id: { $in: req.user.carer.jobs }}, { start_date: { $lte: job.end_date }},  { end_date: { $gte: job.end_date }}, { 'assignment.summary_sheet': { $exists: false }} ]});
+        if(Boolean(conflicts))
+            return res.status(409).json(Utils.parseStringError("Conflict! You already have job in this time.", "job"));
 
-					//saving assignment
-					job.assignment.carer = req.user;
-					job.assignment.created = new Date();
-					job.save().catch(error => console.log(error))
+        //sending response
+        res.json({ status: true });
 
-				});
-		})
+        //saving assignment
+        job.assignment.carer = req.user;
+        job.assignment.created = new Date();
+
+        job.save()
+            .then(job => JobsHandler.generateJobAcceptanceDocument(job, req))
+            .then(documentPath => {
+
+                job.sendJobAcceptance(documentPath, req.app.mailer, careHome, req.user);
+                job.save().catch(error => console.log(error));
+            })
+            .catch(error => console.log(error));
     },
 
-	declineJob: function (req, res)
+	declineJob: async function (req, res)
 	{
-        Job.findOne({ _id: req.params.id }, (error, job) => {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
 
-            //not found
-            if(!job)
-                return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-            if(job.assignment.carer && job.assignment.carer.toString() == req.user._id.toString())
-                return res.status(409).json(Utils.parseStringError("You can't decline previously accepted job", "job"));
+        if(job.assignment.carer && job.assignment.carer.toString() == req.user._id.toString())
+            return res.status(409).json(Utils.parseStringError("You can't decline previously accepted job", "job"));
 
-            //sending response
-            res.json({ status: true });
+        //sending response
+        res.json({ status: true });
 
-            //adding job decline if not exists
-            if(req.user.carer.job_declines.indexOf(job._id) == -1 && job.declines.indexOf(req.user._id) == -1)
-            {
-				req.user.carer.job_declines.push(job);
-                req.user.save().catch(error => console.log(error));
+        //adding job decline if not exists
+        if(req.user.carer.job_declines.indexOf(job._id) == -1 && job.declines.indexOf(req.user._id) == -1)
+        {
+            req.user.carer.job_declines.push(job);
+            req.user.save().catch(error => console.log(error));
 
-                job.declines.push(req.user);
-                job.save().catch(error => console.log(error));
-            }
-        })
+            job.declines.push(req.user);
+            job.save().catch(error => console.log(error));
+        }
 	},
 
-    withdrawJob: function(req, res)
+    withdrawJob: async function(req, res)
     {
-        Job.findOne({ _id: req.params.id }, (error, job) => {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
 
-            //not found
-            if(!job)
-                return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-            if(!job.assignment.carer || (job.assignment.carer && job.assignment.carer.toString() != req.user._id.toString()))
-                return res.status(409).json(Utils.parseStringError("You are not assigned to this job", "job"));
+        if(!job.assignment.carer || (job.assignment.carer && job.assignment.carer.toString() != req.user._id.toString()))
+            return res.status(409).json(Utils.parseStringError("You are not assigned to this job", "job"));
 
-            if(job.assignment.summary_sheet)
-                return res.status(409).json(Utils.parseStringError("You can't withdraw from job which has summary sheet sent", "job"));
+        if(job.assignment.summary_sheet)
+            return res.status(409).json(Utils.parseStringError("You can't withdraw from job which has summary sheet sent", "job"));
 
-            if(job.start_date.getTime() < new Date().getTime())
+        //getting care home
+        const careHome = await User.findOne({ _id: job.care_home }).exec();
+
+        if(job.start_date.getTime() < new Date().getTime())
+        {
+            bcrypt.compare(req.body["password"], req.user.password, (error, status) =>
             {
-                bcrypt.compare(req.body["password"], req.user.password, (error, status) =>
-                {
-                    //wrong password
-                    if (!status)
-                        return res.status(406).json(Utils.parseStringError("Wrong password", "password"));
-
-                    //sending response
-                    res.json({ status: true });
-
-                    //adding new withdrawal
-                    let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job });
-                    jobWithdrawal.save().catch(error => console.log(error));
-                });
-            }
-            else
-            {
-                //validation
-                let errors;
-                req.check("message").notEmpty().withMessage('Message field is required.').isLength({ max: 200 }).withMessage('Message cannot be longer than 200 characters.');
-
-                if (errors = req.validationErrors())
-                   return res.status(406).json({ errors: errors });
+                //wrong password
+                if (!status)
+                    return res.status(406).json(Utils.parseStringError("Wrong password", "password"));
 
                 //sending response
                 res.json({ status: true });
 
                 //adding new withdrawal
-                let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job, message: req.body.message });
+                let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job });
                 jobWithdrawal.save().catch(error => console.log(error));
-            }
-        });
+
+                //sending withdrawal to care home
+                job.sendJobWithdrawal(req.app.mailer, req.user, careHome, jobWithdrawal)
+            });
+        }
+        else
+        {
+            //validation
+            let errors;
+            req.check("message").notEmpty().withMessage('Message field is required.').isLength({ max: 200 }).withMessage('Message cannot be longer than 200 characters.');
+
+            if (errors = req.validationErrors())
+                return res.status(406).json({ errors: errors });
+
+            //sending response
+            res.json({ status: true });
+
+            //adding new withdrawal
+            let jobWithdrawal = new JobWithdrawal({ carer: req.user, job: job, message: req.body.message });
+            jobWithdrawal.save().catch(error => console.log(error));
+
+            //sending withdrawal to care home
+            job.sendJobWithdrawal(req.app.mailer, req.user, careHome, jobWithdrawal)
+        }
     },
 
     sendSummarySheet: async function(req, res)
@@ -539,8 +493,8 @@ module.exports = {
             name: req.body.name,
             position: req.body.position,
             notes: req.body.notes || null,
-            start_date: parseInt(req.body.start_date),
-            end_date: parseInt(req.body.end_date),
+            start_date: req.body.start_date,
+            end_date: req.body.end_date,
             voluntary_deduction: parseInt(req.body.voluntary_deduction) || 0,
             created: now
         };
@@ -556,18 +510,41 @@ module.exports = {
 	    //saving signature and sending response
 	    job
 		    .save()
-		    .then(() => res.json({ status: true, debit_date: debitDate.getTime(), projected_income: 200 }))
+		    .then(() => res.json({ status: true, debit_date: debitDate.getTime(), projected_income: 200, minutes: 67 }))
 		    .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },
 
-    getProjectedIncome: function (req, res)
+    getProjectedIncome: async function (req, res)
     {
-        const startDate = parseInt(req.query.start_date) || 0;
-        const endDate = parseInt(req.query.end_date) || 0;
-        const deduction = parseInt(req.query.voluntary_deduction) || 0;
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
+
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
 
-        res.json({ projected_income: 100, deducted: 50 });
+        let startDate = parseInt(req.query.start_date) || 0;
+        let endDate = parseInt(req.query.end_date) || 0;
+        let deduction = Math.max((parseInt(req.query.voluntary_deduction) || 0),0);
+
+        if(startDate > endDate)
+        {
+            const tmp = startDate;
+            startDate = endDate;
+            endDate = startDate;
+        }
+
+        //fake assignment
+        job.assignment.summary_sheet = {
+            start_date: new Date(startDate),
+            end_date: new Date(endDate),
+            voluntary_deduction: deduction
+        }
+
+        //sending response
+        const { job_income, deducted_minutes_cost } = JobsHandler.calculateJobCost(job);
+        res.json({ projected_income: job_income, deducted: deducted_minutes_cost });
     },
 
 	updateJob: async function(req, res)
@@ -700,20 +677,14 @@ module.exports = {
         if(!job)
             return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-        JobHandler
+        JobsHandler
             .getNewJobs(req, job.care_home, job._id)
             .then(async (queryConfig) => {
 
                 //pagination and parsing
                 const jobs = await Utils.paginate(Job, queryConfig, req, true);
                 let paginated = Utils.parsePaginatedResults(jobs);
-
-                paginated.results.map(job => {
-                    job = Job.parse(job, req);
-                    job["projected_income"] = 75;
-
-                    return job;
-                });
+                paginated.results.map(job => Job.parse(job, req));
 
                 res.json(paginated);
             });
@@ -732,20 +703,13 @@ module.exports = {
         if(req.user._id.toString() != job.care_home.toString())
             return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
 
-        const availableStatuses = [
-            JobModel.statuses.PAID,
-            JobModel.statuses.PAYMENT_REJECTED,
-            JobModel.statuses.PAYMENT_CANCELLED
-        ];
-
-        //not payment stadium
-        if(availableStatuses.indexOf(job.status) == -1)
+        //without assignment or job summary
+        if(!job.assignment || !job.assignment.summary_sheet)
             return res.status(409).json(Utils.parseStringError("This job cannot be rated yet.", "job"));
 
         //review exists
         if(job.assignment.review)
             return res.status(409).json(Utils.parseStringError("Carer of this job has already been rated.", "carer"));
-
 
         job.assignment.review = {
             rate: req.body.rate,
@@ -787,25 +751,6 @@ module.exports = {
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
 
     },
-
-    testNotification: async function(req, res)
-    {
-        //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
-        const type = req.params.type;
-
-        //not found
-        if(!job)
-            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
-
-        const types = ["JOB_CANCELLED", "JOB_MODIFIED", "NEW_JOBS", "REVIEW_PUBLISHED"];
-        if(types.indexOf(type) != -1)
-            QueuesHandler.publish({ user_id: req.user._id, job_id: job._id, type: type }, { exchange: "notifications", queue: "notifications" })
-
-        //sending response
-        res.json({ status: true });
-    },
-
     testMethods: async function (req, res)
     {
         //for all
@@ -879,10 +824,31 @@ module.exports = {
         job = Job.parse(job, req);
 
         const handler = new PDFHandler(req);
-        handler.generatePdf("test", "jobs/" + job._id, { job });
+        handler.generatePdf("CARER_REGISTRATION_QUESTIONNAIRE", "users/" + req.user._id, { user: req.user }).then(r => {
+            console.log(r);
+        });
 
         // //sending response
         res.json({ status: true });
+    },
+
+    testNotification: async function(req, res)
+    {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const type = req.params.type;
+
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+        const types = ["JOB_CANCELLED", "JOB_MODIFIED", "NEW_JOBS", "REVIEW_PUBLISHED"];
+        if(types.indexOf(type) != -1)
+            QueuesHandler.publish({ user_id: req.user._id, job_id: job._id, type: type }, { exchange: "notifications", queue: "notifications" })
+
+        //sending response
+        res.json({ status: true });
     }
+
 }
 

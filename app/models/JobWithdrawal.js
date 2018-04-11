@@ -42,10 +42,20 @@ schema.pre("save", function (next)
         });
 
         Job.findOne({ _id: withdrawal.job }).then(job => {
+
+            if(job.assignment.acceptance_document)
+            {
+                const fileHandler = require("./../services/fileHandler")();
+                fileHandler.deleteFile(job.assignment.acceptance_document)
+            }
+
             job.withdrawals.push(withdrawal);
             job.assignment.carer = undefined;
+            job.assignment.created = undefined;
+            job.assignment.acceptance_document = undefined;
 
             job.save().catch(error => console.log(error));
+
         });
 	}
 

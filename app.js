@@ -45,7 +45,7 @@ app.use(expressValidator({
 require('dotenv').config();
 require("./config/database");
 require("./config/workers-manager");
-app = require("./config/mailer").configure(app);
+require("./config/mailer").configure(app);
 
 //ROUTES CONFIG
 app.get('/', (req, res) => res.send("Oliver James API"));

@@ -1015,6 +1015,8 @@
  *
  * @apiHeader {String} X-access-token Access token
  * @apiParam {String} id Job id.
+ * @apiParam {Number} rate Rate. Min 1, max 5.
+ * @apiParam {String} description Review description
  *
  * @apiSuccess (Success 201){Boolean} status Operation status.
  * @apiSuccessExample Success-Response:

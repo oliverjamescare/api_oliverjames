@@ -4,23 +4,38 @@
  * and open the template in the editor.
  */
 
-var mailer = require('express-mailer');
-var config = process.env;
+const nodemailer = require('nodemailer');
+const jade = require("jade");
+const config = process.env;
 
 module.exports.configure = function(app)
 {
-    mailer.extend(app, getConfig());
-    return app;
+    const config = getConfig();
+    const transporter = nodemailer.createTransport(config);
+
+    app.mailer = {
+        send: function(templatePath, mailData, templateData = {}, callback)
+        {
+            jade.renderFile(templatePath, templateData, (error, html) => {
+                if(error && callback)
+                    callback(error, null);
+                else if(html)
+                {
+                    const mailOptions = Object.assign({ from: config.from, html }, mailData);
+                    transporter.sendMail(mailOptions, callback);
+                }
+            })
+        }
+    }
 }
 
 function getConfig()
 {
-    var mailConfig = {
+    const mailConfig = {
         from: config.MAIL_FROM + "<" + config.MAIL_FROM_ADDRESS + ">",
         host: config.MAIL_HOST || "localhost",
-        secureConnection: false,
+        secure: false,
         port: parseInt(config.MAIL_PORT),
-        transportMethod: config.MAIL_METHOD
     };
     
     if(config.MAIL_USER)

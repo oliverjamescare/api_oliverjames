@@ -9,7 +9,6 @@ const moment = require("moment");
 const async = require("async");
 
 //models
-const User = require("../../models/User").schema;
 const JobModel = require("../../models/Job");
 const Job = JobModel.schema;
 const NotificationModel = require("../../models/Notification");
@@ -18,7 +17,7 @@ const Notification = NotificationModel.schema;
 //services
 const Utils = require("../../services/utils");
 const locationHandler = require('../../services/locationHandler');
-const jobHandler = require('../../services/JobsHandler');
+const JobsHandler = require('../../services/JobsHandler');
 const CarersHandler = require('../../services/CarersHandler');
 
 module.exports = {
@@ -109,7 +108,7 @@ module.exports = {
         				"assignment.summary_sheet": { $exists: false },
 						status: { $ne: JobModel.statuses.CANCELLED }
 					},
-            		{ start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1,  status: 1 }
+            		{ start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1,  status: 1, 'assignment.projected_income': 1 }
             		)
 					.populate("care_home",{
 						"email": 1,
@@ -124,13 +123,7 @@ module.exports = {
 					.exec();
 
 		//parsing
-        jobs.map(job => {
-        	job = Job.parse(job, req);
-            job["projected_income"] = 75;
-
-            return job;
-        });
-
+        jobs.map(job => Job.parse(job, req));
 		calendar.forEach(day => day["jobs"] = jobs.filter(job => moment(job.start_date).format("YYYY-MM-DD") == day.day));
 
         res.json({ calendar });
@@ -159,7 +152,7 @@ module.exports = {
                     "assignment.summary_sheet": { $exists: false },
                     status: { $ne: JobModel.statuses.CANCELLED }
                 },
-                { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1,  status: 1 }
+                { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1,  status: 1, 'assignment.projected_income': 1  }
             )
                 .populate("care_home",{
                     "email": 1,
@@ -174,12 +167,7 @@ module.exports = {
                 .exec();
 
             //parsing
-            jobs.map(job => {
-                job = Job.parse(job, req);
-                job["projected_income"] = 75;
-
-                return job;
-            });
+            jobs.map(job => Job.parse(job, req));
             calendar.forEach(day => day["jobs"] = jobs.filter(job => moment(job.start_date).format("YYYY-MM-DD") == day.day));
 		}
 
@@ -188,20 +176,14 @@ module.exports = {
 
 	getCarerAvailableJobs: function(req, res)
 	{
-        jobHandler
+        JobsHandler
 			.getNewJobs(req)
 			.then(async (queryConfig) => {
 
 				//pagination and parsing
 				const jobs = await Utils.paginate(Job, queryConfig, req, true);
 				let paginated = Utils.parsePaginatedResults(jobs);
-
-                paginated.results.map(job => {
-                    job = Job.parse(job, req);
-                    job["projected_income"] = 75;
-
-                    return job;
-                });
+                paginated.results.map(job => Job.parse(job, req));
 
 				res.json(paginated);
 			});
@@ -210,7 +192,7 @@ module.exports = {
 	getCarerMyJobs: async function(req, res)
 	{
 		const options = {
-			select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1 },
+			select: { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1, 'assignment.projected_income': 1 },
 			populate: [
 				{
 					path: "care_home",
@@ -234,13 +216,7 @@ module.exports = {
 
 		const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
 		let paginated = Utils.parsePaginatedResults(jobs);
-
-        paginated.results.map(job => {
-            job = Job.parse(job, req);
-            job["projected_income"] = 75;
-
-            return job;
-        });
+        paginated.results.map(job => Job.parse(job, req));
 
 		res.json(paginated);
 	},
@@ -283,7 +259,7 @@ module.exports = {
                     .then(results => callback(null, results));
 			},
 			newJobs: (callback) => {
-                jobHandler
+                JobsHandler
                     .getNewJobs(req)
                     .then(async (queryConfig) => {
 

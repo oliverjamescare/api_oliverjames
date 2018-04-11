@@ -11,6 +11,7 @@ const bcrypt = require('bcrypt-nodejs');
 const User = require("../../models/User").schema;
 const Utils = require('../../services/utils');
 const PaymentsHandler = require('../../services/PaymentsHandler');
+const fileHandler = require("../../services/fileHandler");
 
 module.exports = {
 
@@ -47,7 +48,7 @@ module.exports = {
 
     },
 
-    updateBankDetails: function (req, res)
+    updateBankDetails: async function (req, res)
     {
         //validation
         let errors;
@@ -55,6 +56,10 @@ module.exports = {
 
         if(errors = req.validationErrors())
             return res.status(406).json({ errors: errors });
+
+        // //identity document upload
+        // const uploader = fileHandler(req, res);
+        // const filePath = await uploader.handleSingleUpload("identity_document", "users/" + req.user._id , { allowedMimeTypes: [ "image/png", "image/jpg", "image/jpeg"] });
 
         //create / update request
         const paymentsHandler = new PaymentsHandler();
@@ -70,7 +75,8 @@ module.exports = {
                 req.user.carer.set({
                     payment_system: {
                         account_id: account.id,
-                        bank_number: account["external_accounts"]["data"] && account["external_accounts"]["data"][0] && account["external_accounts"]["data"][0]["object"] == "bank_account" ? "**** **** **** "+ account["external_accounts"]["data"][0]["last4"] : null
+                        bank_number: account["external_accounts"]["data"] && account["external_accounts"]["data"][0] && account["external_accounts"]["data"][0]["object"] == "bank_account" ? "**** **** **** "+ account["external_accounts"]["data"][0]["last4"] : null,
+                        // verification: account["legal_entity"]["verification"]
                     }
                 });
 

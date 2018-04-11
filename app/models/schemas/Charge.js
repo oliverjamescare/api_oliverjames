@@ -4,15 +4,18 @@ const mongoose = require('mongoose');
 //custom
 const validators = require("./../../services/validators");
 
-//settings
-const statuses = {
-    CHARGED: "CHARGED",
-    REJECTED: "REJECTED",
-    CANCELLED: "CANCELLED"
-};
-
 const schema = mongoose.Schema({
     deductions: {
+        type: Number,
+        min: 0,
+        required: [ true, "{PATH} field is required." ]
+    },
+    job_cost: {
+        type: Number,
+        min: 0,
+        required: [ true, "{PATH} field is required." ]
+    },
+    manual_booking_cost: {
         type: Number,
         min: 0,
         required: [ true, "{PATH} field is required." ]
@@ -27,14 +30,10 @@ const schema = mongoose.Schema({
         min: 0,
         required: [ true, "{PATH} field is required." ]
     },
-    status: {
-        type: String,
-        enum: Object.values(statuses),
-    },
     charge_date: {
         type: Date,
-        required: validators.required_if("status", statuses.CHARGED)
+        required: [ true, "{PATH} field is required." ]
     }
 });
 
-module.exports = { schema, statuses };
+module.exports = { schema };

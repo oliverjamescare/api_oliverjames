@@ -1,11 +1,13 @@
 //core
 const bcrypt = require('bcrypt-nodejs');
 const mongoose = require('mongoose');
+const async = require('async');
 
 //services
 const Utils = require('../../services/utils');
 const locationHandler = require('../../services/locationHandler');
 const fileHandler = require("../../services/fileHandler");
+const PDFHandler = require('../../services/PDFHandler');
 
 //models
 const User = require("../../models/User").schema;
@@ -120,13 +122,46 @@ module.exports = {
 			    //sending response
 			    res.status(201).json({ status: true });
 
-			    //hashing password, sending email verification and saving user
-			    bcrypt.hash(user.password, null, null, (error, hash) => {
-				    user.addEmailConfirmationHandle(user.email, req.app.mailer);
-				    user.password = hash;
+                //hashing password, sending email verification and saving user
+			    async.waterfall([
+                    (callback) => bcrypt.hash(user.password, null, null, (error, hash) => {
+                        user.password = hash;
+                        callback(null);
+                    }),
+                    (callback) => {
 
-				    user.save().catch(error => console.log(error));
-			    });
+                        //generating pdfs
+			            if(user.carer)
+                        {
+                            const handler = new PDFHandler(req);
+                            async.parallel({
+                                carerDetails: (callback) => {
+                                    handler.generatePdf("CARER_REGISTRATION_DETAILS", "users/" + id, { user })
+                                        .then(pdfPath => callback(null, pdfPath))
+                                        .catch(error => console.log(error));
+                                },
+                                carerQuestionnaire: (callback) =>{
+                                    handler.generatePdf("CARER_REGISTRATION_QUESTIONNAIRE", "users/" + id, { user })
+                                        .then(pdfPath => callback(null, pdfPath))
+                                            .catch(error => console.log(error));
+                                }
+                            },(errors, results) => {
+
+                                user.carer.documents.push(results.carerDetails)
+                                user.carer.documents.push(results.carerQuestionnaire)
+
+                                callback(null);
+                            });
+                        }
+                        else callback(null)
+                    }
+                ],(errors, results) => {
+
+                    user.addEmailConfirmationHandle(user.email, req.app.mailer);
+                    user.save().catch(error => console.log(error));
+
+                    user.carer ? user.carer.sendApplication(req.app.mailer) : user.care_home.sendRegisterConfirmation(req.app.mailer);
+                });
 		    })
 		    .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },

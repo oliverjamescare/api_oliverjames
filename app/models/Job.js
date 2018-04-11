@@ -2,19 +2,23 @@
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate');
 const mongooseAggregatePaginate = require('mongoose-aggregate-paginate');
+const moment = require('moment');
 
 //services
 const validators = require('./../services/validators');
 
 //schemas
 const GeneralGuidance = require('./schemas/GeneralGuidance');
+const Pricing = require("./schemas/Pricing");
+
 const CarerRoles = require('./schemas/Carer').eligibleRoles;
-const ReviewSchema = require("./schemas/Review").schema;
-const Challenge = require("./schemas/Challenge");
+const ReviewSchema = require("./schemas/Review");
+const Review = ReviewSchema.schema;
+const ChallengeSchema = require("./schemas/Challenge");
+const Challenge = ChallengeSchema.schema;
 const Payment = require("./schemas/Payment").schema;
 const Charge = require("./schemas/Charge").schema;
-const Pricing = require("./schemas/Pricing");
-const SummarySheetSchema = require("./schemas/SummarySheet").schema;
+const SummarySheet = require("./schemas/SummarySheet").schema;
 
 //settings
 const statuses = {
@@ -80,19 +84,50 @@ const schema = mongoose.Schema({
             max: 100,
             default: 0,
 		},
+        max_to_deduct: {
+            type: Number,
+            min: 0,
+            max: 100,
+            default: 0,
+        },
 		pricing: Pricing.pricing_hours
 	},
 	charge: Charge,
+    cost: {
+        job_cost: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+        manual_booking_cost: {
+            type: Number,
+            min: 0,
+            default: 0
+        },
+        total_cost: {
+            type: Number,
+            min: 0,
+            default: 0
+        }
+    },
 	assignment: {
+	    projected_income: {
+            type: Number,
+            min: 0
+        },
 		carer: {
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User"
 		},
 		payment: Payment,
-		summary_sheet: SummarySheetSchema,
-		review: ReviewSchema,
-		challenge: Challenge.schema,
-        created: Date
+		summary_sheet: SummarySheet,
+		review: Review,
+		challenge: Challenge,
+        acceptance_document: String,
+        created: {
+		    type: Date,
+            required: validators.required_if_present('assignment.carer')
+        }
 	},
 	role: {
 		type: String,
@@ -175,6 +210,12 @@ schema.pre("save", function (next)
 	this.updated = new Date();
 	this.status = handleJobStatus(this);
 
+	//cost calculation
+    const JobsHandler = require("./../services/JobsHandler");
+    const costs = JobsHandler.calculateJobCost(this);
+    this.cost = { job_cost: costs.job_cost, manual_booking_cost: costs.manual_booking_cost, total_cost: costs.total_cost }
+    this.assignment.projected_income  = costs.job_income;
+
 	if(this.assignment.carer)
 	{
 		//removing decline
@@ -204,23 +245,37 @@ schema.post('init', function(job)
 });
 
 //methods
-schema.methods.calculateJobCost = function()
+schema.methods.sendJobAcceptance = function(pdfPath, mailer, careHome, carer)
 {
-	const startDate = (this.assignment && this.assignment.summary_sheet && this.assignment.summary_sheet.start_date) ? this.assignment.summary_sheet.start_date : this.start_date;
-	const endDate = (this.assignment && this.assignment.summary_sheet && this.assignment.summary_sheet.end_date) ? this.assignment.summary_sheet.end_date : this.end_date;
-	const deductedMinutes = this.assignment && this.assignment.summary_sheet && this.assignment.summary_sheet.voluntary_deduction ? this.assignment.summary_sheet.voluntary_deduction : 0;
+    const job = this;
+    job.assignment.acceptance_document = pdfPath;
 
-	const price = 11.5;
-	const manualBooking = 1;
+    //sending email
+    mailer.send(__dirname + "/../../views/emails/job-accepted.jade",
+        {
+            to: careHome.email,
+            subject: "Booking confirmation – " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " – " + moment(job.start_date.getTime()).format("h:mm A"),
+            attachments: [ { path: __dirname + "/../../public/uploads/" + pdfPath } ]
+        },
+        { user: carer }, (error) => console.log(error));
+}
 
-	const durationMinutes = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60));
-	const jobMinutes = Math.max((durationMinutes - deductedMinutes), 0);
+schema.methods.sendJobWithdrawal = function(mailer, carer, careHome, withdrawal)
+{
+    const job = this;
 
-	const cost = ((jobMinutes / 60) * price + (this.manual_booking ? (jobMinutes / 60) * manualBooking : 0)).toPrecision(2);
-
-	console.log(cost);
-
-	return cost;
+    //sending email
+    mailer.send(__dirname + "/../../views/emails/job-withdrawed.jade",
+        {
+            to: careHome.email,
+            subject: carer.carer.first_name + " has cancelled a job – " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " – " + moment(job.start_date.getTime()).format("h:mm A"),
+        },
+        {
+            user: carer,
+            job: job,
+            withdrawal: withdrawal,
+            moment: moment
+        }, (error) => console.log(error));
 }
 
 //statics
@@ -249,6 +304,13 @@ schema.statics.parse = function(job, req)
             job.author = job.care_home;
             delete job.care_home;
 		}
+
+		//charge
+        if(job.charge)
+        {
+            if(job.charge.charge_date)
+                job.charge.charge_date = job.charge.charge_date.getTime();
+        }
 
 		if(job.assignment)
 		{
@@ -292,6 +354,22 @@ schema.statics.parse = function(job, req)
                 job.summary_sheet = job.assignment.summary_sheet;
             }
 
+            //projected income
+            if(job.assignment.projected_income)
+                job.projected_income = job.assignment.projected_income;
+
+            //payment
+            if(job.assignment.payment)
+            {
+                if(job.assignment.payment.debit_date)
+                    job.assignment.payment.debit_date = job.assignment.payment.debit_date.getTime();
+
+                if(job.assignment.payment.payment_date)
+                    job.assignment.payment.payment_date = job.assignment.payment.payment_date.getTime();
+
+                job.payment = job.assignment.payment;
+            }
+
 	        delete job.assignment;
 		}
 
@@ -312,9 +390,9 @@ function handleJobStatus(job)
         return statuses.ACCEPTED;
     else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
         return statuses.PENDING_SUMMARY_SHEET;
-    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.payment && (job.assignment.payment.debit_date.getTime() > new Date().getTime()) && (!job.assignment.challenge || job.assignment.challenge.status == Challenge.challengeStatuses.CANCELLED) && job.status != statuses.CANCELLED)
+    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.payment && (job.assignment.payment.debit_date.getTime() > new Date().getTime()) && (!job.assignment.challenge || job.assignment.challenge.status == ChallengeSchema.challengeStatuses.CANCELLED) && job.status != statuses.CANCELLED)
         return statuses.PENDING_PAYMENT;
-    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge && job.assignment.challenge.status == Challenge.challengeStatuses.ACTIVE && job.status != statuses.CANCELLED)
+    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge && job.assignment.challenge.status == ChallengeSchema.challengeStatuses.ACTIVE && job.status != statuses.CANCELLED)
         return statuses.CHALLENGED;
     else
         return job.status;

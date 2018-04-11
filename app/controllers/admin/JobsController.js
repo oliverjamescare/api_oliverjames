@@ -112,6 +112,7 @@ module.exports = {
                 care_home: 1,
                 status: 1,
                 manual_booking: 1,
+                'cost.total_cost': 1,
                 'assignment.carer': 1,
                 'assignment.review.status': 1
             },
@@ -161,15 +162,36 @@ module.exports = {
                 status: 1,
                 manual_booking: 1,
                 created: 1,
+                cost: 1,
+
+                'charge.charge_date': 1,
+                'charge.net_cost': 1,
+                'charge.total_cost': 1,
+                'charge.manual_booking_cost': 1,
+                'charge.job_cost': 1,
+                'charge.deductions': 1,
+
                 'assignment.carer': 1,
+
+                'assignment.payment.transaction_charge': 1,
+                'assignment.payment.application_fee': 1,
+                'assignment.payment.deductions': 1,
+                'assignment.payment.job_income': 1,
+                'assignment.payment.net_income': 1,
+                'assignment.payment.status': 1,
+                'assignment.payment.payment_date': 1,
+                'assignment.payment.debit_date': 1,
+
                 'assignment.review.description': 1,
                 'assignment.review.rate': 1,
                 'assignment.review.status': 1,
                 'assignment.review.created': 1,
+
                 'assignment.challenge.created': 1,
                 'assignment.challenge.status': 1,
                 'assignment.challenge.description': 1,
                 'assignment.challenge.response': 1,
+
                 'assignment.summary_sheet.notes': 1,
                 'assignment.summary_sheet.created': 1,
                 'assignment.summary_sheet.voluntary_deduction': 1,

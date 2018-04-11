@@ -1,0 +1,15 @@
+//- 
+    To change this license header, choose License Headers in Project Properties.
+    To change this template file, choose Tools | Templates
+    and open the template in the editor.
+
+p Unfortunately, #{user.carer.first_name} #{user.carer.surname} has cancelled their attendance for a job - #{moment(job.start_date.getTime()).format("YYYY-MM-DD")} – #{moment(job.start_date.getTime()).format('h:mm A')} – #{job.role}.
+
+if(withdrawal.message)
+    p The carer has given the following reason:
+    p #{withdrawal.message}
+
+p We are contacting our carers to find a replacement
+p We apologise for the inconvenience. If you are not satisfied with #{user.carer.first_name}’s performance, you review them and let other providers know anonymously. You can also block this carer from the review screen so you don’t see them again
+
+include _footer

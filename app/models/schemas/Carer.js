@@ -1,6 +1,9 @@
 //core
 const mongoose = require('mongoose');
 const moment = require('moment');
+const async = require("async");
+const fs = require("fs");
+const config = process.env;
 
 //custom
 const validators = require('./../../services/validators');
@@ -338,10 +341,32 @@ const schema = mongoose.Schema({
 			type: String,
 			default: null
 		},
+        identity_document: {
+            type: String,
+            default: null
+        },
 		bank_number: {
 			type: String,
 			default: null
-		}
+		},
+        verification: {
+            details: {
+                type: String,
+                default: null
+            },
+            details_code: {
+                type: String,
+                default: null,
+            },
+            document: {
+                type: String,
+                default: null,
+            },
+            status: {
+                type: String,
+                default: null,
+            }
+        }
 	},
 	deductions: [ Transaction.schema ],
 	silent_notifications_settings: {
@@ -389,7 +414,13 @@ const schema = mongoose.Schema({
                 default: false
             }
 		}
-	}
+	},
+    documents: [
+        {
+            type: String,
+            required: [ true, "{PATH} field is required." ]
+        }
+    ]
 });
 
 //methods
@@ -511,17 +542,64 @@ schema.methods.getAvailabilitySetForDay = function(date)
 schema.methods.getDeductionsBalance = function()
 {
     let balance = 0;
-    this.deductions.forEach(deduction => balance += deduction.amount);
+    this.deductions.forEach(deduction => balance += deduction.status == Transaction.transactionStatuses.CONFIRMED ? deduction.amount : 0);
 
     return balance;
 }
 
-schema.methods.getDeductionsBalance = function()
+schema.methods.addDeduction = function(amount, job = null, description = null, status = Transaction.transactionStatuses.PENDING)
 {
-    let balance = 0;
-    this.deductions.forEach(deduction =>  balance += deduction.status == Transaction.transactionStatuses.CONFIRMED ? deduction.amount : 0);
+    let balance = this.getDeductionsBalance();
+    let addingDeductionAllowed = true;
 
-    return balance;
+    //protecting against duplicated deduction for single job
+    if(job)
+    {
+        let transaction = this.deductions.find(deduction => deduction.job && job._id.toString() == deduction.job.toString());
+        if(transaction)
+            addingDeductionAllowed = false;
+    }
+
+    if(addingDeductionAllowed)
+    {
+        let deductedAmount = job ? Math.min(amount, balance) : amount;
+        if(deductedAmount > 0)
+        {
+            this.deductions.push({
+                amount: job ? - deductedAmount : deductedAmount,  //if job exists than this is reducer
+                job: job || null,
+                description: description || "Deduction reduce for Job ID: " + job._id,
+                status: status
+            });
+        }
+    }
+}
+
+
+schema.methods.sendApplication = function(mailer)
+{
+    const carer = this;
+
+    //preparing paths
+    const paths = []
+
+    if(this.cv_uploads[0])
+        paths.push(__dirname + "/../../../public/uploads/" + this.cv_uploads[0]);
+
+    this.documents.forEach(documentPath => paths.push(__dirname + "/../../../public/uploads/" + documentPath));
+
+    //sending email
+    mailer.send(__dirname + "/../../../views/emails/carer-registered.jade", {
+        to: config.CONTACT_EMAIL,
+        subject: "Oliver James application - " + carer.first_name + " " + carer.surname,
+        attachments: paths.map(path => {
+            return { path }
+        })
+    },
+    {
+        carer: carer
+    },
+    (error) => console.log(error));
 }
 
 module.exports = { schema, eligibleRoles, shiftsRanges };

@@ -7,9 +7,7 @@ const validators = require("./../../services/validators");
 //settings
 const statuses = {
     IN_PROGRESS: "IN_PROGRESS",
-    PAID: "PAID",
-    REJECTED: "REJECTED",
-    CANCELLED: "CANCELLED"
+    PAID: "PAID"
 };
 
 const schema = mongoose.Schema({
@@ -17,12 +15,12 @@ const schema = mongoose.Schema({
         type: Date,
         required: [ true, "{PATH} field is required." ]
     },
-    account_charge: {
+    transaction_charge: {
         type: Number,
         min: 0,
         default: 0
     },
-    transaction_charge: {
+    application_fee: {
         type: Number,
         min: 0,
         default: 0
