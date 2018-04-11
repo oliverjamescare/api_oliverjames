@@ -32,6 +32,9 @@ module.exports = {
     {
 
         const jb = await Job.findOne({ _id: req.params.id }).exec();
+        // jb.save();
+        // res.json({ status: true })
+
         const handler = new PaymentsHandler();
         handler.processPayment(jb, req).then(result => {
             res.json({ result });

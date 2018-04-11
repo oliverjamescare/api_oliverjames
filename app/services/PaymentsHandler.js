@@ -110,10 +110,10 @@ module.exports = class
     createDirectCharge(amount, fee, token, account , job)
     {
         return this.stripe.charges.create({
-                amount: amount * 100,
+                amount: Math.round(amount * 100),
                 currency: "gbp",
                 source: token.id,
-                application_fee: fee * 100,
+                application_fee: Math.round(fee * 100),
                 description: "Charge for job: " + job._id.toString(),
                 metadata: {
                     job_id: job._id.toString()
@@ -123,12 +123,16 @@ module.exports = class
     }
 
     //transfer
-    createFundsTransferToSubaccount(amount, account)
+    createFundsTransferToSubaccount(amount, account, job)
     {
         return this.stripe.transfers.create({
-            amount: amount * 100,
+            amount: Math.round(amount * 100),
             currency: "gbp",
-            destination: account
+            destination: account,
+            description: "Payment completion for Job ID: "+ job._id.toString(),
+            metadata: {
+                job_id: job._id.toString()
+            }
         });
     }
 
@@ -194,126 +198,144 @@ module.exports = class
                                     availableAccountFunds += (fundsItem.amount / 100);
                             });
 
+                            console.log(balance);
                             const { job_income, applicationFee, total_cost, job_cost, manual_booking_cost } = JobsHandler.calculateJobCost(job);
                             const reducedDeduction = Math.min(parseFloat(((job_income * job.booking_pricing.max_to_deduct) / 100).toFixed(2)), results.carer.carer.getDeductionsBalance());
                             const reducedCredits = Math.min(total_cost, results.care_home.care_home.getCreditsBalance());
 
-                            const applicationTransactionFee = Math.min(applicationFee + manual_booking_cost + reducedDeduction - reducedCredits, 0); // -4,5 lub -9 lub -8,5
+                            const applicationTransactionFee = Math.max(applicationFee + manual_booking_cost + reducedDeduction - reducedCredits, 0); // -4,5 lub -9 lub -8,5
                             const chargeAmount = total_cost - reducedCredits; //0 lub 0 lub 5
                             const transferAmount = job_income - reducedDeduction - chargeAmount;
+
+
+                            console.log("Accfunds", availableAccountFunds)
+                            console.log("Appfe", applicationTransactionFee)
+                            console.log("ch", chargeAmount)
+                            console.log("tr", transferAmount)
 
                             //insufficient funds to complete charge
                             if(availableAccountFunds < transferAmount)
                             {
                                 job.status = JobModel.statuses.PAYMENT_REJECTED;
-                                resolve(job);
+                                console.log("Insufficient funds")
+                                return resolve(job);
                             }
-                            else
-                            {
-                                //charging
-                                async.waterfall([
 
-                                    //when direct charge should be applied
-                                    (callback) => {
-                                        if(chargeAmount > 0) // don't create token for charge if charge amount is 0
-                                        {
-                                            this.createCustomerChargeToken(customer, account)
-                                                .then(token => callback(null, token))
-                                                .catch(error => callback(error))
-                                        }
-                                        else
-                                            callback(null, null);
-                                    },
-                                    (token, callback) => {
-                                        if(token)
-                                        {
-                                            this.createDirectCharge(chargeAmount, applicationTransactionFee, token, account, job)
-                                                .then(charge => callback(null, charge))
-                                                .catch(error => callback(error))
-                                        }
-                                        else
-                                            callback(null, null);
-                                    },
-                                    (charge, callback) => {
-                                        if(charge)
-                                        {
-                                            this.getTransactionBalance(charge["balance_transaction"], account)
-                                                .then(chargeTransaction => callback(null, { charge, chargeTransaction } ))
-                                                .catch(error => callback(error))
-                                        }
-                                        else
-                                            callback(null, { charge: null, chargeTransaction: null })
-                                    },
+                            //charging
+                            async.waterfall([
 
-                                    //when transfer should be applied
-                                    (chargePack, callback) => {
-                                        if(transferAmount > 0)
-                                        {
-                                            this.createFundsTransferToSubaccount(transferAmount, account)
-                                                .then(transfer => callback(null, chargePack, transfer))
-                                                .catch(error => callback(error))
-                                        }
-                                        else
-                                            callback(null, chargePack, null)
-                                    },
-                                    (chargePack, transfer, callback) => {
-                                        if(transfer)
-                                        {
-                                            this.getTransactionBalance(transfer["balance_transaction"], account)
-                                                .then(transferTransaction => callback(null, { chargePack, transferPack: { transfer, transferTransaction } } ))
-                                                .catch(error => callback(error))
-                                        }
-                                        else
-                                            callback(null, { chargePack, transferPack: { transfer: null, transferTransaction: null }})
-                                    },
-                                ], (errors, result) => {
-
-                                    //saving charge
-                                    job.charge = {
-                                        deductions: reducedCredits,
-                                        job_cost: job_cost,
-                                        manual_booking_cost: manual_booking_cost,
-                                        total_cost: total_cost,
-                                        net_cost: total_cost - reducedCredits,
-                                        charge_date: new Date()
-                                    };
-
-                                    //calculation of transaction charges
-                                    let transactionCosts = 0;
-                                    if(result.chargePack.chargeTransaction)
+                                //when direct charge should be applied
+                                (callback) => {
+                                    if(chargeAmount > 0) // don't create token for charge if charge amount is 0
                                     {
-                                        result.chargeTransaction["fee_details"].forEach(fee => {
-                                            if(fee.type == "stripe_fee" && fee.currency == "gbp")
-                                                transactionCosts += (fee.amount / 100)
-                                        });
+                                        this.createCustomerChargeToken(customer, account)
+                                            .then(token => callback(null, token))
+                                            .catch(error => callback(error))
                                     }
-
-                                    if(result.transferPack.transferTransaction)
+                                    else
+                                        callback(null, null);
+                                },
+                                (token, callback) => {
+                                    if(token)
                                     {
-                                        result.transferPack.transferTransaction["fee_details"].forEach(fee => {
-                                            if(fee.type == "stripe_fee" && fee.currency == "gbp")
-                                                transactionCosts += (fee.amount / 100)
-                                        });
+                                        this.createDirectCharge(chargeAmount, applicationTransactionFee, token, account, job)
+                                            .then(charge => callback(null, charge))
+                                            .catch(error => callback(error))
                                     }
-
-                                    //saving payment
-                                    job.assignment.payment = {
-                                        debit_date: job.assignment.payment.debit_date,
-                                        deductions: reducedDeduction,
-                                        job_income: job_income,
-                                        transaction_charge: transactionCosts,
-                                        application_fee: applicationFee,
-                                        net_income: result.transaction["net"] / 100,
-                                        status: PaymentSchema.statuses.PAID,
-                                        payment_date: new Date()
+                                    else
+                                        callback(null, null);
+                                },
+                                (charge, callback) => {
+                                    if(charge)
+                                    {
+                                        this.getTransactionBalance(charge["balance_transaction"], account)
+                                            .then(chargeTransaction => callback(null, { charge, chargeTransaction } ))
+                                            .catch(error => callback(error))
                                     }
+                                    else
+                                        callback(null, { charge: null, chargeTransaction: null })
+                                },
+
+                                //when transfer should be applied
+                                (chargePack, callback) => {
+                                    if(transferAmount > 0)
+                                    {
+                                        this.createFundsTransferToSubaccount(transferAmount, account, job)
+                                            .then(transfer => callback(null, chargePack, transfer))
+                                            .catch(error => callback(error))
+                                    }
+                                    else
+                                        callback(null, chargePack, null)
+                                },
+                                (chargePack, transfer, callback) => {
+                                    if(transfer)
+                                    {
+                                        this.getTransactionBalance(transfer["balance_transaction"])
+                                            .then(transferTransaction => callback(null, { chargePack, transferPack: { transfer, transferTransaction } } ))
+                                            .catch(error => callback(error))
+                                    }
+                                    else
+                                        callback(null, { chargePack, transferPack: { transfer: null, transferTransaction: null }})
+                                },
+                            ], (errors, result) => {
+
+                                if(errors)
+                                {
+                                    console.log(errors)
+                                    job.status = JobModel.statuses.PAYMENT_REJECTED;
+                                    return resolve(job);
+                                }
+
+                                //saving charge
+                                job.charge = {
+                                    deductions: reducedCredits,
+                                    job_cost: job_cost,
+                                    manual_booking_cost: manual_booking_cost,
+                                    total_cost: total_cost,
+                                    net_cost: total_cost - reducedCredits,
+                                    charge_date: new Date()
+                                };
+
+                                //calculation of transaction charges
+                                let transactionCosts = 0;
+                                if(result.chargePack["chargeTransaction"])
+                                {
+                                    result.chargePack["chargeTransaction"]["fee_details"].forEach(fee => {
+                                        if(fee.type == "stripe_fee" && fee.currency == "gbp")
+                                            transactionCosts += (fee.amount / 100)
+                                    });
+                                }
+
+                                if(result.transferPack.transferTransaction)
+                                {
+                                    result.transferPack.transferTransaction["fee_details"].forEach(fee => {
+                                        if(fee.type == "stripe_fee" && fee.currency == "gbp")
+                                            transactionCosts += (fee.amount / 100)
+                                    });
+                                }
+
+                                //net income
+                                let netIncome = 0;
+                                netIncome += result.chargePack.chargeTransaction ? (result.chargePack.chargeTransaction["net"] / 100) : 0;
+                                netIncome += result.transferPack.transferTransaction ? - (result.transferPack.transferTransaction["net"] / 100) : 0;
+
+                                //saving payment
+                                job.assignment.payment = {
+                                    debit_date: job.assignment.payment.debit_date,
+                                    deductions: reducedDeduction,
+                                    job_income: job_income,
+                                    transaction_charge: transactionCosts,
+                                    application_fee: applicationFee,
+                                    net_income: netIncome,
+                                    status: PaymentSchema.statuses.PAID,
+                                    payment_date: new Date()
+                                }
 
 
-                                    console.log(job);
-                                    resolve(result);
+                                console.log(job);
+                                resolve(result);
 
-                                })
-                            }
+                            })
                         })
                         .catch(error => console.log(error));
 
