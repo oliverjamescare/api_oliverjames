@@ -1,16 +1,13 @@
 
 p Dear #{carer.carer.first_name},
 
+br
 p
     b JOB COMPLETE
 p This email confirms that that you worked at #{care_home.care_home.care_service_name}, on #{moment(job.start_date).format("YYYY-MM-DD")}, from #{moment(job.start_date).format("h:mm A")} to #{moment(job.end_date).format("h:mm A")} ( #{Math.floor(total_minutes / 60)} hour(s), #{total_minutes % 60} minute(s))
-
-br
-
 p You will receive your payment of £ #{job.assignment.projected_income} for #{Math.floor(total_minutes / 60)} hour(s), #{total_minutes % 60} minute(s) by #{moment(job.assignment.payment.debit_date).format("YYYY-MM-DD h:mm A")}
 
 br
-
 p
     b ACCOUNTING INFORMATION
 p You can see your total payments received at any time by logging in to your account

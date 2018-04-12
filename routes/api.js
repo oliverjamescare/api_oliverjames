@@ -49,6 +49,7 @@ router.get('/carer/notifications', authenticate, security(["CARER_FULL"]), Carer
 router.put('/carer/notifications', authenticate, security(["CARER_FULL"]), CarersController.updateNotificationsSettings);
 router.get('/carer/home', authenticate, security(["CARER_FULL"]), CarersController.getHomeScreenDetails);
 router.get('/carer/notifications/list', authenticate, security(["CARER_FULL"]), CarersController.getNotifications);
+router.get('/carer/submitted-jobs', authenticate, security(["CARER_FULL"]), CarersController.getSubmittedJobs);
 
 //Care Home
 router.get('/care-home/calendar', authenticate, security(["CARE_HOME_FULL"]), CareHomeControler.getCalendar);
@@ -58,6 +59,7 @@ router.post('/care-home/carers/:id/block', authenticate, security(["CARE_HOME_FU
 router.delete('/care-home/carers/:id/block', authenticate, security(["CARE_HOME_FULL"]), CareHomeControler.unblockCarer);
 router.get('/care-home/past-jobs', authenticate, security(["CARE_HOME_FULL"]), CareHomeControler.getPastJobs);
 router.get('/care-home/past-jobs/:id', authenticate, security(["CARE_HOME_FULL"]), CareHomeControler.getPastJob);
+router.get('/care-home/pending-reviews', authenticate, security(["CARE_HOME_FULL"]), CareHomeControler.getJobsToReview);
 
 //Jobs
 router.post('/jobs', authenticate, security(["CARE_HOME_FULL"]), JobsController.addJobs);

@@ -225,5 +225,41 @@ module.exports = {
             return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
         res.json(Job.parse(job, req));
-    }
+    },
+
+    getJobsToReview: async function (req, res)
+    {
+        const options = {
+            select: {
+                start_date: 1,
+                end_date: 1,
+                "assignment.carer": 1,
+                status: 1,
+                created: 1,
+            },
+            populate: [
+                {
+                    path: "assignment.carer",
+                    select: {
+                        "carer.first_name": 1,
+                        "carer.surname": 1,
+                        "carer.reviews": 1,
+                        "carer.care_experience": 1
+                    }
+                }
+            ],
+            sort: { start_date: - 1 },
+            lean: true,
+            leanWithId: false
+        };
+
+        //query
+        const query = { $and: [ { _id: {  $in: req.user.care_home.jobs } }, { "assignment.summary_sheet": { $exists: true } }, { "assignment.review": { $exists: false } }, { status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }} ]};
+
+        const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
+        let paginated = Utils.parsePaginatedResults(jobs);
+        paginated.results.map(job => Job.parse(job, req));
+
+        res.json(paginated);
+    },
 }

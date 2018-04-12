@@ -293,7 +293,7 @@ schema.methods.sendJobSummaryEmails = function(mailer, careHome, carer, totalMin
         to: carer.email,
         subject: "Oliver James Job sheet: " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " / " + careHome.care_home.care_service_name + " / " + Math.floor(totalMinutes / 60) + " hour(s) & " + totalMinutes % 60 + " minute(s)",
     },
-    { job: job, carer: carer, care_home: careHome, total_minutes: totalMinutes }, (error) => console.log(error));
+    { job: job, carer: carer, care_home: careHome, total_minutes: totalMinutes, moment: moment  }, (error) => console.log(error));
 
     //sending email to care home
     mailer.send(__dirname + "/../../views/emails/care-home-job-summary-sent.jade", {
@@ -304,7 +304,7 @@ schema.methods.sendJobSummaryEmails = function(mailer, careHome, carer, totalMin
             { path: __dirname + "/../../public/uploads/" + job.assignment.summary_sheet.signature }
         ]
     },
-    { job: job, carer: carer, care_home: careHome, paths: paths, config: config }, (error) => console.log(error));
+    { job: job, carer: carer, care_home: careHome, paths: paths, config: config, moment: moment }, (error) => console.log(error));
 
 }
 

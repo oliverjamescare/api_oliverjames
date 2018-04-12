@@ -532,3 +532,83 @@
  *          ]
  *      }
  */
+
+/**
+ * @api {get} /care-home/pending-reviews Care home pending reviews
+ * @apiSampleRequest /care-home/pending-reviews
+ * @apiVersion 0.0.1
+ * @apiName Care home pending reviews
+ * @apiGroup Care Home
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {Number} [page] Page number.
+ * @apiParam {Number} [results] Results per page. Default 10.
+ *
+ * @apiSuccess (Success 200){Object} results Pagination results.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+       {
+            "results": [
+                {
+                    "_id": "5ab5012f16427217b04ed694",
+                    "start_date": 1523404800000,
+                    "end_date": 1523404900000,
+                    "created": 1521811725872,
+                    "status": "PENDING_PAYMENT",
+                    "carer": {
+                        "_id": "5a9418e7e33cb930aa7c384f",
+                        "carer": {
+                            "first_name": "Test",
+                            "surname": "Test",
+                            "care_experience": {
+                                "months": 1,
+                                "years": 3
+                            },
+                            "reviews": {
+                                "average": 5,
+                                "count": 1
+                            }
+                        }
+                    }
+                }
+             ],
+             "pages": 1,
+             "total": 3
+       }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */

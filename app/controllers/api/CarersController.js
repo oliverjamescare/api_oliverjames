@@ -314,5 +314,72 @@ module.exports = {
 			{ status: NotificationModel.statuses.READ },
 			{ multi: true, strict: false }
 		).catch(error => console.log(error));
+    },
+
+    getSubmittedJobs: async function (req, res)
+    {
+        //preparing bounds dates
+        let from = !isNaN(Date.parse(req.query.from)) ? new Date(req.query.from) : false;
+        let to = !isNaN(Date.parse(req.query.to)) ? new Date(req.query.to) : false;
+
+        if(from && to && from.getTime() > to.getTime())
+        {
+            const temp = from;
+            to = from;
+            from = temp;
+        }
+
+        const options = {
+            select: {
+                start_date: 1,
+                end_date: 1,
+                care_home: 1,
+                status: 1,
+                'assignment.projected_income': 1,
+                'assignment.payment.transaction_charge': 1,
+                'assignment.payment.application_fee': 1,
+                'assignment.payment.deductions': 1,
+                'assignment.payment.job_income': 1,
+                'assignment.payment.net_income': 1,
+                'assignment.payment.payment_date': 1,
+                'assignment.payment.debit_date': 1,
+                'assignment.payment.status': 1,
+
+                'assignment.summary_sheet.start_date': 1,
+                'assignment.summary_sheet.end_date': 1,
+                'assignment.summary_sheet.voluntary_deduction': 1,
+            },
+            populate: [
+                {
+                    path: "care_home",
+                    select: {
+                        "email": 1,
+                        "phone_number": 1,
+                        "address": 1,
+                        "care_home": 1,
+                        "care_home.care_service_name": 1,
+                        "care_home.type_of_home": 1,
+                        "care_home.name": 1
+                    }
+                }
+            ],
+            sort: { start_date: 1 },
+            lean: true,
+            leanWithId: false
+        };
+
+        //query
+        const query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: true } }, { status: { $ne: JobModel.statuses.CANCELLED } } ]};
+
+        if(from)
+            query.$and.push({ start_date: { $gte: from }});
+        if(to)
+            query.$and.push({ start_date: { $lte: to }})
+
+        const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
+        let paginated = Utils.parsePaginatedResults(jobs);
+        paginated.results.map(job => Job.parse(job, req));
+
+        res.json(paginated);
     }
 }

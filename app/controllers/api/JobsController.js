@@ -84,6 +84,46 @@ module.exports = {
 
 		const group = randomstring.generate(32);
 
+		//TO REMOVE
+        const dayPrice = 11.5;
+
+        const days = {
+            monday_price: dayPrice,
+            tuesday_price: dayPrice,
+            wednesday_price: dayPrice,
+            thursday_price: dayPrice,
+            friday_price: dayPrice,
+            saturday_price: dayPrice,
+            sunday_price: dayPrice,
+        }
+
+        const pricing_hours = {
+            hour_0_1: days,
+            hour_1_2: days,
+            hour_2_3: days,
+            hour_3_4: days,
+            hour_4_5: days,
+            hour_5_6: days,
+            hour_6_7: days,
+            hour_7_8: days,
+            hour_8_9: days,
+            hour_9_10: days,
+            hour_10_11: days,
+            hour_11_12: days,
+            hour_12_13: days,
+            hour_13_14: days,
+            hour_14_15: days,
+            hour_15_16: days,
+            hour_16_17: days,
+            hour_17_18: days,
+            hour_18_19: days,
+            hour_19_20: days,
+            hour_20_21: days,
+            hour_21_22: days,
+            hour_22_23: days,
+            hour_23_0: days
+        };
+
 		//creating job objects
 		jobsObjects.forEach(jobObject => {
 			if (typeof jobObject == "object")
@@ -99,6 +139,12 @@ module.exports = {
 						role: jobObject.role,
 						notes: jobObject.notes,
                         group: group,
+                        booking_pricing: {
+                            manual_booking_pricing: 1,
+                            app_commission: 10,
+                            max_to_deduct: 20,
+                            pricing: pricing_hours
+                        },
                         priority_carers: Array.isArray(jobObject.priority_carers) ? jobObject.priority_carers.filter(carerId => ObjectId.isValid(carerId)) : [],
                         gender_preference: Object.values(JobModel.genderPreferences).indexOf(req.body.gender_preference) != -1 ? req.body.gender_preference : JobModel.genderPreferences.NO_PREFERENCE,
 						general_guidance: {
@@ -543,7 +589,7 @@ module.exports = {
                         .then(pdfPath => {
 
                             job.assignment.summary_sheet.standard_invoice = pdfPath;
-                            job.sendJobSummaryEmails(pdfPath, req.app.mailer, results.care_home, results.carer, total_minutes);
+                            job.sendJobSummaryEmails(req.app.mailer, results.care_home, results.carer, total_minutes);
 
                             job.save().catch(error => console.log(error));
                         });
