@@ -13,6 +13,7 @@ const types = {
     JOB_ACCEPTANCE: "job-acceptance",
     CARER_REGISTRATION_DETAILS: "registration-carer-details",
     CARER_REGISTRATION_QUESTIONNAIRE: "registration-carer-q-a",
+    STANDARD_INVOICE: "standard-invoice",
 }
 
 

@@ -510,7 +510,45 @@ module.exports = {
 	    //saving signature and sending response
 	    job
 		    .save()
-		    .then(() => res.json({ status: true, debit_date: debitDate.getTime(), projected_income: 200, minutes: 67 }))
+		    .then(job => {
+
+		        //sending response
+                const { job_income, total_minutes, total_cost } = JobsHandler.calculateJobCost(job);
+                res.json({ status: true, debit_date: debitDate.getTime(), projected_income: job_income, minutes: total_minutes });
+
+
+                async.waterfall([
+                    (callback) => User.findOne({ _id: job.care_home }).then(user => callback(null, user)), //getting care home
+                    (careHome, callback) => {
+
+                        //generating reducers
+                        async.parallel({
+                            carer: (callback) => {
+                                const reducedDeduction = Math.min(parseFloat(((job_income * job.booking_pricing.max_to_deduct) / 100).toFixed(2)), req.user.carer.getDeductionsBalance());
+                                req.user.carer.addDeduction(reducedDeduction, job);
+                                req.user.save().then(carer => callback(null, carer)).catch(error => console.log(error))
+                            },
+                            care_home: (callback) => {
+                                const reducedCredits = Math.min(total_cost, careHome.care_home.getCreditsBalance());
+                                careHome.care_home.addCredits(reducedCredits, job);
+                                careHome.save().then(careHome => callback(null, careHome)).catch(error => console.log(error))
+                            }
+                        }, (errors, results) => callback(null, results))
+                    }
+                ], (errors, results) => {
+
+                    //generating standard invoice, sending emails and saving job
+                    const handler = new PDFHandler(req);
+                    handler.generatePdf("STANDARD_INVOICE", "jobs/" + job._id, { job: job, carer: results.carer, care_home: results.care_home })
+                        .then(pdfPath => {
+
+                            job.assignment.summary_sheet.standard_invoice = pdfPath;
+                            job.sendJobSummaryEmails(pdfPath, req.app.mailer, results.care_home, results.carer, total_minutes);
+
+                            job.save().catch(error => console.log(error));
+                        });
+                });
+            })
 		    .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },
 
@@ -532,7 +570,7 @@ module.exports = {
         {
             const tmp = startDate;
             startDate = endDate;
-            endDate = startDate;
+            endDate = tmp;
         }
 
         //fake assignment
@@ -744,92 +782,38 @@ module.exports = {
             description: req.body.description
         };
 
-        //saving challenge and sending response
+        //saving challenge, sending response and email
         job
             .save()
-            .then(() => res.status(201).json({ status: true }))
+            .then(() => {
+                job.sendJobChallenge(req.app.mailer);
+                res.status(201).json({ status: true })
+            })
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
 
     },
     testMethods: async function (req, res)
     {
         //for all
-        let job = await Job.findOne({_id: req.params.id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1, gender_preference: 1 })
-            .populate("care_home",{
-                "email": 1,
-                "phone_number": 1,
-                "address": 1,
-                "care_home": 1,
-                "care_home.care_service_name": 1,
-                "care_home.type_of_home": 1,
-                "care_home.name": 1
-            })
-            .populate({
-                path: "assignment.carer",
-                select: {
-                    "phone_number": 1,
-                    "email": 1,
-                    "carer.first_name": 1,
-                    "carer.surname": 1,
-                    "carer.profile_image": 1,
-                    "carer.training_record.qualifications": 1,
-                    "carer.training_record.safeguarding": 1,
-                    "carer.training_record.manual_handling_people": 1,
-                    "carer.training_record.medication_management": 1,
-                    "carer.training_record.infection_control": 1,
-                    "carer.training_record.first_aid_and_basic_life_support": 1,
-                    "carer.training_record.first_aid_awareness": 1,
-                    "carer.training_record.h_and_s": 1,
-                    "carer.training_record.dementia": 1,
-                    "carer.training_record.fire_safety": 1,
-                    "carer.dbs.status": 1,
-                    "carer.dbs.dbs_date": 1,
-                    "carer.reviews": 1,
-                    "carer.care_experience": 1,
-                    "carer.jobs": 1,
-                },
-                populate: {
-                    path: 'carer.jobs',
-                    match: { 'assignment.review': { $exists: true }, 'assignment.review.status': reviewStatuses.PUBLISHED },
-                    sort: { 'assignment.review.created': "DESC" },
-                    limit: 10,
-                    select: {
-                        'assignment.review.created': 1,
-                        'assignment.review.description': 1,
-                        'assignment.review.rate': 1,
-                        'care_home': 1
-                    },
-                    populate: {
-                        path: 'care_home',
-                        select: {
-                            "email": 1,
-                            "phone_number": 1,
-                            "address": 1,
-                            "care_home": 1,
-                            "care_home.care_service_name": 1,
-                            "care_home.type_of_home": 1,
-                            "care_home.name": 1
-                        }
-                    }
-                }
-            })
-            .lean()
-            .exec();
+        let job = await Job.findOne({_id: req.params.id }).exec();
 
         //not found
         if(!job)
             return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
+        async.parallel({
+            carer: (callback) => User.findOne({ _id: job.assignment.carer }).then(user => callback(null, user)),
+            care_home: (callback) => User.findOne({ _id: job.care_home }).then(user => callback(null, user))
+        },(errors, results) => {
+            const handler = new PDFHandler(req);
+            handler.generatePdf("STANDARD_INVOICE", "users/" + req.user._id, { job: job, carer: results.carer, care_home: results.care_home })
+                .then(r => {
+                console.log(r);
+            });
 
-        job = Job.parse(job, req);
-
-        const handler = new PDFHandler(req);
-        handler.generatePdf("CARER_REGISTRATION_QUESTIONNAIRE", "users/" + req.user._id, { user: req.user }).then(r => {
-            console.log(r);
+            //sending response
+            res.json({ status: true });
         });
-
-        // //sending response
-        res.json({ status: true });
     },
 
     testNotification: async function(req, res)

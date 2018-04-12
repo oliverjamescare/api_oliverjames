@@ -1,0 +1,28 @@
+
+p #{care_home.care_home.care_service_name} has challenged payment for a job.
+p
+    b Job details:
+p Job Id: #{job._id}
+p Start date: #{moment(job.start_date).format('YYYY-MM-DD')}
+p From: #{moment(job.start_date).format('h:mm A')}
+p Till: #{moment(job.end_date).format('h:mm A')}
+p Total cost: £#{job.cost.total_cost}
+
+p
+    b Challenge:
+p Message: #{job.assignment.challenge.description}
+
+p
+    b Care home:
+p Care service name: #{care_home.care_home.care_service_name}
+p Name: #{care_home.care_home.name}
+p Email: #{care_home.email}
+p Phone number: #{care_home.phone_number}
+
+p
+    b Carer:
+p First name: #{carer.carer.first_name}
+p Last name: #{carer.carer.surname}
+p Email: #{carer.email}
+p Phone number: #{carer.phone_number}
+

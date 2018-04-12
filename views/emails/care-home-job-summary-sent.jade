@@ -1,0 +1,39 @@
+
+p Thank you for your custom,
+
+p
+    b BOOKING DETAILS / PAYMENT
+p This email confirms that #{carer.carer.first_name} #{carer.carer.surname} worked for you, starting on #{moment(job.start_date).format("YYYY-MM-DD")}, from #{moment(job.start_date).format("h:mm A")} to #{moment(job.end_date).format("h:mm A")}
+
+br
+
+p The money you paid to us to book this carer £#{job.cost.total_cost} will be transferred to them on #{moment(job.assignment.payment.debit_date).format("YYYY-MM-DD h:mm A")}
+
+br
+
+p It was signed for by #{job.assignment.summary_sheet.name}, whose signature is in the attachment
+
+br
+
+p If you wish to challenge the payment, please log in to your account, find the job and press ‘challenge’
+
+br
+
+p
+    b RATING
+p Rating carers helps to maintain your loyalty discount. Please rate #{carer.carer.first_name}. All ratings are published anonymously on our website after moderation
+a(href="#{config.DOMAIN}#{paths.emails.CARER_RATE}/#{job._id}") Rate this carer (TAPPING THE LINK TAKES THE USER TO THE CARE HOME LOGIN PAGE, OR IF ALREADY LOGGED IN, IT TAKES THEM TO THE RELEVANT PAGE TO RATE A CARER)
+
+br
+p
+    b ACCOUNTING INFORMATION
+p You can see your total payments and invoices at any time by logging in to your account
+
+br
+p
+    b COMPLIANCE
+p A record of this engagement – including this carer’s training record - is available from your account login, for CQC evidence.
+
+include _footer
+
+

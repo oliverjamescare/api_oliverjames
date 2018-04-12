@@ -56,6 +56,8 @@ router.get('/care-home/carers/search', authenticate, security(["CARE_HOME_FULL"]
 router.get('/care-home/my-jobs', authenticate, security(["CARE_HOME_FULL"]), CareHomeControler.getCareHomeMyJobs);
 router.post('/care-home/carers/:id/block', authenticate, security(["CARE_HOME_FULL"]), CareHomeControler.blockCarer);
 router.delete('/care-home/carers/:id/block', authenticate, security(["CARE_HOME_FULL"]), CareHomeControler.unblockCarer);
+router.get('/care-home/past-jobs', authenticate, security(["CARE_HOME_FULL"]), CareHomeControler.getPastJobs);
+router.get('/care-home/past-jobs/:id', authenticate, security(["CARE_HOME_FULL"]), CareHomeControler.getPastJob);
 
 //Jobs
 router.post('/jobs', authenticate, security(["CARE_HOME_FULL"]), JobsController.addJobs);

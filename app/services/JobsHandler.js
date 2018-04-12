@@ -408,6 +408,8 @@ module.exports = {
         //calculating full price
         let totalCost = 0;
         let durationMinutes = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60));
+        const totalMinutes = Math.max(durationMinutes - deductedMinutes, 0);
+
         let currentTime = new Date(startDate.getTime());
 
         //manual booking cost
@@ -438,7 +440,8 @@ module.exports = {
             total_cost:  parseFloat((totalCost + manualBookingCost ).toFixed(2)),
             job_income:  parseFloat((totalCost - applicationFee ).toFixed(2)),
             applicationFee: applicationFee,
-            deducted_minutes_cost: deductedCost
+            deducted_minutes_cost: deductedCost,
+            total_minutes: totalMinutes
         };
     }
 }

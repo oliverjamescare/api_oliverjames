@@ -38,6 +38,7 @@ const schema = mongoose.Schema({
         validate: validators.integer,
         min: [0, "Voluntary deduction cannot be lower than 0."]
     },
+    standard_invoice: String,
     created: {
         type: Date,
         required: [ true, "{PATH} field is required." ]

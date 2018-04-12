@@ -3,9 +3,12 @@ const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate');
 const mongooseAggregatePaginate = require('mongoose-aggregate-paginate');
 const moment = require('moment');
+const async = require('async');
+const config = process.env;
 
 //services
 const validators = require('./../services/validators');
+const paths = require('./../../config/paths');
 
 //schemas
 const GeneralGuidance = require('./schemas/GeneralGuidance');
@@ -19,6 +22,8 @@ const Challenge = ChallengeSchema.schema;
 const Payment = require("./schemas/Payment").schema;
 const Charge = require("./schemas/Charge").schema;
 const SummarySheet = require("./schemas/SummarySheet").schema;
+
+const User = require("./User").schema;
 
 //settings
 const statuses = {
@@ -278,6 +283,54 @@ schema.methods.sendJobWithdrawal = function(mailer, carer, careHome, withdrawal)
         }, (error) => console.log(error));
 }
 
+schema.methods.sendJobSummaryEmails = function(mailer, careHome, carer, totalMinutes)
+{
+    const job = this;
+
+
+    //sending email to carer
+    mailer.send(__dirname + "/../../views/emails/carer-job-summary-sent.jade", {
+        to: carer.email,
+        subject: "Oliver James Job sheet: " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " / " + careHome.care_home.care_service_name + " / " + Math.floor(totalMinutes / 60) + " hour(s) & " + totalMinutes % 60 + " minute(s)",
+    },
+    { job: job, carer: carer, care_home: careHome, total_minutes: totalMinutes }, (error) => console.log(error));
+
+    //sending email to care home
+    mailer.send(__dirname + "/../../views/emails/care-home-job-summary-sent.jade", {
+        to: careHome.email,
+        subject: "Oliver James Job sheet: " + moment().format("YYYY-MM-DD"),
+        attachments: [
+            { path: __dirname + "/../../public/uploads/" + job.assignment.summary_sheet.standard_invoice },
+            { path: __dirname + "/../../public/uploads/" + job.assignment.summary_sheet.signature }
+        ]
+    },
+    { job: job, carer: carer, care_home: careHome, paths: paths, config: config }, (error) => console.log(error));
+
+}
+
+schema.methods.sendJobChallenge = function(mailer)
+{
+    const job = this;
+
+    async.parallel({
+        carer: (callback) => User.findOne({ _id: job.assignment.carer }).then(user => callback(null, user)),
+        care_home: (callback) => User.findOne({ _id: job.care_home }).then(user => callback(null, user))
+    },(errors, results) => {
+
+        //sending email
+        mailer.send(__dirname + "/../../views/emails/job-challenged.jade", {
+                to: config.CONTACT_EMAIL,
+                subject: "A client has challenged payment for a job"
+            },
+            {
+                carer: results.carer,
+                job: job,
+                care_home: results.care_home,
+                moment: moment
+            }, (error) => console.log(error));
+    });
+}
+
 //statics
 schema.statics.parse = function(job, req)
 {
@@ -316,7 +369,11 @@ schema.statics.parse = function(job, req)
 		{
 			//carer
 			if(job.assignment.carer)
+            {
 				job.carer = job.assignment.carer ? User.parse(job.assignment.carer, req) : null;
+                if(job.assignment.acceptance_document)
+                    job.carer.acceptance_document = fileHandler.getFileUrl(job.assignment.acceptance_document);
+            }
 
 			//review
 			if(job.assignment.review)

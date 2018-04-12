@@ -124,3 +124,29 @@ h3
     color: #4a4a4a;
     font-size: 12px;
 }
+
+/*
+    standard invoice
+ */
+.invoice-header
+{
+ text-align: center;
+}
+
+.invoice-table
+{
+    border: 1px solid black;
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.invoice-table th, .invoice-table td
+{
+    border: 1px solid black;
+    padding: 10px 5px;
+    text-align: center;
+}
+.notes
+{
+    font-size: 10px;
+}
