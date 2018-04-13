@@ -308,6 +308,46 @@ schema.methods.sendJobSummaryEmails = function(mailer, careHome, carer, totalMin
 
 }
 
+schema.methods.sendJobPaymentEmails = function(mailer, careHome, carer)
+{
+    const job = this;
+
+    //sending email to carer
+    mailer.send(__dirname + "/../../views/emails/carer-payment-processed.jade", {
+        to: carer.email,
+        subject: "Oliver James - Payment confirmation - Job ID: " + job._id,
+        attachments: [
+            { path: __dirname + "/../../public/uploads/" + job.assignment.payment.invoice },
+        ]
+    },
+    { config: config  }, (error) => console.log(error));
+
+
+    //sending email to care home
+    mailer.send(__dirname + "/../../views/emails/care-home-payment-processed.jade", {
+        to: careHome.email,
+        subject: "Oliver James - Payment confirmation - Job ID: " + job._id,
+        attachments: [
+            { path: __dirname + "/../../public/uploads/" + job.charge.invoice },
+        ]
+    },
+    { config: config  }, (error) => console.log(error));
+
+    //sending email to admin
+    mailer.send(__dirname + "/../../views/emails/app-payment-processed.jade", {
+        to: careHome.email,
+        subject: "Oliver James - Commission confirmation - Job ID: " + job._id,
+        attachments: [
+            { path: __dirname + "/../../public/uploads/" + job.assignment.payment.commission_confirmation },
+            { path: __dirname + "/../../public/uploads/" + job.charge.invoice },
+            { path: __dirname + "/../../public/uploads/" + job.assignment.payment.invoice },
+        ]
+    },
+    { }, (error) => console.log(error));
+
+
+}
+
 schema.methods.sendJobChallenge = function(mailer)
 {
     const job = this;
@@ -412,7 +452,7 @@ schema.statics.parse = function(job, req)
             }
 
             //projected income
-            if(job.assignment.projected_income)
+            if(job.assignment.projected_income != undefined)
                 job.projected_income = job.assignment.projected_income;
 
             //payment

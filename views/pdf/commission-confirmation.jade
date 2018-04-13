@@ -1,0 +1,49 @@
+extends _base
+
+block content
+
+    div.date #{moment().format("YYYY-MM-DD h:mm A")}
+    br
+    br
+
+    p
+        b JOB DETAILS
+    p
+        b Job ID: &nbsp;
+        span #{job._id}
+    p
+        b Person who provided the care: &nbsp;
+        span #{carer.carer.first_name} #{carer.carer.surname}
+    p
+        b Location worked: &nbsp;
+        span #{care_home.care_home.care_service_name}
+    p
+        b Address: &nbsp;
+        span #{care_home.address.company ? care_home.address.company + "," : ""} #{care_home.address.address_line_1}, #{care_home.address.address_line_2 ? care_home.address.address_line_2 + "," : ""} #{care_home.address.city}, #{care_home.address.postal_code}
+    p
+        b Date worked: &nbsp;
+        span #{moment(job.start_date).format("YYYY-MM-DD")}
+    p
+        b Time worked: &nbsp;
+        span #{moment(job.start_date).format("h:mm A")} to #{moment(job.end_date).format("h:mm A")}
+
+    br
+    br
+    p
+        b TO OLIVER JAMES
+    p
+        b Job commission: &nbsp;
+        span £#{job.assignment.payment.application_fee}
+    p
+        b Manual booking charge: &nbsp;
+        span £#{job.charge.manual_booking_cost}
+    p
+        b Deducted credits from care home: &nbsp;
+        span -£#{job.charge.deductions}
+    p
+        b Carer deductions: &nbsp;
+        span £#{job.assignment.payment.deductions}
+    p
+        b Total to Oliver James: &nbsp;
+        span £#{Math.max(parseFloat((job.assignment.payment.application_fee + job.charge.manual_booking_cost + job.assignment.payment.deductions - job.charge.deductions).toFixed(2)), 0)}
+

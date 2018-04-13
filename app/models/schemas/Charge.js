@@ -1,9 +1,6 @@
 //core
 const mongoose = require('mongoose');
 
-//custom
-const validators = require("./../../services/validators");
-
 const schema = mongoose.Schema({
     deductions: {
         type: Number,
@@ -30,6 +27,7 @@ const schema = mongoose.Schema({
         min: 0,
         required: [ true, "{PATH} field is required." ]
     },
+    invoice: String,
     charge_date: {
         type: Date,
         required: [ true, "{PATH} field is required." ]

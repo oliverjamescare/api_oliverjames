@@ -852,7 +852,7 @@ module.exports = {
             care_home: (callback) => User.findOne({ _id: job.care_home }).then(user => callback(null, user))
         },(errors, results) => {
             const handler = new PDFHandler(req);
-            handler.generatePdf("STANDARD_INVOICE", "users/" + req.user._id, { job: job, carer: results.carer, care_home: results.care_home })
+            handler.generatePdf("COMMISSION_CONFIRMATION", "users/" + req.user._id, { job: job, carer: results.carer, care_home: results.care_home })
                 .then(r => {
                 console.log(r);
             });

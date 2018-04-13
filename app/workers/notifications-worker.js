@@ -22,13 +22,13 @@ const config = {
 QueuesHandler.subscribe(data => {
 
     async.parallel({
-        user: (callback) => User.findOne({ _id: data.user_id, carer: { $exists: true } }, (error, user) => callback(null, user)),
+        carer: (callback) => User.findOne({ _id: data.user_id, carer: { $exists: true } }, (error, user) => callback(null, user)),
         job: (callback) => Job.findOne({ _id: data.job_id }, (error, job) => callback(null, job))
     }, (errors,  results) => {
 
         const handler = new NotificationsHandler();
-        const inputs = handler.prepareInputs(data.type, results.user, results.job);
-        handler.addNotification(data.type, { inputs: inputs, user: results.user, job: results.job });
+        const inputs = handler.prepareInputs(data.type, results.carer, results.job);
+        handler.addNotification(data.type, { inputs: inputs, user: results.carer, job: results.job });
     });
 
 }, config);

@@ -434,7 +434,9 @@
  *   HTTP/1.1 200 OK
  *   {
  *       "status": true,
- *       "debit_date": 134555939455638
+ *       "debit_date": 134555939455638,
+ *       "projected_income": 0.17,
+ *       "minutes": 68
  *   }
  *
  * @apiError AccessDenied Access Denied.

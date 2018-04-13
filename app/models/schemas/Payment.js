@@ -45,6 +45,8 @@ const schema = mongoose.Schema({
         enum: Object.values(statuses),
         default: statuses.IN_PROGRESS
     },
+    invoice: String,
+    commission_confirmation: String,
     payment_date: {
         type: Date,
         required: validators.required_if("status", statuses.PAID),

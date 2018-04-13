@@ -10,10 +10,20 @@ const config = process.env;
 
 module.exports.configure = function(app)
 {
+    app.mailer = prepareMailer();
+}
+
+module.exports.getMailer = function()
+{
+    return prepareMailer();
+}
+
+function prepareMailer()
+{
     const config = getConfig();
     const transporter = nodemailer.createTransport(config);
 
-    app.mailer = {
+    return {
         send: function(templatePath, mailData, templateData = {}, callback)
         {
             jade.renderFile(templatePath, templateData, (error, html) => {
@@ -28,7 +38,6 @@ module.exports.configure = function(app)
         }
     }
 }
-
 function getConfig()
 {
     const mailConfig = {

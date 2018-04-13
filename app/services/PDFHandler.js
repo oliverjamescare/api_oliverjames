@@ -14,6 +14,9 @@ const types = {
     CARER_REGISTRATION_DETAILS: "registration-carer-details",
     CARER_REGISTRATION_QUESTIONNAIRE: "registration-carer-q-a",
     STANDARD_INVOICE: "standard-invoice",
+    CARER_INVOICE: "carer-invoice",
+    CARE_HOME_INVOICE: "care-home-invoice",
+    COMMISSION_CONFIRMATION: "commission-confirmation",
 }
 
 
@@ -60,5 +63,6 @@ module.exports = class
     {
         data.assets = (assetPath) => (this.req.secure ? "https://" : "http://") + this.req.headers.host + assetPath;
         data.moment = moment;
+        data.file = filePath => "file:///" + __dirname + "/../../public" + filePath
     }
 }

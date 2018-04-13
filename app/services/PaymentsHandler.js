@@ -3,9 +3,9 @@
 const async = require("async");
 
 //models
-const User = require("./../models/User").schema;
 const JobModel = require("./../models/Job");
 const PaymentSchema = require("./../models/schemas/Payment");
+const TransactionSchema = require("./../models/schemas/Transaction");
 
 //services
 const JobsHandler = require("./JobsHandler");
@@ -156,232 +156,184 @@ module.exports = class
     }
 
     //payments handle
-    processPayment(job, req)
+    processPayment(job, carer, careHome)
     {
         return new Promise((resolve, reject) => {
-            async.parallel({
-                care_home: (callback) => User.findOne({ _id: job.care_home }, (error, careHome) => callback(null, careHome)),
-                carer: (callback) => User.findOne({ _id: job.assignment.carer }, (error, carer) => callback(null, carer)),
-            }, (errors, results) => {
 
-                const customer = results.care_home.care_home.payment_system.customer_id;
-                const account = results.carer.carer.payment_system.account_id;
+            const customer = careHome.care_home.payment_system.customer_id;
+            const account = carer.carer.payment_system.account_id;
 
-                console.log(results.care_home.care_home.payment_system.customer_id)
-                console.log(results.carer.carer.payment_system.account_id)
-                console.log(job.status)
-                console.log(job.charge)
-                console.log(job.assignment.payment)
-
-                // job.save()
-
-                if(
-                    results.care_home.care_home.payment_system.customer_id && // care home is connected to payment system
-                    results.carer.carer.payment_system.account_id && // carer is connected to payment system
-                    job.status == JobModel.statuses.PENDING_PAYMENT && // summary sent
-                    !job.charge && // care home is not charged yet
-                    (
-                        job.assignment &&
-                        job.assignment.payment &&
-                        job.assignment.payment.debit_date.getTime() <= new Date().getTime() && // debit date allows to process payment
-                        job.assignment.payment.status == PaymentSchema.statuses.IN_PROGRESS // payment waits for processing
-                    )
+            if(
+                customer && // care home is connected to payment system
+                account && // carer is connected to payment system
+                job.status == JobModel.statuses.PENDING_PAYMENT && // summary sent
+                !job.charge && // care home is not charged yet
+                (
+                    job.assignment &&
+                    job.assignment.payment &&
+                    job.assignment.payment.debit_date.getTime() <= new Date().getTime() && // debit date allows to process payment
+                    job.assignment.payment.status == PaymentSchema.statuses.IN_PROGRESS // payment waits for processing
                 )
-                {
-                    this.getAccountBalance()
-                        .then(balance => {
+            )
+            {
+                this.getAccountBalance()
+                    .then(balance => {
 
-                            //getting available funds
-                            let availableAccountFunds = 0;
-                            balance.available.forEach(fundsItem => {
-                                if(fundsItem.currency == "gbp")
-                                    availableAccountFunds += (fundsItem.amount / 100);
-                            });
+                        //getting available funds
+                        let availableAccountFunds = 0;
+                        balance.available.forEach(fundsItem => {
+                            if(fundsItem.currency == "gbp")
+                                availableAccountFunds += (fundsItem.amount / 100);
+                        });
 
-                            console.log(balance);
-                            const { job_income, applicationFee, total_cost, job_cost, manual_booking_cost } = JobsHandler.calculateJobCost(job);
-                            const reducedDeduction = Math.min(parseFloat(((job_income * job.booking_pricing.max_to_deduct) / 100).toFixed(2)), results.carer.carer.getDeductionsBalance());
-                            const reducedCredits = Math.min(total_cost, results.care_home.care_home.getCreditsBalance());
+                        //getting pending reducers
+                        const creditsReducerIndex = careHome.care_home.credits.findIndex(credit => credit.job && credit.job.toString() == job._id.toString() && credit.status == TransactionSchema.transactionStatuses.PENDING);
+                        const deductionReducerIndex = carer.carer.deductions.findIndex(deduction => deduction.job && deduction.job.toString() == job._id.toString() && deduction.status == TransactionSchema.transactionStatuses.PENDING);
 
-                            const applicationTransactionFee = Math.max(applicationFee + manual_booking_cost + reducedDeduction - reducedCredits, 0); // -4,5 lub -9 lub -8,5
-                            const chargeAmount = total_cost - reducedCredits; //0 lub 0 lub 5
-                            const transferAmount = job_income - reducedDeduction - chargeAmount;
+                        //preparing amounts
+                        const { job_income, applicationFee, total_cost, job_cost, manual_booking_cost } = JobsHandler.calculateJobCost(job);
+                        const reducedDeduction = Math.min(parseFloat(((job_income * job.booking_pricing.max_to_deduct) / 100).toFixed(2)), carer.carer.getDeductionsBalance());
+                        const reducedCredits = Math.min(total_cost, careHome.care_home.getCreditsBalance());
 
+                        const applicationTransactionFee = Math.max(applicationFee + manual_booking_cost + reducedDeduction - reducedCredits, 0);
+                        const chargeAmount = total_cost - reducedCredits;
+                        const transferAmount = job_income - reducedDeduction - chargeAmount;
 
-                            console.log("Accfunds", availableAccountFunds)
-                            console.log("Appfe", applicationTransactionFee)
-                            console.log("ch", chargeAmount)
-                            console.log("tr", transferAmount)
+                        //insufficient funds to complete charge
+                        if(availableAccountFunds < transferAmount)
+                        {
+                            console.log("Insufficient funds")
+                            return reject(job);
+                        }
 
-                            //insufficient funds to complete charge
-                            if(availableAccountFunds < transferAmount)
+                        //charging
+                        async.waterfall([
+
+                            //when direct charge should be applied
+                            (callback) => {
+                                if(chargeAmount > 0) // don't create token for charge if charge amount is 0
+                                {
+                                    this.createCustomerChargeToken(customer, account)
+                                        .then(token => callback(null, token))
+                                        .catch(error => callback(error))
+                                }
+                                else
+                                    callback(null, null);
+                            },
+                            (token, callback) => {
+                                if(token)
+                                {
+                                    this.createDirectCharge(chargeAmount, applicationTransactionFee, token, account, job)
+                                        .then(charge => callback(null, charge))
+                                        .catch(error => callback(error))
+                                }
+                                else
+                                    callback(null, null);
+                            },
+                            (charge, callback) => {
+                                if(charge)
+                                {
+                                    this.getTransactionBalance(charge["balance_transaction"], account)
+                                        .then(chargeTransaction => callback(null, { charge, chargeTransaction } ))
+                                        .catch(error => callback(error))
+                                }
+                                else
+                                    callback(null, { charge: null, chargeTransaction: null })
+                            },
+
+                            //when transfer should be applied
+                            (chargePack, callback) => {
+                                if(transferAmount > 0)
+                                {
+                                    this.createFundsTransferToSubaccount(transferAmount, account, job)
+                                        .then(transfer => callback(null, chargePack, transfer))
+                                        .catch(error => callback(error))
+                                }
+                                else
+                                    callback(null, chargePack, null)
+                            },
+                            (chargePack, transfer, callback) => {
+                                if(transfer)
+                                {
+                                    this.getTransactionBalance(transfer["balance_transaction"])
+                                        .then(transferTransaction => callback(null, { chargePack, transferPack: { transfer, transferTransaction } } ))
+                                        .catch(error => callback(error))
+                                }
+                                else
+                                    callback(null, { chargePack, transferPack: { transfer: null, transferTransaction: null }})
+                            },
+                        ], (errors, result) => {
+
+                            if(errors)
                             {
-                                job.status = JobModel.statuses.PAYMENT_REJECTED;
-                                console.log("Insufficient funds")
-                                return resolve(job);
+                                console.log(errors)
+                                return reject(job);
                             }
 
-                            //charging
-                            async.waterfall([
+                            //changing job status
+                            job.status = JobModel.statuses.PAID;
 
-                                //when direct charge should be applied
-                                (callback) => {
-                                    if(chargeAmount > 0) // don't create token for charge if charge amount is 0
-                                    {
-                                        this.createCustomerChargeToken(customer, account)
-                                            .then(token => callback(null, token))
-                                            .catch(error => callback(error))
-                                    }
-                                    else
-                                        callback(null, null);
-                                },
-                                (token, callback) => {
-                                    if(token)
-                                    {
-                                        this.createDirectCharge(chargeAmount, applicationTransactionFee, token, account, job)
-                                            .then(charge => callback(null, charge))
-                                            .catch(error => callback(error))
-                                    }
-                                    else
-                                        callback(null, null);
-                                },
-                                (charge, callback) => {
-                                    if(charge)
-                                    {
-                                        this.getTransactionBalance(charge["balance_transaction"], account)
-                                            .then(chargeTransaction => callback(null, { charge, chargeTransaction } ))
-                                            .catch(error => callback(error))
-                                    }
-                                    else
-                                        callback(null, { charge: null, chargeTransaction: null })
-                                },
-
-                                //when transfer should be applied
-                                (chargePack, callback) => {
-                                    if(transferAmount > 0)
-                                    {
-                                        this.createFundsTransferToSubaccount(transferAmount, account, job)
-                                            .then(transfer => callback(null, chargePack, transfer))
-                                            .catch(error => callback(error))
-                                    }
-                                    else
-                                        callback(null, chargePack, null)
-                                },
-                                (chargePack, transfer, callback) => {
-                                    if(transfer)
-                                    {
-                                        this.getTransactionBalance(transfer["balance_transaction"])
-                                            .then(transferTransaction => callback(null, { chargePack, transferPack: { transfer, transferTransaction } } ))
-                                            .catch(error => callback(error))
-                                    }
-                                    else
-                                        callback(null, { chargePack, transferPack: { transfer: null, transferTransaction: null }})
-                                },
-                            ], (errors, result) => {
-
-                                if(errors)
-                                {
-                                    console.log(errors)
-                                    job.status = JobModel.statuses.PAYMENT_REJECTED;
-                                    return resolve(job);
-                                }
-
-                                job.status = JobModel.statuses.PAID;
-
-                                //saving charge
-                                job.charge = {
-                                    deductions: reducedCredits,
-                                    job_cost: job_cost,
-                                    manual_booking_cost: manual_booking_cost,
-                                    total_cost: total_cost,
-                                    net_cost: total_cost - reducedCredits,
-                                    charge_date: new Date()
-                                };
-
-                                //calculation of transaction charges
-                                let transactionCosts = 0;
-                                if(result.chargePack["chargeTransaction"])
-                                {
-                                    result.chargePack["chargeTransaction"]["fee_details"].forEach(fee => {
-                                        if(fee.type == "stripe_fee" && fee.currency == "gbp")
-                                            transactionCosts += (fee.amount / 100)
-                                    });
-                                }
-
-                                if(result.transferPack.transferTransaction)
-                                {
-                                    result.transferPack.transferTransaction["fee_details"].forEach(fee => {
-                                        if(fee.type == "stripe_fee" && fee.currency == "gbp")
-                                            transactionCosts += (fee.amount / 100)
-                                    });
-                                }
-
-                                //net income
-                                let netIncome = 0;
-                                netIncome += result.chargePack.chargeTransaction ? (result.chargePack.chargeTransaction["net"] / 100) : 0;
-                                netIncome += result.transferPack.transferTransaction ? - (result.transferPack.transferTransaction["net"] / 100) : 0;
-
-                                //saving payment
-                                job.assignment.payment = {
-                                    debit_date: job.assignment.payment.debit_date,
-                                    deductions: reducedDeduction,
-                                    job_income: job_income,
-                                    transaction_charge: transactionCosts,
-                                    application_fee: applicationFee,
-                                    net_income: netIncome,
-                                    status: PaymentSchema.statuses.PAID,
-                                    payment_date: new Date()
-                                }
+                            //saving charge
+                            job.charge = {
+                                deductions: reducedCredits,
+                                job_cost: job_cost,
+                                manual_booking_cost: manual_booking_cost,
+                                total_cost: total_cost,
+                                net_cost: total_cost - reducedCredits,
+                                charge_date: new Date()
+                            };
 
 
-                                console.log(job);
-                                resolve(job);
+                            //calculation of transaction charges
+                            let transactionCosts = 0;
+                            if(result.chargePack["chargeTransaction"])
+                            {
+                                result.chargePack["chargeTransaction"]["fee_details"].forEach(fee => {
+                                    if(fee.type == "stripe_fee" && fee.currency == "gbp")
+                                        transactionCosts += (fee.amount / 100)
+                                });
+                            }
 
-                            })
+                            if(result.transferPack.transferTransaction)
+                            {
+                                result.transferPack.transferTransaction["fee_details"].forEach(fee => {
+                                    if(fee.type == "stripe_fee" && fee.currency == "gbp")
+                                        transactionCosts += (fee.amount / 100)
+                                });
+                            }
+
+                            //net income
+                            let netIncome = 0;
+                            netIncome += result.chargePack.chargeTransaction ? (result.chargePack.chargeTransaction["net"] / 100) : 0;
+                            netIncome += result.transferPack.transferTransaction ? - (result.transferPack.transferTransaction["net"] / 100) : 0;
+
+                            //saving payment
+                            job.assignment.payment = {
+                                debit_date: job.assignment.payment.debit_date,
+                                deductions: reducedDeduction,
+                                job_income: job_income,
+                                transaction_charge: transactionCosts,
+                                application_fee: applicationFee,
+                                net_income: netIncome,
+                                status: PaymentSchema.statuses.PAID,
+                                payment_date: new Date()
+                            }
+
+
+                            //handling reducers
+                            if(creditsReducerIndex != -1 && careHome.care_home.credits[creditsReducerIndex].amount == reducedCredits)
+                                careHome.care_home.credits[creditsReducerIndex].status = TransactionSchema.transactionStatuses.CONFIRMED;
+
+                            if(deductionReducerIndex != -1 && carer.carer.deductions[deductionReducerIndex].amount == reducedDeduction)
+                                carer.carer.deductions[deductionReducerIndex].status = TransactionSchema.transactionStatuses.CONFIRMED;
+
+                            return resolve({ job, carer, careHome });
                         })
-                        .catch(error => console.log(error));
-
-
-                            //
-                            // results.care_home.care_home.addCredits(20, job);
-                            // results.carer.carer.addDeduction(30, job);
-
-                            // results.carer.save();
-                            // results.care_home.save();
-
-
-
-                            // console.log(results.care_home.care_home.getCreditsBalance())
-                            // console.log()
-
-
-
-
-                    // const { job_income, applicationFee, total_cost, job_cost, manual_booking_cost } = JobsHandler.calculateJobCost(job)
-                    // this.createChargeTransfer(total_cost, applicationFee + manual_booking_cost, customer, account, job)
-                    //     .then(result => {
-                    //
-                    //
-                    //         console.log(result);
-                    //
-
-                    //
-                    //
-                    //         job.assignment.payment = {
-                    //             debit_date: job.assignment.payment.debit_date
-                    //         }
-                    //
-                    //
-                    //
-
-
-
-
-
-                }
-                else
-                    reject("Invalid criteria")
-            });
+                    })
+                    .catch(error => console.log(error));
+            }
+            else
+                reject();
         });
 
     }

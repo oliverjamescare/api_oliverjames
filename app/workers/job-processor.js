@@ -28,13 +28,15 @@ cron.schedule('* * * * *', () =>
     Job.find({ status: { $not: { $in: excludedStatuses }} })
         .then(jobs => {
             jobs.forEach(job => {
-                // if(job.status == JobModel.statuses.PENDING_PAYMENT && (job.assignment.summary_sheet.created.getTime() + (1000 * 60 * 60 * 24 * 3)) < new  Date().getTime())
-                // {
-                //
-                // }
+
 
                 if(job.initial.status != job.status) //if status changed
                     job.save().catch(error => console.log(error));
+
+                //sending request to payment processor
+                if(job.status == JobModel.statuses.PENDING_PAYMENT && job.assignment && job.assignment.payment && job.assignment.payment.debit_date.getTime() <= new Date().getTime())
+                    QueuesHandler.publish({ job_id: job._id }, { exchange: "payments", queue: "payments" })
+
             })
         });
 

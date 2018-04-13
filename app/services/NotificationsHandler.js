@@ -40,6 +40,7 @@ const NOTIFICATIONS = {
 //core
 const request = require('request');
 const async = require('async');
+const moment = require('moment');
 const endpoint = "https://fcm.googleapis.com/fcm/send";
 
 //models
@@ -168,12 +169,21 @@ module.exports = class
         return isSilent;
     }
 
-    prepareInputs(type, user, job)
+    async prepareInputs(type, carer, job)
     {
         let inputs = [];
 
         if(type == "REVIEW_PUBLISHED")
             inputs.push(user.carer.reviews.average);
+
+        if(type == "PAYMENT_PROCESSED")
+        {
+            inputs.push(job.assignment.payment.net_income);
+
+            const careHome = await User.findOne({ _id: job.care_home }).exec();
+            inputs.push(careHome.care_home.care_service_name);
+            inputs.push(job.assignment.summary_sheet.start_date ? moment(job.assignment.summary_sheet.start_date).format("YYYY-MM-DD") : moment(job.start_date).format("YYYY-MM-DD"));
+        }
 
         return inputs;
     }
@@ -182,8 +192,8 @@ module.exports = class
     {
         return new Promise(resolve => {
 
-            let groups = [];
             const now = new Date();
+            let groups = [];
             let notifications = [];
 
             Job.find({ 'notifications.status': JobModel.jobNotificationStatuses.SCHEDULED })
@@ -209,7 +219,6 @@ module.exports = class
                                     }
                                 }
                             });
-
 
                             groups.push(job.group);
                         }
