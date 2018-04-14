@@ -319,8 +319,8 @@ module.exports = {
     getSubmittedJobs: async function (req, res)
     {
         //preparing bounds dates
-        let from = !isNaN(Date.parse(req.query.from)) ? new Date(req.query.from) : false;
-        let to = !isNaN(Date.parse(req.query.to)) ? new Date(req.query.to) : false;
+	    let from = !isNaN(Date.parse(req.query.from))? new Date(req.query.from) : !isNaN(parseInt(req.query.from))? new Date(parseInt(req.query.from)) : false;
+	    let to = !isNaN(Date.parse(req.query.to)) ? new Date(req.query.to) : !isNaN(parseInt(req.query.to))? new Date(parseInt(req.query.to)) : false;
 
         if(from && to && from.getTime() > to.getTime())
         {
