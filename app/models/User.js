@@ -154,6 +154,13 @@ const schema = mongoose.Schema({
 .index([{ "address.location": "2dsphere" }]);
 
 //middlewares
+schema.post('init', function(user)
+{
+	//status handle
+	user.blockingHandle();
+	user.status = handleStatus(user);
+});
+
 schema.pre("save", function(next)
 {
     this.updated = new Date();
@@ -256,16 +263,14 @@ schema.methods.addEmailConfirmationHandle = function(email, mailer)
 
 schema.methods.blockingHandle = function()
 {
-    if(this.status != statuses.BLOCKED && this.blocked_until)
+    if(this.status != statuses.BLOCKED && this.banned_until)
     {
-        if(this.blocked_until.getTime() < new Date().getTime())
+        if(this.banned_until.getTime() < new Date().getTime())
         {
             this.status = this.activation_date ? statuses.ACTIVE : statuses.CREATED;
-            this.blocked_until = null;
+            this.banned_until = null;
         }
     }
-
-    return this.status != statuses.BANNED && this.status != statuses.BLOCKED;
 }
 
 schema.methods.addPasswordRemindHandle = function(mailer)
@@ -418,6 +423,9 @@ schema.statics.parse = function(user, req)
 
     if(user.activation_date)
         user.activation_date = user.activation_date.getTime();
+
+	if(user.created)
+		user.created = user.created.getTime();
 
     return user;
 }

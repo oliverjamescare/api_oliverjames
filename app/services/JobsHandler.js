@@ -310,7 +310,7 @@ module.exports = {
 
     getJobDetailsQuery: function(id, withCarerDetails = false)
     {
-        const jobQuery = Job.findOne({_id: id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, status: 1, 'assignment.projected_income': 1 })
+        const jobQuery = Job.findOne({_id: id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, gender_preference: 1, status: 1, 'assignment.projected_income': 1 })
             .populate("care_home",{
                 "email": 1,
                 "phone_number": 1,

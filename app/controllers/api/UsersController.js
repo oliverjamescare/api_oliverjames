@@ -71,6 +71,7 @@ module.exports = {
                 surname: req.user.carer.surname,
                 middle_name: req.user.carer.middle_name,
                 profile_image: req.user.carer.profile_image,
+                gender: req.user.carer.gender,
                 max_job_distance: req.user.carer.max_job_distance,
                 eligible_roles: req.user.carer.eligible_roles,
                 payment_system: {
@@ -193,6 +194,7 @@ module.exports = {
 
                 req.user.phone_number = req.body.phone_number || req.user.phone_number;
                 req.user.carer.max_job_distance = req.body.max_job_distance || req.user.carer.max_job_distance;
+                req.user.carer.gender = req.body.gender || req.user.carer.gender;
                 req.user.carer.eligible_roles = eligibleRoles.length ? eligibleRoles : req.user.carer.eligible_roles;
 
                 if(req.body.address_line_1 && req.body.city && req.body.postal_code && address.location) //if required fields are not present then don't update address

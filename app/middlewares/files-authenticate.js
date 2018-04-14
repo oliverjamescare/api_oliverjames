@@ -10,7 +10,8 @@ const config = process.env;
 const async = require('async');
 
 //custom
-const User = require("./../models/User").schema;
+const UserModel = require("./../models/User");
+const User = UserModel.schema;
 const Admin = require("./../models/Admin").schema;
 const Utils = require('./../services/utils');
 
@@ -29,7 +30,7 @@ module.exports = function(req, res, next)
 
         //checking if token is assigned to user
         user: (callback) => {
-            User.findOne({ "access_token.token": token }, (error, user) => callback(null, user));
+            User.findOne({ "access_token.token": token, status: UserModel.statuses.ACTIVE }, (error, user) => callback(null, user));
         },
         //checking if token is assigned to admin
         admin: (callback) => {

@@ -119,6 +119,7 @@
                 "middle_name": "Test",
                 "profile_image": "http://localhost:8000/uploads/users/1519038810982test.jpg",
                 "max_job_distance": 15,
+                "gender": "Male",
                 "eligible_roles": [
                     "Carer",
                     "Senior Carer"
@@ -406,6 +407,7 @@
  *
  * @apiHeader {String} X-access-token Access token
  * @apiParam {Number} [max_job_distance] Max job distance. Takes part in available jobs algorithm.
+ * @apiParam {String} [gender] Gender - Available options: Male, Female.
  * @apiParam {String} [city] City. Required in changing address process.
  * @apiParam {String} [postal_code] Postal code. Required in changing address process.
  * @apiParam {String} [address_line_1] Address first line. Required in changing address process.

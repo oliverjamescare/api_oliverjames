@@ -112,6 +112,11 @@ module.exports = {
                 options["sortBy"] = { _id: -1 };
                 break
             }
+	        case "id_asc":
+	        {
+		        options["sortBy"] = { _id: 1 };
+		        break
+	        }
             case "name_asc":
             {
                 options["sortBy"] = { 'carer.first_name': 1 };
@@ -184,7 +189,7 @@ module.exports = {
             }
             default:
 			{
-				options["sortBy"] = { _id: 1 };
+				options["sortBy"] = { created: -1 };
 				break;
 			}
 		}
@@ -204,7 +209,9 @@ module.exports = {
 				{
 					'carer.first_name': 1,
 					'carer.surname': 1,
+					'carer.profile_image': 1,
 					'carer.middle_name': 1,
+					'carer.gender': 1,
 					'carer.training_record': 1,
                     'carer.date_of_birth': 1,
                     'carer.joining_care_experience': 1,
@@ -220,7 +227,11 @@ module.exports = {
                     'carer.deductions.status': 1,
 					notes: 1,
 					status: 1,
-                    banned_until: 1
+                    banned_until: 1,
+					email: 1,
+					phone_number: 1,
+					email_verified: 1,
+					created: 1,
 				}
 			).lean();
 
@@ -260,6 +271,7 @@ module.exports = {
                 first_name: carer.first_name || user.carer.first_name,
                 surname: carer.surname || user.carer.surname,
                 middle_name: carer.middle_name || user.carer.middle_name,
+                gender: carer.gender || user.carer.gender,
                 date_of_birth: carer.date_of_birth || user.carer.date_of_birth,
                 joining_care_experience: carer.joining_care_experience || user.carer.joining_care_experience,
                 eligible_roles: carer.eligible_roles || user.carer.eligible_roles
@@ -451,6 +463,7 @@ module.exports = {
                 first_name: carer.first_name,
                 surname: carer.surname,
                 middle_name: carer.middle_name || null,
+                gender: carer.gender || null,
                 date_of_birth: carer.date_of_birth,
                 eligible_roles: carer.eligible_roles || [],
                 joining_care_experience: carer.joining_care_experience

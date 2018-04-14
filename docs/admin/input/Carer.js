@@ -11,7 +11,7 @@
  * @apiParam {Number} [page] Page number.
  * @apiParam {Number} [results] Results per page. Default 10.
  * @apiParam {Number} [status_filter] Available options: ALL(default) - all carers, CREATED - created carers, ACTIVE - activated carers, BANNED - banned carers.
- * @apiParam {String} [sort] Available options: id_asc(default) - by id ascending, id_desc - by id descending, name_asc - by name ascending, name_desc - by name descending, date_of_birth_asc - by date of birth ascending, date_of_birth_desc - by date of birth desc, activation_date_asc - by activation date ascending, activation_date_desc - by activation date descending, rating_asc - by rating ascending, rating_desc - by rating descending, status_asc - by status ascending, status_desc - by status descending, banned_until_asc - by banned date ascending, banned_until_desc - by banned date descending, deductions_balance_asc - by deductions balance ascending, deductions_balance_desc - by deductions balance descending .
+ * @apiParam {String} [sort] Available options: id_asc - by id ascending, id_desc - by id descending, name_asc - by name ascending, name_desc - by name descending, date_of_birth_asc - by date of birth ascending, date_of_birth_desc - by date of birth desc, activation_date_asc - by activation date ascending, activation_date_desc - by activation date descending, rating_asc - by rating ascending, rating_desc - by rating descending, status_asc - by status ascending, status_desc - by status descending, banned_until_asc - by banned date ascending, banned_until_desc - by banned date descending, deductions_balance_asc - by deductions balance ascending, deductions_balance_desc - by deductions balance descending .
 
  * @apiSuccess (Success 200){Object} results Pagination results.
  * @apiSuccessExample Success-Response:
@@ -70,8 +70,10 @@
             "carer": {
                 "first_name": "Test",
                 "surname": "Test",
-                "middle_name": "null",
+                "middle_name": null,
                 "date_of_birth": "1992-04-22",
+                "gender": "Male",
+                "profile_image": "http://localhost:8000/uploads/users/5a9418e7e33cb930aa7c384f/1523700927387angel-warrior.jpg",
                 "reference": {
                     "references": [
                         {
@@ -128,7 +130,11 @@
             },
             "status": "ACTIVE",
             "notes": "Carer notes",
-            "banned_until": 1521474300000
+            "banned_until": 1521474300000,
+            "email": "adrian.maslerz@ready4s.pl",
+            "phone_number": "6376483847347347",
+            "created": 1519654059754,
+            "email_verified": false,
  *    }
  *
  * @apiError AccessDenied Access Denied.
@@ -173,6 +179,7 @@
                 "surname": "Test",
                 "middle_name": "null",
                 "date_of_birth": "1992-04-22",
+                "gender": "Male",
                 "reference": {
                     "references": [
                         {
@@ -376,6 +383,7 @@
  *          "email": "test@test.test.com",
             "password": "test123",
             "phone_number": "7823828388343",
+            "gender": "Male",
             "address": {
                 "postal_code": "Ex8 2el",
                 "city": "Exmouth",

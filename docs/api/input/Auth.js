@@ -14,6 +14,7 @@
  * @apiParam {String} [surname] For carer registration - Carer surname. Only alpha characters. Max 100 characters.
  * @apiParam {String} [middle_name] For carer registration - Carer middle names (optional). Only alpha characters. Max 100 characters.
  * @apiParam {String} [date_of_birth] For carer registration - e.g. 1900-04-05. Correct Date format. Carer has to be adult.
+ * @apiParam {String} [gender] For carer registration - Available options: Male, Female, NULL(default).
  * @apiParam {String} [eligible_roles] For carer registration - roles which carer is interested in as parsed into string array e.g. ["Carer", "Senior Carer"]. Available values: Carer, Senior Carer.
  * @apiParam {File} [cv] For carer registration - file with CV. Max 10MB. Available formats: pdf, doc, docx.
  * @apiParam {Number} [criminal_record_value] For carer registration - Q&A value: Available values: 0 - Yes, 1 - No.
@@ -109,6 +110,7 @@
  *       "user": {
                 "_id": "5a5de32f5bb5952104a5d156",
                 "email": "test.test@test.com",
+                "status": "CREATED",
                 "access_token": {
                     "refresh_token": "a2Rdz6xpAi38CRzxorPuHZRqshL1pfgm5qvQAQm16jbGSAZgHpfVaY1DzOJyeRk22Nebv8fuIl4H8sT3y9EKjRpMb56oY6OeeYsBkle6oZfYo6oObEz7vNFWzq2OnUHF",
                     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MTY3ODgyMTQsImRhdGEiOnsiX2lkIjoiNWE1ZGUzMmY1YmI1OTUyMTA0YTVkMTU2IiwiZW1haWwiOiJhZHJpYW4ubWFzbGVyekByZWFkeTRzLnBsIn0sImlhdCI6MTUxNjE4MzQxNH0.ny_lRr-1SO8LXyJWtGxS1DqZJaV-nbXoSYwbf5rCA2o"

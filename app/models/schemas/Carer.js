@@ -240,7 +240,7 @@ const schema = mongoose.Schema({
 			type: Number,
 			validate: validators.integer,
 			min: [1, 'Minimum one year of experience is required.'],
-			default: 1
+			default: 0
 		},
 		months:
 		{

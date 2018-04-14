@@ -10,7 +10,8 @@ const fileHandler = require("../../services/fileHandler");
 const PDFHandler = require('../../services/PDFHandler');
 
 //models
-const User = require("../../models/User").schema;
+const UserModel = require("../../models/User");
+const User = UserModel.schema;
 const CareHomeWaitingUser = require("../../models/CareHomeWaitingUser").schema;
 
 module.exports = {
@@ -80,6 +81,7 @@ module.exports = {
 				    surname: req.body.surname,
 				    middle_name: req.body.middle_name || null,
 				    date_of_birth: req.body.date_of_birth,
+				    gender: req.body.gender || null,
 				    cv_uploads: [ filePath ],
 				    q_a_form: {
 					    criminal_record: {
@@ -201,16 +203,16 @@ module.exports = {
         else
             return res.status(401).json(Utils.parseStringError("Authorization failed", "auth"));
 
-        User.findOne(query, (error, user) =>
-        {
+        User.findOne(query, (error, user) => {
 
             //user not found
             if (!user)
                 return res.status(401).json(Utils.parseStringError("Authorization failed", "auth"));
 
             //blocked account and unblocking handle
-            if (!user.blockingHandle())
+            if (user.status == UserModel.statuses.BLOCKED || user.status == UserModel.statuses.BANNED)
                 return res.status(403).json(Utils.parseStringError("Blocked account", "user"));
+
 
             //refresh token login
             if (query[ "access_token.refresh_token" ])
@@ -295,6 +297,7 @@ function prepareLoginResponse(user)
     let response = {
         _id: user._id,
         email: user.email,
+	    status: user.status,
         access_token: user.access_token
     };
 
