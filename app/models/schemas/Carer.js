@@ -239,7 +239,7 @@ const schema = mongoose.Schema({
 		years: {
 			type: Number,
 			validate: validators.integer,
-			min: [1, 'Minimum one year of experience is required.'],
+			min: [0, 'Number of years can\'t be lower than 0. '],
 			default: 0
 		},
 		months:
@@ -254,7 +254,7 @@ const schema = mongoose.Schema({
 	care_experience: {
         years: {
             type: Number,
-            default: 1
+            default: 0
         },
 		months: {
             type: Number,

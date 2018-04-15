@@ -658,11 +658,11 @@ module.exports = {
             {
                 allowedMimeTypes: [
                     "application/msword",
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    "application/pdf",
-                    "image/png",
-                    "image/jpg",
-                    "image/jpeg",
+	                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+	                "application/pdf",
+	                "image/png",
+	                "image/jpg",
+	                "image/jpeg",
                 ],
                 maxFileSize: 10
             });

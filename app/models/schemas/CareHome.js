@@ -11,7 +11,7 @@ const config = process.env;
 const homeTypes = [
     "Residential",
     "Nursing",
-    "Learning disabilit",
+    "Learning disability",
     "Supported living"
 ];
 

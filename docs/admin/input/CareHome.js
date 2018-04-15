@@ -92,6 +92,9 @@
                     "report_contact": "asd",
                     "superior_contact": "asd"
                 },
+                "payment_system": {
+                    "card_number": "**** **** **** **** 6577"
+                },
                 "blocked_carers": [],
                 "credits": [
                     {

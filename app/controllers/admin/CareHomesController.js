@@ -187,6 +187,7 @@ module.exports = {
                     'care_home.credits.status': 1,
                     'care_home.gender_preference': 1,
                     'care_home.general_guidance': 1,
+	                'care_home.payment_system.card_number': 1,
                     notes: 1,
                     status: 1,
                     banned_until: 1,

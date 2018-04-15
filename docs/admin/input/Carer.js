@@ -74,6 +74,9 @@
                 "date_of_birth": "1992-04-22",
                 "gender": "Male",
                 "profile_image": "http://localhost:8000/uploads/users/5a9418e7e33cb930aa7c384f/1523700927387angel-warrior.jpg",
+                "payment_system": {
+                    "bank_number": "**** **** **** **** 6577"
+                },
                 "reference": {
                     "references": [
                         {

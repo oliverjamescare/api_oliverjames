@@ -225,6 +225,7 @@ module.exports = {
                     'carer.deductions.description': 1,
                     'carer.deductions.created': 1,
                     'carer.deductions.status': 1,
+                    'carer.payment_system.bank_number': 1,
 					notes: 1,
 					status: 1,
                     banned_until: 1,
