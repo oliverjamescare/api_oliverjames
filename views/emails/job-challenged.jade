@@ -3,9 +3,9 @@ p #{care_home.care_home.care_service_name} has challenged payment for a job.
 p
     b Job details:
 p Job Id: #{job._id}
-p Start date: #{moment(job.start_date).format('YYYY-MM-DD')}
-p From: #{moment(job.start_date).format('h:mm A')}
-p Till: #{moment(job.end_date).format('h:mm A')}
+p Start date: #{moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format('YYYY-MM-DD')}
+p From: #{moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format('h:mm A')}
+p Till: #{moment(job.assignment.summary_sheet.end_date ? job.assignment.summary_sheet.end_date : job.end_date).format('h:mm A')}
 p Total cost: £#{job.cost.total_cost}
 
 p

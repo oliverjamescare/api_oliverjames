@@ -260,7 +260,7 @@ module.exports = {
 
                 //sending notification
                 if(job.assignment.review.status == ReviewSchema.reviewStatuses.PUBLISHED && !notificationStatus)
-                    QueuesHandler.publish({ user_id: job.assignment.carer, job_id: job._id, type: "REVIEW_PUBLISHED" }, { exchange: "notifications", queue: "notifications" })
+                    QueuesHandler.publish({ carer_id: job.assignment.carer, job_id: job._id, type: "REVIEW_PUBLISHED" }, { exchange: "notifications", queue: "notifications" })
 
                 res.json({ status: true });
             })
@@ -420,7 +420,7 @@ module.exports = {
 
                 //sending notification
                 if(job.assignment.carer && jobChanged)
-                    QueuesHandler.publish({ user_id: job.assignment.carer, job_id: job._id, type: "JOB_MODIFIED" }, { exchange: "notifications", queue: "notifications" })
+                    QueuesHandler.publish({ carer_id: job.assignment.carer, job_id: job._id, type: "JOB_MODIFIED" }, { exchange: "notifications", queue: "notifications" })
 
                 res.json({ status: true })
             })
@@ -455,7 +455,7 @@ module.exports = {
 
                 //sending notification
                 if(job.assignment.carer)
-                    QueuesHandler.publish({ user_id: job.assignment.carer, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
+                    QueuesHandler.publish({ carer_id: job.assignment.carer, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
             })
             .catch(error => console.log(error));
 

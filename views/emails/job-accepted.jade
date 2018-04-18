@@ -4,7 +4,7 @@
     and open the template in the editor.
 
 p Good news! #{user.carer.first_name} has accepted your shift.
-p #{user.carer.first_name} #{user.carer.surname} – profile summary: #{user.carer.care_experience.years} #{user.carer.care_experience.years == 1 ? 'year' : 'years'} #{user.carer.care_experience.months > 0 ? 'and ' + user.carer.care_experience.months: ''} #{user.carer.care_experience.months == 1 ? 'month' : 'months'} experience, Rating: #{user.carer.reviews.average} out of 5
+p #{user.carer.first_name} #{user.carer.surname} – profile summary: #{user.carer.care_experience.years > 0 ? user.carer.care_experience.years : ""} #{user.carer.care_experience.years == 0 ? "" :user.carer.care_experience.years == 1 ? 'year' : 'years'} #{user.carer.care_experience.years > 0 && user.carer.care_experience.months > 0 ? 'and' : ""} #{user.carer.care_experience.months > 0 ? user.carer.care_experience.months : ''} #{user.carer.care_experience.months == 0 ? "" : user.carer.care_experience.months == 1 ? 'month' : 'months'} experience, Rating: #{user.carer.reviews.amount > 0 ? user.carer.reviews.average + " out of 5" : "No reviews so far"}
 
 p You may cancel this booking or request a new carer, free-of-charge up to 24 hours before the job starts. Thereafter, there will be a cancellation charge of 50%
 

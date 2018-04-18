@@ -52,7 +52,7 @@ QueuesHandler.subscribe(data => {
                             .then(job => {
 
                                 //payments notification
-                                QueuesHandler.publish({ user_id: carer._id, job_id: job._id, type: "PAYMENT_PROCESSED" }, { exchange: "notifications", queue: "notifications" })
+                                QueuesHandler.publish({ carer_id: carer._id, job_id: job._id, care_home_id: careHome._id, type: "PAYMENT_PROCESSED" }, { exchange: "notifications", queue: "notifications" })
 
                                 //generating pdfs
                                 const pdfHandler = new PDFHandler();

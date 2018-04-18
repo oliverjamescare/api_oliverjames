@@ -4,7 +4,7 @@ p Thank you for your custom,
 br
 p
     b BOOKING DETAILS / PAYMENT
-p This email confirms that #{carer.carer.first_name} #{carer.carer.surname} worked for you, starting on #{moment(job.start_date).format("YYYY-MM-DD")}, from #{moment(job.start_date).format("h:mm A")} to #{moment(job.end_date).format("h:mm A")}
+p This email confirms that #{carer.carer.first_name} #{carer.carer.surname} worked for you, starting on #{moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("YYYY-MM-DD")}, from #{moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("h:mm A")} to #{moment(job.assignment.summary_sheet.end_date ? job.assignment.summary_sheet.end_date : job.end_date).format("h:mm A")}
 
 p The money you paid to us to book this carer £#{job.cost.total_cost} will be transferred to them on #{moment(job.assignment.payment.debit_date).format("YYYY-MM-DD h:mm A")}
 

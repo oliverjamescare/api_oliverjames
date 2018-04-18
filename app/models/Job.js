@@ -259,7 +259,7 @@ schema.methods.sendJobAcceptance = function(pdfPath, mailer, careHome, carer)
     mailer.send(__dirname + "/../../views/emails/job-accepted.jade",
         {
             to: careHome.email,
-            subject: "Booking confirmation – " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " – " + moment(job.start_date.getTime()).format("h:mm A"),
+            subject: "Booking confirmation – " + moment(job.start_date).format("YYYY-MM-DD") + " – " + moment(job.start_date).format("h:mm A"),
             attachments: [ { path: __dirname + "/../../public/uploads/" + pdfPath } ]
         },
         { user: carer }, (error) => console.log(error));
@@ -273,7 +273,7 @@ schema.methods.sendJobWithdrawal = function(mailer, carer, careHome, withdrawal)
     mailer.send(__dirname + "/../../views/emails/job-withdrawed.jade",
         {
             to: careHome.email,
-            subject: carer.carer.first_name + " has cancelled a job – " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " – " + moment(job.start_date.getTime()).format("h:mm A"),
+            subject: carer.carer.first_name + " has cancelled a job – " + moment(job.start_date).format("YYYY-MM-DD") + " – " + moment(job.start_date).format("h:mm A"),
         },
         {
             user: carer,
@@ -286,19 +286,20 @@ schema.methods.sendJobWithdrawal = function(mailer, carer, careHome, withdrawal)
 schema.methods.sendJobSummaryEmails = function(mailer, careHome, carer, totalMinutes)
 {
     const job = this;
-
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
 
     //sending email to carer
     mailer.send(__dirname + "/../../views/emails/carer-job-summary-sent.jade", {
         to: carer.email,
-        subject: "Oliver James Job sheet: " + moment(job.start_date.getTime()).format("YYYY-MM-DD") + " / " + careHome.care_home.care_service_name + " / " + Math.floor(totalMinutes / 60) + " hour(s) & " + totalMinutes % 60 + " minute(s)",
+        subject: "Oliver James Job sheet: " + moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("YYYY-MM-DD") + " / " + careHome.care_home.care_service_name + " / " + (hours > 0 ? hours  + " " : "") + (hours == 0 ? '' : hours == 1 ? "hour" : "hours") +  (minutes > 0 && hours > 0 ? ", " : "") + (minutes > 0 ? minutes + " " : "") + (minutes == 0 ? '' : minutes == 1 ? "minute" : "minutes"),
     },
     { job: job, carer: carer, care_home: careHome, total_minutes: totalMinutes, moment: moment  }, (error) => console.log(error));
 
     //sending email to care home
     mailer.send(__dirname + "/../../views/emails/care-home-job-summary-sent.jade", {
         to: careHome.email,
-        subject: "Oliver James Job sheet: " + moment().format("YYYY-MM-DD"),
+        subject: "Oliver James Job sheet: " + moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("YYYY-MM-DD"),
         attachments: [
             { path: __dirname + "/../../public/uploads/" + job.assignment.summary_sheet.standard_invoice },
             { path: __dirname + "/../../public/uploads/" + job.assignment.summary_sheet.signature }

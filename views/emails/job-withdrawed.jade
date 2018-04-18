@@ -3,7 +3,7 @@
     To change this template file, choose Tools | Templates
     and open the template in the editor.
 
-p Unfortunately, #{user.carer.first_name} #{user.carer.surname} has cancelled their attendance for a job - #{moment(job.start_date.getTime()).format("YYYY-MM-DD")} – #{moment(job.start_date.getTime()).format('h:mm A')} – #{job.role}.
+p Unfortunately, #{user.carer.first_name} #{user.carer.surname} has cancelled their attendance for a job - #{moment(job.start_date).format("YYYY-MM-DD")} – #{moment(job.start_date.getTime()).format('h:mm A')} – #{job.role}.
 
 if(withdrawal.message)
     p The carer has given the following reason:

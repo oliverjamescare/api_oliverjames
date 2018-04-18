@@ -314,7 +314,7 @@ module.exports = class
                                 job_income: job_income,
                                 transaction_charge: transactionCosts,
                                 application_fee: applicationFee,
-                                net_income: netIncome,
+                                net_income: parseFloat(netIncome.toFixed(2)),
                                 status: PaymentSchema.statuses.PAID,
                                 payment_date: new Date()
                             }

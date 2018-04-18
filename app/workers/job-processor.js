@@ -48,7 +48,7 @@ cron.schedule('* * * * *', () =>
         .then(notifications => {
 
             notifications.forEach(notification => {
-                QueuesHandler.publish({ user_id: notification.user_id, job_id: notification.job_id, type: "NEW_JOBS" }, { exchange: "notifications", queue: "notifications" })
+                QueuesHandler.publish({ carer_id: notification.user_id, job_id: notification.job_id, type: "NEW_JOBS" }, { exchange: "notifications", queue: "notifications" })
             })
         });
 });

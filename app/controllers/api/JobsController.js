@@ -710,7 +710,7 @@ module.exports = {
 
                 //sending notification
                 if(job.assignment.carer && jobChanged)
-                    QueuesHandler.publish({ user_id: job.assignment.carer, job_id: job._id, type: "JOB_MODIFIED" }, { exchange: "notifications", queue: "notifications" })
+                    QueuesHandler.publish({ carer_id: job.assignment.carer, job_id: job._id, type: "JOB_MODIFIED" }, { exchange: "notifications", queue: "notifications" })
 
                 res.json({ status: true })
             })
@@ -744,7 +744,7 @@ module.exports = {
 
                 //sending notification
                 if(job.assignment.carer)
-                    QueuesHandler.publish({ user_id: job.assignment.carer, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
+                    QueuesHandler.publish({ carer_id: job.assignment.carer, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
             })
             .catch(error => console.log(error));
 
@@ -874,7 +874,7 @@ module.exports = {
 
         const types = ["JOB_CANCELLED", "JOB_MODIFIED", "NEW_JOBS", "REVIEW_PUBLISHED"];
         if(types.indexOf(type) != -1)
-            QueuesHandler.publish({ user_id: req.user._id, job_id: job._id, type: type }, { exchange: "notifications", queue: "notifications" })
+            QueuesHandler.publish({ carer_id: req.user._id, job_id: job._id, type: type }, { exchange: "notifications", queue: "notifications" })
 
         //sending response
         res.json({ status: true });

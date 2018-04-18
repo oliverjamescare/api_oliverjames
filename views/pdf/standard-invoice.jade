@@ -37,8 +37,8 @@ block content
             tr
                 td #{job.role}
                 td #{carer.carer.first_name} #{carer.carer.surname}
-                td #{moment(job.start_date).format("YYYY-MM-DD h:mm A")}
-                td #{moment(job.end_date).format("YYYY-MM-DD h:mm A")}
+                td #{moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date :  job.start_date).format("YYYY-MM-DD h:mm A")}
+                td #{moment(job.assignment.summary_sheet.end_date ? job.assignment.summary_sheet.end_date : job.end_date).format("YYYY-MM-DD h:mm A")}
                 td #{job.assignment.summary_sheet.voluntary_deduction} min
                 td #{job.cost.total_cost}
                 td #{creditsReducer ? creditsReducer.amount : 0}

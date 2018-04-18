@@ -23,7 +23,7 @@ module.exports = {
 	getCarers: async function(req, res)
 	{
 		//params
-		const sort = req.query.sort;
+		const sort = req.query.sort || "";
         const search = req.query.search || "";
         const statusFilter = req.query["status_filter"]
         const pattern = new RegExp("^.*" + search + ".*$");
@@ -35,6 +35,7 @@ module.exports = {
                     status: 1,
                     banned_until: 1,
                     notes: 1,
+                    created: 1,
                     'carer.first_name': 1,
                     'carer.surname': 1,
                     'carer.surname': 1,
@@ -68,6 +69,7 @@ module.exports = {
                     status: 1,
                     banned_until: 1,
                     notes: 1,
+                    created: 1,
                     'carer.first_name': 1,
                     'carer.surname': 1,
                     'carer.surname': 1,
@@ -104,9 +106,8 @@ module.exports = {
 
         const options = {};
 
-        //sort
         switch (sort)
-		{
+        {
             case "id_desc":
             {
                 options["sortBy"] = { _id: -1 };
@@ -192,7 +193,7 @@ module.exports = {
 				options["sortBy"] = { created: -1 };
 				break;
 			}
-		}
+        }
 
 		//pagination and parsing
 		const carers = await Utils.paginate(User, { query: User.aggregate(pipeline), options: options }, req, true);

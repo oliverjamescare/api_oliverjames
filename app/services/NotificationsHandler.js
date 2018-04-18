@@ -169,7 +169,7 @@ module.exports = class
         return isSilent;
     }
 
-    async prepareInputs(type, carer, job)
+    prepareInputs(type, carer, job, careHome)
     {
         let inputs = [];
 
@@ -179,8 +179,6 @@ module.exports = class
         if(type == "PAYMENT_PROCESSED")
         {
             inputs.push(job.assignment.payment.net_income);
-
-            const careHome = await User.findOne({ _id: job.care_home }).exec();
             inputs.push(careHome.care_home.care_service_name);
             inputs.push(job.assignment.summary_sheet.start_date ? moment(job.assignment.summary_sheet.start_date).format("YYYY-MM-DD") : moment(job.start_date).format("YYYY-MM-DD"));
         }

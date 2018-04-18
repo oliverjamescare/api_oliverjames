@@ -158,3 +158,7 @@ h3
 {
     text-align: center;
 }
+.job-signature img
+{
+    max-width: 100%;
+}

@@ -19,6 +19,7 @@ module.exports = {
                 + data.city + ", "
                 + data.postal_code;
 
+            console.log(query)
             //GOOGLE
             const googleParams = {
                 key: config.GOOGLE_KEY,
@@ -37,6 +38,7 @@ module.exports = {
             if(address.postal_code && address.city && address.address_line_1)
             {
                 request.get(googleUrl, { json: true }, (error, response, body) => {
+                    console.log(body)
 
                     if(body["status"] == "OK" && body["results"].length)
                     {

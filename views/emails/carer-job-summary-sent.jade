@@ -1,11 +1,13 @@
+- const hours = Math.floor(total_minutes / 60);
+- const minutes = total_minutes % 60;
 
 p Dear #{carer.carer.first_name},
 
 br
 p
     b JOB COMPLETE
-p This email confirms that that you worked at #{care_home.care_home.care_service_name}, on #{moment(job.start_date).format("YYYY-MM-DD")}, from #{moment(job.start_date).format("h:mm A")} to #{moment(job.end_date).format("h:mm A")} ( #{Math.floor(total_minutes / 60)} hour(s), #{total_minutes % 60} minute(s))
-p You will receive your payment of £ #{job.assignment.projected_income} for #{Math.floor(total_minutes / 60)} hour(s), #{total_minutes % 60} minute(s) by #{moment(job.assignment.payment.debit_date).format("YYYY-MM-DD h:mm A")}
+p This email confirms that that you worked at #{care_home.care_home.care_service_name}, on #{moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("YYYY-MM-DD")}, from #{moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("h:mm A")} to #{moment(job.assignment.summary_sheet.end_date ? job.assignment.summary_sheet.end_date : job.end_date).format("h:mm A")} ( #{hours > 0 ? hours : ""} #{hours == 0 ? '' : hours == 1 ? "hour" : "hours"}#{minutes > 0 && hours > 0 ? ", " + minutes : ""}#{minutes == 0 ? '' : minutes == 1 ? "minute" : "minutes"} )
+p You will receive your payment of £ #{job.assignment.projected_income} for #{hours > 0 ? hours + " " : ""}#{hours == 0 ? '' : hours == 1 ? "hour" : "hours"}#{minutes > 0 && hours > 0 ? ", " + minutes + " " : ""}#{minutes == 0 ? '' : minutes == 1 ? "minute" : "minutes"} by #{moment(job.assignment.payment.debit_date).format("YYYY-MM-DD h:mm A")}
 
 br
 p
