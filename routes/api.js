@@ -21,6 +21,8 @@ router.post('/care-home/waiting-list', AuthController.addUserToCareHomeWaitingLi
 router.post('/login', AuthController.login);
 router.post('/password/remind', AuthController.remindPassword);
 router.put('/password/remind/change', AuthController.remindPasswordChange);
+router.get('/address/search', AuthController.searchAddresses);
+router.get('/address/search/:id', AuthController.getAddress);
 
 //User
 router.get('/user/uniqueness', UsersController.checkUniqueness);

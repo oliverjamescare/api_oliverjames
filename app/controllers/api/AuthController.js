@@ -289,6 +289,19 @@ module.exports = {
                 })
                 .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
         });
+    },
+
+    //addresses
+    searchAddresses: async function (req, res)
+    {
+        const addresses = await locationHandler.searchAddresses(req.query);
+        res.json({ results: addresses })
+    },
+
+    getAddress: async function (req, res)
+    {
+        const address = await locationHandler.getAddressDetails(req.params.id);
+        res.json(address[0] ? address[0] : {});
     }
 }
 

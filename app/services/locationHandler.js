@@ -2,11 +2,12 @@ const request = require('request');
 const config = process.env;
 
 const pcaRetreiveEndpoint = "https://services.postcodeanywhere.co.uk/Capture/Interactive/Retrieve/v1.00/json.ws?";
+const pcaFindEndpoint = "https://services.postcodeanywhere.co.uk/Capture/Interactive/Find/v1.00/json.ws?";
 const googleEndpoint = "https://maps.googleapis.com/maps/api/place/textsearch/json?";
 
 module.exports = {
 
-    getCustomLocation(data)
+    getCustomLocation: function(data)
     {
         return new Promise(resolve => {
 
@@ -56,6 +57,44 @@ module.exports = {
             else
                 resolve(address);
 
+        });
+    },
+
+    searchAddresses: function (data)
+    {
+        return new Promise(resolve => {
+
+            if(!data.search)
+                return resolve([]);
+
+            //preparing params
+            const params = {
+                Key: config.PCA_KEY,
+                Text: data.search,
+                Countries: "GB",
+                Limit: 10,
+                Language: "en-gb"
+            };
+
+            if(data.container)
+                params["Container"] = data.container;
+
+            request.get(pcaFindEndpoint + encodeUrlParams(params), { json: true }, (error, response, body) => resolve(body));
+        });
+
+    },
+
+    getAddressDetails: function (id)
+    {
+        return new Promise(resolve => {
+
+            //preparing params
+            const params = {
+                Key: config.PCA_KEY,
+                Id: id
+            };
+
+            request.get(pcaRetreiveEndpoint + encodeUrlParams(params), { json: true }, (error, response, body) => resolve(body));
         });
     }
 }
