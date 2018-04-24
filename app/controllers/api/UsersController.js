@@ -18,7 +18,7 @@ module.exports = {
     checkUniqueness: async function(req, res)
     {
         if(req.query.email)
-            res.json({ exists: Boolean(await User.findOne({ email: req.query.email }))});
+            res.json({ exists: Boolean(await User.findOne({ email: req.query.email ?  req.query.email.toString().toLowerCase() : null }))});
         else if(req.query.phone_number)
             res.json({ exists: Boolean(await User.findOne({ phone_number: req.query.phone_number }))});
         else
@@ -144,7 +144,7 @@ module.exports = {
     changeEmail: function (req, res)
     {
         const email = req.user.email;
-        req.user.email = req.body.email;
+        req.user.email = req.body.email ? req.body.email.toString().toLowerCase() : null;
 
         req.user
             .validate()

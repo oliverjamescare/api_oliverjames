@@ -444,7 +444,7 @@ module.exports = {
         //user
         let user = new User({
             _id: id,
-            email: req.body.email,
+            email: req.body.email ? req.body.email.toString().toLowerCase() : null,
             password: req.body.password,
             phone_number: req.body.phone_number,
             notes: req.body.notes || null,

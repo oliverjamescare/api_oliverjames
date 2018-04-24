@@ -300,7 +300,7 @@ module.exports = {
         //user
         let user = new User({
             _id: id,
-            email: body.email,
+            email: req.body.email ? req.body.email.toString().toLowerCase() : null,
             password: body.password,
             phone_number: body.phone_number,
             notes: body.notes || null,

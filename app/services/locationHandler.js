@@ -14,8 +14,8 @@ module.exports = {
             if(!data)
                 resolve();
 
-            const query = (data.company ? data.company + ", " : "")
-                + data.address_line_1 + ", "
+            const query = //(data.company ? data.company + ", " : "")
+                data.address_line_1 + ", "
                 + (data.address_line_2 ? data.address_line_2 + ", " : "")
                 + data.city + ", "
                 + data.postal_code;

@@ -1,7 +1,7 @@
 extends _base
 
 block content
-    p Please find a summary of your job and the assigned carer attached. This can be kept for your records, but it will be accessible from online account
+    p Please find a summary of your job and the assigned carer attached. This can be kept for your records, but it is also accessible from your OJC account.
 
     -    var address = function (address) { return (address.company ? address.company + ", " : "") + address.address_line_1 + ", " + (address.address_line_2 ? address.address_line_2 + ", " : "") + address.city + ", "+ address.postal_code };
 
@@ -55,7 +55,7 @@ block content
     div.carer
         div.profile-image-container
             if job.carer.carer.profile_image
-                img.profile-image(src=job.carer.carer.profile_image)
+                img.profile-image(src=file(job.carer.carer.profile_image))
         div.details
             h4.fullname #{job.carer.carer.first_name} #{job.carer.carer.surname}
             div.star-container
