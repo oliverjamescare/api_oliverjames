@@ -74,94 +74,20 @@ module.exports = {
 							maxFileSize: 10
 						});
 
-
-		//getting job objects
-		let jobs = [], jobsObjects = [], validGeneralGuidance = req.user.care_home.hasValidGeneralGuidance();
-		try {
-			jobsObjects = Array.isArray(JSON.parse(req.body[ "jobs" ])) ? JSON.parse(req.body[ "jobs" ]) : [];
-		}
-		catch (error) {}
-
-		const group = randomstring.generate(32);
-
-		//TO REMOVE
-        const dayPrice = 11.5;
-
-        const days = {
-            monday_price: dayPrice,
-            tuesday_price: dayPrice,
-            wednesday_price: dayPrice,
-            thursday_price: dayPrice,
-            friday_price: dayPrice,
-            saturday_price: dayPrice,
-            sunday_price: dayPrice,
+		//new general guidance
+        const generalGuidance = {
+            superior_contact: req.body.superior_contact,
+            report_contact: req.body.report_contact,
+            emergency_guidance: req.body.emergency_guidance,
+            notes_for_carers: req.body.notes_for_carers,
+            parking: req.body.parking,
+            floor_plan: filePath
         }
 
-        const pricing_hours = {
-            hour_0_1: days,
-            hour_1_2: days,
-            hour_2_3: days,
-            hour_3_4: days,
-            hour_4_5: days,
-            hour_5_6: days,
-            hour_6_7: days,
-            hour_7_8: days,
-            hour_8_9: days,
-            hour_9_10: days,
-            hour_10_11: days,
-            hour_11_12: days,
-            hour_12_13: days,
-            hour_13_14: days,
-            hour_14_15: days,
-            hour_15_16: days,
-            hour_16_17: days,
-            hour_17_18: days,
-            hour_18_19: days,
-            hour_19_20: days,
-            hour_20_21: days,
-            hour_21_22: days,
-            hour_22_23: days,
-            hour_23_0: days
-        };
-
-		//creating job objects
-		jobsObjects.forEach(jobObject => {
-			if (typeof jobObject == "object")
-			{
-				//generating multiple jobs
-				const carersAmount = (parseInt(jobObject[ "amount" ]) || 1) > 1 ? (parseInt(jobObject[ "amount" ]) || 1) : 1;
-				for (let i = 0; i < carersAmount && i < 5; i++)
-				{
-					let job = new Job({
-						start_date: new Date(jobObject.start_date),
-						end_date: new Date(jobObject.end_date),
-						care_home: req.user._id,
-						role: jobObject.role,
-						notes: jobObject.notes,
-                        group: group,
-                        booking_pricing: {
-                            manual_booking_pricing: 1,
-                            app_commission: 10,
-                            max_to_deduct: 20,
-                            pricing: pricing_hours
-                        },
-                        priority_carers: Array.isArray(jobObject.priority_carers) ? jobObject.priority_carers.filter(carerId => ObjectId.isValid(carerId)) : [],
-                        gender_preference: Object.values(JobModel.genderPreferences).indexOf(req.body.gender_preference) != -1 ? req.body.gender_preference : JobModel.genderPreferences.NO_PREFERENCE,
-						general_guidance: {
-							superior_contact: validGeneralGuidance ? req.body.superior_contact || req.user.care_home.general_guidance.superior_contact : req.body.superior_contact,
-							report_contact: validGeneralGuidance ? req.body.report_contact || req.user.care_home.general_guidance.report_contact : req.body.report_contact,
-							emergency_guidance: validGeneralGuidance ? req.body.emergency_guidance || req.user.care_home.general_guidance.emergency_guidance : req.body.emergency_guidance,
-							notes_for_carers: validGeneralGuidance ?  req.body.notes_for_carers || req.user.care_home.general_guidance.notes_for_carers: req.body.notes_for_carers,
-							parking: validGeneralGuidance ? req.body.parking || req.user.care_home.general_guidance.parking : req.body.parking,
-							floor_plan: filePath ? filePath : validGeneralGuidance ? req.user.care_home.general_guidance.floor_plan : null,
-						}
-					});
-
-					jobs.push(job);
-				}
-			}
-		});
-
+        //preparing jobs instances
+        const jobs = JobsHandler.prepareBookingJobs(req.user, req.body.jobs, req.body.gender_preference, generalGuidance);
+        if(!jobs.length)
+            return res.status(406).json(Utils.parseStringError("Invalid jobs", "jobs"));
 
 		//validation
 		async.parallel(
@@ -179,7 +105,7 @@ module.exports = {
 				if(!res.headersSent && results)
 				{
 					//sending response
-					res.status(201).json({ status: true, group: group });
+					res.status(201).json({ status: true, group: jobs[0].group });
 
                     //updating general guidance
                     if (jobs.length)
@@ -194,13 +120,12 @@ module.exports = {
 
                     jobs.forEach(async job => {
 
-                            const availableCarers = await JobsHandler.getAvailableCarers(job, req.user);
-                            const notifications = await JobsHandler.assignBuckets(availableCarers, job.priority_carers, job.start_date, settings);
-                            notifications.forEach(notification => job.notifications.push(notification));
+                        const availableCarers = await JobsHandler.getAvailableCarers(job, req.user);
+                        const notifications = await JobsHandler.assignBuckets(availableCarers, job.priority_carers, job.start_date, settings);
+                        notifications.forEach(notification => job.notifications.push(notification));
 
-                            job.save().catch(error => console.log(error))
-                        }
-                    );
+                        job.save().catch(error => console.log(error))
+                    });
 				}
 			}
 		);

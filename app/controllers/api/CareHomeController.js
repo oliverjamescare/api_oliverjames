@@ -68,12 +68,38 @@ module.exports = {
     	const search = req.query.search || "";
     	const pattern = new RegExp("^.*" + search + ".*$");
 
-    	const carers = await User.find(
-				{ carer: { $exists: true }, _id: { $in: lastCarers }, $or: [ { 'carer.first_name': { $regex: pattern, $options: "x" } }, {'carer.surname': { $regex: pattern, $options: "x" }} ]},
-				{ 'carer.first_name': 1, 'carer.surname': 1 }
-			)
-			.limit(10)
-			.exec();
+        const carers = await User.aggregate(
+            [
+                {
+                    $match: {
+                        carer: { $exists: true },
+                        _id: { $in: lastCarers }
+                    }
+                },
+                {
+                    $project: {
+                        'carer.first_name': 1,
+                        'carer.surname': 1,
+                        'fullname': { $concat: [ '$carer.first_name', " ", '$carer.surname' ] },
+                    }
+                },
+                {
+                    $match: {
+                        $or:[
+                            { 'carer.first_name': { $regex: pattern, $options: "xi" } },
+                            { 'carer.surname': { $regex: pattern, $options: "xi" } },
+                            { 'fullname': { $regex: pattern, $options: "i" } },
+                        ],
+                    }
+                },
+                {
+                    $project: {
+                        'carer.first_name': 1,
+                        'carer.surname': 1
+                    }
+                },
+                { $limit : 10 }
+            ]);
 
 		res.json({ carers });
     },

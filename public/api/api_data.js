@@ -1,5 +1,81 @@
 define({ "api": [
   {
+    "type": "get",
+    "url": "/address/search/:id",
+    "title": "Address details",
+    "version": "0.0.1",
+    "name": "Address_details",
+    "group": "Address",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>Place id</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n        \"Id\": \"GB|RM|B|8836300\",\n        \"DomesticId\": \"8836300\",\n        \"Language\": \"ENG\",\n        \"LanguageAlternatives\": \"ENG\",\n        \"Department\": \"\",\n        \"Company\": \"\",\n        \"SubBuilding\": \"\",\n        \"BuildingNumber\": \"\",\n        \"BuildingName\": \"1 Railway Terrace\",\n        \"SecondaryStreet\": \"\",\n        \"Street\": \"\",\n        \"Block\": \"\",\n        \"Neighbourhood\": \"\",\n        \"District\": \"Tipton St. John\",\n        \"City\": \"Sidmouth\",\n        \"Line1\": \"1 Railway Terrace\",\n        \"Line2\": \"Tipton St. John\",\n        \"Line3\": \"\",\n        \"Line4\": \"\",\n        \"Line5\": \"\",\n        \"AdminAreaName\": \"Devon\",\n        \"AdminAreaCode\": \"\",\n        \"Province\": \"Devon\",\n        \"ProvinceName\": \"Devon\",\n        \"ProvinceCode\": \"\",\n        \"PostalCode\": \"EX10 0AA\",\n        \"CountryName\": \"United Kingdom\",\n        \"CountryIso2\": \"GB\",\n        \"CountryIso3\": \"GBR\",\n        \"CountryIsoNumber\": \"826\",\n        \"SortingNumber1\": \"87134\",\n        \"SortingNumber2\": \"\",\n        \"Barcode\": \"(EX100AA1D6)\",\n        \"POBoxNumber\": \"\",\n        \"Label\": \"1 Railway Terrace\\nTipton St. John\\nSIDMOUTH\\nEX10 0AA\\nUNITED KINGDOM\",\n        \"Type\": \"Residential\",\n        \"DataLevel\": \"Premise\",\n        \"Field1\": \"\",\n        \"Field2\": \"\",\n        \"Field3\": \"\",\n        \"Field4\": \"\",\n        \"Field5\": \"\",\n        \"Field6\": \"\",\n        \"Field7\": \"\",\n        \"Field8\": \"\",\n        \"Field9\": \"\",\n        \"Field10\": \"\",\n        \"Field11\": \"\",\n        \"Field12\": \"\",\n        \"Field13\": \"\",\n        \"Field14\": \"\",\n        \"Field15\": \"\",\n        \"Field16\": \"\",\n        \"Field17\": \"\",\n        \"Field18\": \"\",\n        \"Field19\": \"\",\n        \"Field20\": \"\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/api/input/Address.js",
+    "groupTitle": "Address"
+  },
+  {
+    "type": "get",
+    "url": "/address/search",
+    "title": "Address search",
+    "sampleRequest": [
+      {
+        "url": "http://api.oliver-james.ready4s.it/api/address/search"
+      }
+    ],
+    "version": "0.0.1",
+    "name": "Address_search",
+    "group": "Address",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "search",
+            "description": "<p>Search string</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "container",
+            "description": "<p>Container id to receive closer results</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "HTTP/1.1 200 OK\n{\n        \"Id\": \"GB|RM|B|8836300\",\n        \"Type\": \"Address\",\n        \"Text\": \"1 Railway Terrace\",\n        \"Highlight\": \"\",\n        \"Description\": \"Tipton St. John, Sidmouth, EX10 0AA\"\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "docs/api/input/Address.js",
+    "groupTitle": "Address"
+  },
+  {
     "type": "post",
     "url": "/care-home/waiting-list",
     "title": "Add care home to waiting list",

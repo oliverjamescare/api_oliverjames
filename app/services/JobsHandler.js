@@ -1,14 +1,102 @@
 //core
 const async = require("async");
+const randomstring = require('randomstring');
 
-//custom
+//modesl
 const JobModel = require("./../models/Job");
 const Job = JobModel.schema;
 const ReviewSchema = require("./../models/schemas/Review");
-
 const User = require("./../models/User").schema;
+
+//handlers
 const CarersHandler = require('./CarersHandler');
 const PDFHandler = require('./../services/PDFHandler');
+
+
+//TO REMOVE
+const carer_night_set = {
+    monday_price: 12.15,
+    tuesday_price: 12.15,
+    wednesday_price: 12.15,
+    thursday_price: 12.15,
+    friday_price: 13.80,
+    saturday_price: 14.25,
+    sunday_price: 14.25,
+}
+const carer_day_set = {
+    monday_price: 11.25,
+    tuesday_price: 11.25,
+    wednesday_price: 11.25,
+    thursday_price: 11.25,
+    friday_price: 11.25,
+    saturday_price: 12.95,
+    sunday_price: 12.95,
+}
+
+const senior_set = {
+    monday_price: 13.25,
+    tuesday_price: 13.25,
+    wednesday_price: 13.25,
+    thursday_price: 13.25,
+    friday_price: 13.25,
+    saturday_price: 13.25,
+    sunday_price: 13.25,
+}
+
+const booking_pricing = {
+    carer: {
+        hour_0_1: carer_night_set,
+        hour_1_2: carer_night_set,
+        hour_2_3: carer_night_set,
+        hour_3_4: carer_night_set,
+        hour_4_5: carer_night_set,
+        hour_5_6: carer_night_set,
+        hour_6_7: carer_night_set,
+        hour_7_8: carer_night_set,
+        hour_8_9: carer_day_set,
+        hour_9_10: carer_day_set,
+        hour_10_11: carer_day_set,
+        hour_11_12: carer_day_set,
+        hour_12_13: carer_day_set,
+        hour_13_14: carer_day_set,
+        hour_14_15: carer_day_set,
+        hour_15_16: carer_day_set,
+        hour_16_17: carer_day_set,
+        hour_17_18: carer_day_set,
+        hour_18_19: carer_day_set,
+        hour_19_20: carer_day_set,
+        hour_20_21: carer_night_set,
+        hour_21_22: carer_night_set,
+        hour_22_23: carer_night_set,
+        hour_23_0: carer_night_set
+    },
+    senior_carer: {
+        hour_0_1: senior_set,
+        hour_1_2: senior_set,
+        hour_2_3: senior_set,
+        hour_3_4: senior_set,
+        hour_4_5: senior_set,
+        hour_5_6: senior_set,
+        hour_6_7: senior_set,
+        hour_7_8: senior_set,
+        hour_8_9: senior_set,
+        hour_9_10: senior_set,
+        hour_10_11: senior_set,
+        hour_11_12: senior_set,
+        hour_12_13: senior_set,
+        hour_13_14: senior_set,
+        hour_14_15: senior_set,
+        hour_15_16: senior_set,
+        hour_16_17: senior_set,
+        hour_17_18: senior_set,
+        hour_18_19: senior_set,
+        hour_19_20: senior_set,
+        hour_20_21: senior_set,
+        hour_21_22: senior_set,
+        hour_22_23: senior_set,
+        hour_23_0: senior_set
+    },
+}
 
 module.exports = {
     getNewJobs: function(req, fromCareHome = null, withoutJob = null)
@@ -443,7 +531,64 @@ module.exports = {
             deducted_minutes_cost: deductedCost,
             total_minutes: totalMinutes
         };
-    }
+    },
+
+    prepareBookingJobs: function (user, requestedJobsArray, genderPreference, generalGuidance = {}, manualBooking = false)
+    {
+        //getting job objects
+        const group = randomstring.generate(32);
+        let jobs = [], jobsObjects = [], validGeneralGuidance = user.care_home.hasValidGeneralGuidance();
+        try {
+            jobsObjects = Array.isArray(JSON.parse(requestedJobsArray)) ? JSON.parse(requestedJobsArray) : [];
+        }
+        catch (error) {}
+
+        //creating job objects
+        jobsObjects.forEach(jobObject => {
+            if (typeof jobObject == "object")
+            {
+                //generating multiple jobs
+                const carersAmount = (parseInt(jobObject[ "amount" ]) || 1) > 1 ? (parseInt(jobObject[ "amount" ]) || 1) : 1;
+                for (let i = 0; i < carersAmount && i < 5; i++)
+                {
+                    let job = new Job({
+                        start_date: new Date(jobObject.start_date),
+                        end_date: new Date(jobObject.end_date),
+                        care_home: user._id,
+                        role: jobObject.role,
+                        notes: jobObject.notes,
+                        group: group,
+                        manual_booking: manualBooking,
+                        booking_pricing: {
+                            manual_booking_pricing: 1,
+                            app_commission: 8,
+                            max_to_deduct: 20,
+                            pricing: getBookingPricing(jobObject.role)
+                        },
+                        priority_carers: Array.isArray(jobObject.priority_carers) ? jobObject.priority_carers.filter(carerId => ObjectId.isValid(carerId)) : [],
+                        gender_preference: Object.values(JobModel.genderPreferences).indexOf(genderPreference) != -1 ? genderPreference : JobModel.genderPreferences.NO_PREFERENCE,
+                        general_guidance: {
+                            superior_contact: validGeneralGuidance ? generalGuidance.superior_contact || user.care_home.general_guidance.superior_contact : generalGuidance.superior_contact,
+                            report_contact: validGeneralGuidance ? generalGuidance.report_contact || user.care_home.general_guidance.report_contact : generalGuidance.report_contact,
+                            emergency_guidance: validGeneralGuidance ? generalGuidance.emergency_guidance || user.care_home.general_guidance.emergency_guidance : generalGuidance.emergency_guidance,
+                            notes_for_carers: validGeneralGuidance ?  generalGuidance.notes_for_carers || user.care_home.general_guidance.notes_for_carers: generalGuidance.notes_for_carers,
+                            parking: validGeneralGuidance ? generalGuidance.parking || user.care_home.general_guidance.parking : generalGuidance.parking,
+                            floor_plan: generalGuidance.floor_plan ? generalGuidance.floor_plan : validGeneralGuidance ? user.care_home.general_guidance.floor_plan : null,
+                        }
+                    });
+
+                    jobs.push(job);
+                }
+            }
+        });
+
+        return jobs;
+    },
+}
+
+function getBookingPricing(role)
+{
+    return role == "Senior Carer" ? booking_pricing.senior_carer : booking_pricing.carer;
 }
 
 function getTimeRangeName(jobStart)

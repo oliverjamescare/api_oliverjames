@@ -38,7 +38,6 @@ module.exports = {
                     created: 1,
                     'carer.first_name': 1,
                     'carer.surname': 1,
-                    'carer.surname': 1,
                     'carer.date_of_birth': 1,
                     'carer.reviews': 1,
                     'fullname': { $concat: [ '$carer.first_name', " ", '$carer.surname' ] },

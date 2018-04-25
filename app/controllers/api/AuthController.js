@@ -197,7 +197,7 @@ module.exports = {
 
         //login with credentials and refresh token handle
         if (req.body.email && req.body.password)
-            query[ "email" ] = req.body.email;
+            query[ "email" ] = { $regex: new RegExp(req.body.email.toString().toLowerCase()), $options: "xi" }
         else if (req.body.refresh_token)
             query[ "access_token.refresh_token" ] = req.body.refresh_token;
         else
