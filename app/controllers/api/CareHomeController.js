@@ -124,7 +124,11 @@ module.exports = {
 			leanWithId: false
 		};
 
-		const  query = { $and: [ { _id: {  $in: req.user.care_home.jobs } }, { "assignment.summary_sheet": { $exists: false } }, { status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }} ]};
+		const  query = { $and: [
+					{ _id: {  $in: req.user.care_home.jobs } },
+					{ "assignment.summary_sheet": { $exists: false } },
+					{ status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }}
+				]};
 
 		const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
 		let paginated = Utils.parsePaginatedResults(jobs);
