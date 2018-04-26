@@ -16,6 +16,7 @@ function getConnectionLink()
     
     link += dbConfig.host+":"+dbConfig.port+"/"+dbConfig.database;
     return link;
+
 }
 
 mongoose.connect(getConnectionLink(), { useMongoClient: true });
