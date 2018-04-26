@@ -600,5 +600,17 @@
  *              }
  *          ]
  *      }
+ *
+ * @apiError MissingCard Missing card.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Missing card.
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "card",
+ *                   "message": "This care home has no added card"
+ *              }
+ *          ]
+ *      }
  */
 

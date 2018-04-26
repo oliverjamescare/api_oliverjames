@@ -213,7 +213,6 @@ module.exports = {
             if (user.status == UserModel.statuses.BLOCKED || user.status == UserModel.statuses.BANNED)
                 return res.status(403).json(Utils.parseStringError("Blocked account", "user"));
 
-
             //refresh token login
             if (query[ "access_token.refresh_token" ])
             {

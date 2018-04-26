@@ -25,13 +25,13 @@ block content
             p.content #{job.gender_preference}
         li
             span.label Care home:
-            p.content #{job.author.care_home.care_service_name}
+            p.content #{job.care_home.care_home.care_service_name}
         li
             span.label Phone:
-            p.content #{job.author.phone_number}
+            p.content #{job.care_home.phone_number}
         li
             span.label Address:
-            p.content #{address(job.author.address)}
+            p.content #{address(job.care_home.address)}
         li
             span.label Who to speak to if calling the service:
             p.content #{job.general_guidance.superior_contact}
@@ -54,16 +54,14 @@ block content
     h3 Carer details
     div.carer
         div.profile-image-container
-            if job.carer.carer.profile_image
-                img.profile-image(src=file(job.carer.carer.profile_image))
+            if job.assignment.carer.carer.profile_image
+                img.profile-image(src=file('/uploads/' + job.assignment.carer.carer.profile_image))
         div.details
-            h4.fullname #{job.carer.carer.first_name} #{job.carer.carer.surname}
+            h4.fullname #{job.assignment.carer.carer.first_name} #{job.assignment.carer.carer.surname}
             div.star-container
                 i.fa.fa-star
             div.reviews-container
-                span #{job.carer.carer.reviews.count > 0 ? job.carer.carer.reviews.average + ' from ' + job.carer.carer.reviews.count : 'No reviews so far'}
-                br
-                span #{job.carer.carer.care_experience.years } #{job.carer.carer.care_experience.years > 1 ? ' years ': ' year '} #{(job.carer.carer.care_experience.months > 0)? ' and ' + job.carer.carer.care_experience.months + (job.carer.carer.care_experience.months > 1 ? ' months ' : ' month ') : ''} care experience
+                span #{job.assignment.carer.carer.reviews.count > 0 ? job.assignment.carer.carer.reviews.average + ' from ' + job.assignment.carer.carer.reviews.count : 'No reviews so far'}
 
     div.clear
     br
@@ -72,69 +70,69 @@ block content
     ul.details-list
         li
             span.label Telephone number:
-            p.content #{job.carer.phone_number}
+            p.content #{job.assignment.carer.phone_number}
 
-        if job.carer.carer.training_record.dementia
+        if job.assignment.carer.carer.training_record.dementia
             li
                 span.label Dementia:
-                p.content #{moment(job.carer.carer.training_record.dementia).format("YYYY-MM-DD")}
+                p.content #{moment(job.assignment.carer.carer.training_record.dementia).format("YYYY-MM-DD")}
 
-        if job.carer.carer.training_record.fire_safety
+        if job.assignment.carer.carer.training_record.fire_safety
             li
                 span.label Fire safety:
-                p.content #{moment(job.carer.carer.training_record.fire_safety).format("YYYY-MM-DD")}
+                p.content #{moment(job.assignment.carer.carer.training_record.fire_safety).format("YYYY-MM-DD")}
 
-        if job.carer.carer.training_record.first_aid_and_basic_life_support
+        if job.assignment.carer.carer.training_record.first_aid_and_basic_life_support
             li
                 span.label First aid and basic life support:
-                p.content #{moment(job.carer.carer.training_record.first_aid_and_basic_life_support).format("YYYY-MM-DD")}
+                p.content #{moment(job.assignment.carer.carer.training_record.first_aid_and_basic_life_support).format("YYYY-MM-DD")}
 
-        if job.carer.carer.training_record.first_aid_awareness
+        if job.assignment.carer.carer.training_record.first_aid_awareness
             li
                 span.label First aid awareness:
-                p.content #{moment(job.carer.carer.training_record.first_aid_awareness).format("YYYY-MM-DD")}
+                p.content #{moment(job.assignment.carer.carer.training_record.first_aid_awareness).format("YYYY-MM-DD")}
 
-        if job.carer.carer.training_record.h_and_s
+        if job.assignment.carer.carer.training_record.h_and_s
             li
                 span.label H & S:
-                p.content #{moment(job.carer.carer.training_record.h_and_s).format("YYYY-MM-DD")}
+                p.content #{moment(job.assignment.carer.carer.training_record.h_and_s).format("YYYY-MM-DD")}
 
-        if job.carer.carer.training_record.infection_control
+        if job.assignment.carer.carer.training_record.infection_control
             li
                 span.label Infection control:
-                p.content #{moment(job.carer.carer.training_record.infection_control).format("YYYY-MM-DD")}
+                p.content #{moment(job.assignment.carer.carer.training_record.infection_control).format("YYYY-MM-DD")}
 
-        if job.carer.carer.training_record.manual_handling_people
+        if job.assignment.carer.carer.training_record.manual_handling_people
             li
                 span.label Manual handling people:
-                p.content #{moment(job.carer.carer.training_record.manual_handling_people).format("YYYY-MM-DD")}
+                p.content #{moment(job.assignment.carer.carer.training_record.manual_handling_people).format("YYYY-MM-DD")}
 
-        if job.carer.carer.training_record.medication_management
+        if job.assignment.carer.carer.training_record.medication_management
             li
                 span.label Medication managment:
-                p.content #{moment(job.carer.carer.training_record.medication_management).format("YYYY-MM-DD")}
+                p.content #{moment(job.assignment.carer.carer.training_record.medication_management).format("YYYY-MM-DD")}
 
-        if job.carer.carer.training_record.safeguarding
+        if job.assignment.carer.carer.training_record.safeguarding
             li
                 span.label Safeguarding:
-                p.content #{moment(job.carer.carer.training_record.safeguarding).format("YYYY-MM-DD")}
+                p.content #{moment(job.assignment.carer.carer.training_record.safeguarding).format("YYYY-MM-DD")}
 
     br
 
     //carer reviews
     h3 Reviews
-    if(job.carer.carer.jobs.length)
+    if(job.assignment.carer.carer.jobs.length)
         ul.reviews
-            each review in job.carer.carer.jobs
+            each review in job.assignment.carer.carer.jobs
                 li.review-item
                     div.review-content-container
                         p.review #{review.review.description}
-                        p.author By #{review.author.care_home.care_service_name}, #{moment(review.review.created).format("YYYY-MM-DD")}
+                        p.author By #{review.care_home.care_home.care_service_name}, #{moment(review.review.created).format("YYYY-MM-DD")}
                     div.rating-container
                         i.fa.fa-star
                         span #{review.review.rate}
 
-    if(!job.carer.carer.jobs.length)
+    if(!job.assignment.carer.carer.jobs.length)
         p This carer has no reviews
 
 

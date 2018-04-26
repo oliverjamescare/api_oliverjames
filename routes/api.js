@@ -80,10 +80,7 @@ router.put('/jobs/:id/cancel', authenticate, security(["CARE_HOME_FULL"]), JobsC
 router.get('/jobs/:id/other-jobs', authenticate, security(["CARER_FULL"]), JobsController.getCareHomeOtherJobs);
 router.post('/jobs/:id/carer/review', authenticate, security(["CARE_HOME_FULL"]), JobsController.reviewJob);
 router.post('/jobs/:id/challenge', authenticate, security(["CARE_HOME_FULL"]), JobsController.challengeJob);
-
-
-router.post('/jobs/:id/test', authenticate, security(["CARER_FULL"]), JobsController.testMethods); //TO REMOVE
-router.post('/jobs/:id/notification/:type/test', authenticate, security(["CARER_FULL"]), JobsController.testNotification); //TO REMOVE
+router.put('/jobs/:id/request-carer-change', authenticate, security(["CARE_HOME_FULL"]), JobsController.requestCarerChange);
 
 
 //Payments

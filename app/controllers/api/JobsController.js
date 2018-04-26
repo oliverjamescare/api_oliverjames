@@ -30,18 +30,6 @@ module.exports = {
 	//all
     getJobDetails: async function(req, res)
     {
-
-        // const jb = await Job.findOne({ _id: req.params.id }).exec();
-        // jb.save();
-        // res.json({ status: true })
-
-        // const handler = new PaymentsHandler();
-        // handler.processPayment(jb, req).then(result => {
-        //     result.save();
-        //     res.json({ result });
-        // })
-        // .catch(e =>  res.json(e));
-
         JobsHandler.getJobDetailsQuery(req.params.id, req.user.care_home ? true : false)
             .lean()
             .exec((error, job) => {
@@ -59,6 +47,10 @@ module.exports = {
 	//only care home methods
 	addJobs: async function (req, res)
 	{
+	    //card is required
+	    if(!req.user.care_home.payment_system.customer_id)
+            return res.status(403).json(Utils.parseStringError("You have to add card before booking jobs", "card"));
+
 		//floor plan upload
 		const uploader = fileHandler(req, res);
 		const filePath = await uploader.handleSingleUpload("floor_plan", "users/" + req.user._id,
@@ -109,7 +101,10 @@ module.exports = {
 
                     //updating general guidance
                     if (jobs.length)
+                    {
 						req.user.care_home.general_guidance = jobs[0].general_guidance;
+						req.user.care_home.gender_preference = jobs[0].gender_preference;
+                    }
 
                     //saving job references
                     jobs.forEach(job => req.user.care_home.jobs.push(job));
@@ -286,6 +281,10 @@ module.exports = {
 	//only carer methods
     acceptJob: async function(req, res)
     {
+        //bank details required
+        if(!req.user.carer.payment_system.account_id)
+            return res.status(403).json(Utils.parseStringError("You have to add bank account before accepting jobs", "bank account"));
+
         //getting job
         const job = await Job.findOne({ _id: req.params.id }).exec();
 
@@ -313,17 +312,13 @@ module.exports = {
         if(req.user.carer.eligible_roles.indexOf(job.role) == -1)
             return res.status(409).json(Utils.parseStringError("This job requires role to be " + job.role + " .", "job"));
 
-        //availability failure
-        if(!req.user.carer.checkAvailabilityForDateRange(job.start_date, job.end_date))
-            return res.status(409).json(Utils.parseStringError("You're not available during this job. Check your availability.", "job"));
-
         //checking if care home hasn't blocked this carer
         const careHome = await User.findOne({ _id: job.care_home, care_home: { $exists: true }}).exec();
         if(careHome.care_home.blocked_carers.find(carerId => carerId.toString() == req.user._id.toString()))
             return res.status(409).json(Utils.parseStringError("You are blocked by this care home.", "job"));
 
         //finding my jobs in this time
-        const conflicts = await Job.count({ $and: [{_id: { $in: req.user.carer.jobs }}, { start_date: { $lte: job.end_date }},  { end_date: { $gte: job.end_date }}, { 'assignment.summary_sheet': { $exists: false }} ]});
+        const conflicts = await Job.count({ $and: [{_id: { $in: req.user.carer.jobs }}, { start_date: { $lt: job.end_date }},  { end_date: { $gt: job.start_date }}, { 'assignment.summary_sheet': { $exists: false }} ]});
         if(Boolean(conflicts))
             return res.status(409).json(Utils.parseStringError("Conflict! You already have job in this time.", "job"));
 
@@ -342,6 +337,61 @@ module.exports = {
                 job.save().catch(error => console.log(error));
             })
             .catch(error => console.log(error));
+    },
+
+    requestCarerChange: async function(req, res)
+    {
+        //getting job
+        const job = await Job.findOne({ _id: req.params.id }).exec();
+
+        //not found
+        if(!job)
+            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
+
+        //checking is user an author of this job
+        if(req.user._id.toString() != job.care_home.toString())
+            return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
+
+        //summary sent
+        if(!job.assignment.carer)
+            return res.status(409).json(Utils.parseStringError("This job has no carer", "job"));
+
+        //summary sent
+        if(job.assignment.summary_sheet)
+            return res.status(409).json(Utils.parseStringError("You can't request for carer change in job with summary sheet sent", "job"));
+
+        //summary sent
+        if(job.status == JobModel.statuses.CANCELLED)
+            return res.status(409).json(Utils.parseStringError("You can't modify cancelled job", "job"));
+
+        //getting carer
+        const carer = await User.findOne({ _id: job.assignment.carer }).exec();
+
+        //sending response
+        res.json({ status: true });
+
+        //clearing carer job assignment
+        if(job.assignment.acceptance_document)
+        {
+            const handler = fileHandler();
+            handler.deleteFile(job.assignment.acceptance_document)
+        }
+
+        job.assignment.carer = undefined;
+        job.assignment.created = undefined;
+        job.assignment.acceptance_document = undefined;
+
+        job.save()
+            .then(job => {
+
+                //sending notification
+                QueuesHandler.publish({ carer_id: carer._id, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
+            })
+            .catch(error => console.log(error));
+
+        //clearing carer
+        carer.carer.jobs.pull(job._id);
+        carer.save().catch(error => console.log(error));
     },
 
 	declineJob: async function (req, res)
@@ -390,8 +440,7 @@ module.exports = {
 
         if(job.start_date.getTime() < new Date().getTime())
         {
-            bcrypt.compare(req.body["password"], req.user.password, (error, status) =>
-            {
+            bcrypt.compare(req.body["password"], req.user.password, (error, status) => {
                 //wrong password
                 if (!status)
                     return res.status(406).json(Utils.parseStringError("Wrong password", "password"));
@@ -430,6 +479,10 @@ module.exports = {
 
     sendSummarySheet: async function(req, res)
     {
+        //bank details required
+        if(!req.user.carer.payment_system.account_id)
+            return res.status(403).json(Utils.parseStringError("You have to add bank account before sending summary sheet", "bank account"));
+
         //getting job
         const job = await Job.findOne({ _id: req.params.id }).exec();
 
@@ -532,7 +585,6 @@ module.exports = {
         if(!job)
             return res.status(404).json(Utils.parseStringError("Job not found", "job"));
 
-
         let startDate = parseInt(req.query.start_date) || 0;
         let endDate = parseInt(req.query.end_date) || 0;
         let deduction = Math.max((parseInt(req.query.voluntary_deduction) || 0),0);
@@ -552,8 +604,8 @@ module.exports = {
         }
 
         //sending response
-        const { job_income, deducted_minutes_cost } = JobsHandler.calculateJobCost(job);
-        res.json({ projected_income: job_income, deducted: deducted_minutes_cost });
+        const { job_income, deducted_income } = JobsHandler.calculateJobCost(job);
+        res.json({ projected_income: job_income, deducted: deducted_income });
     },
 
 	updateJob: async function(req, res)
@@ -763,47 +815,5 @@ module.exports = {
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
 
     },
-    testMethods: async function (req, res)
-    {
-        //for all
-        let job = await Job.findOne({_id: req.params.id }).exec();
-
-        //not found
-        if(!job)
-            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
-
-        async.parallel({
-            carer: (callback) => User.findOne({ _id: job.assignment.carer }).then(user => callback(null, user)),
-            care_home: (callback) => User.findOne({ _id: job.care_home }).then(user => callback(null, user))
-        },(errors, results) => {
-            const handler = new PDFHandler(req);
-            handler.generatePdf("COMMISSION_CONFIRMATION", "users/" + req.user._id, { job: job, carer: results.carer, care_home: results.care_home })
-                .then(r => {
-                console.log(r);
-            });
-
-            //sending response
-            res.json({ status: true });
-        });
-    },
-
-    testNotification: async function(req, res)
-    {
-        //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
-        const type = req.params.type;
-
-        //not found
-        if(!job)
-            return res.status(404).json(Utils.parseStringError("Job not found", "job"));
-
-        const types = ["JOB_CANCELLED", "JOB_MODIFIED", "NEW_JOBS", "REVIEW_PUBLISHED"];
-        if(types.indexOf(type) != -1)
-            QueuesHandler.publish({ carer_id: req.user._id, job_id: job._id, type: type }, { exchange: "notifications", queue: "notifications" })
-
-        //sending response
-        res.json({ status: true });
-    }
-
 }
 

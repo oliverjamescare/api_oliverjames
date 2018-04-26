@@ -242,7 +242,7 @@ module.exports = {
         async.parallel({
 			nearestJob: (callback) => {
 
-                Job.find({ $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } } ]})
+                Job.find({ $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } }, { start_date: { $gt:  new Date() }} ]})
                 .sort({ start_date: 1 })
                 .limit(1)
 				.exec()

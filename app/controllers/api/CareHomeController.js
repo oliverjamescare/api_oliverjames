@@ -124,11 +124,14 @@ module.exports = {
 			leanWithId: false
 		};
 
-		const  query = { $and: [
-					{ _id: {  $in: req.user.care_home.jobs } },
-					{ "assignment.summary_sheet": { $exists: false } },
-					{ status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }}
-				]};
+		const  query = {
+			$and: [
+				{ _id: {  $in: req.user.care_home.jobs } }, //
+                { end_date: { $gte: new Date() } }, //end date must be not expired
+				{ "assignment.summary_sheet": { $exists: false } }, //with summary sheet goes only to past jobs
+				{ status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }} // cancelled and expired will be lost
+				]
+		};
 
 		const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
 		let paginated = Utils.parsePaginatedResults(jobs);
@@ -203,12 +206,20 @@ module.exports = {
         };
 
     	//query
-        const query = { $and: [ { _id: {  $in: req.user.care_home.jobs } }, { "assignment.carer": { $exists: true } }, { status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }} ]};
+        const query = {
+        	_id: {  $in: req.user.care_home.jobs }, //care home jobs
+        	"assignment.carer": { $exists: true }, //carer must exists
+        	status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]}}, //expired and cancelled jobs will be lost
+            $or: [
+                { end_date: { $lte: new Date() } }, //end date is expired
+                { "assignment.summary_sheet": { $exists: true } } // or summary sheet exists
+            ]
+        };
 
         if(from)
-        	query.$and.push({ start_date: { $gte: from }});
+        	query["start_date"] = { $gte: from };
         if(to)
-            query.$and.push({ start_date: { $lte: to }})
+            query["start_date"] = { $lte: to };
 
         const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
         let paginated = Utils.parsePaginatedResults(jobs);
@@ -219,7 +230,16 @@ module.exports = {
 	
 	getPastJob: async function (req, res)
     {
-        const  query = { $and: [ { _id: req.params.id } , { "assignment.carer": { $exists: true } }, { status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }} ]};
+        //query
+        const query = {
+            _id: req.params.id, //care home job
+            "assignment.carer": { $exists: true }, //carer must exists
+            status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]}}, //expired and cancelled jobs will be lost
+            $or: [
+                { end_date: { $lte: new Date() } }, //end date is expired
+                { "assignment.summary_sheet": { $exists: true } } // or summary sheet exists
+            ]
+        };
         const job = await Job.findOne(query, {
 				start_date: 1,
 				end_date: 1,
@@ -279,7 +299,7 @@ module.exports = {
                     }
                 }
             ],
-            sort: { start_date: - 1 },
+            sort: { start_date: -1 },
             lean: true,
             leanWithId: false
         };

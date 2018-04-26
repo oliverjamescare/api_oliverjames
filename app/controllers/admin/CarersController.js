@@ -71,7 +71,6 @@ module.exports = {
                     created: 1,
                     'carer.first_name': 1,
                     'carer.surname': 1,
-                    'carer.surname': 1,
                     'carer.date_of_birth': 1,
                     'carer.reviews': 1,
                     'carer.deductions_balance': { $sum: '$confirmed_deductions.amount' }
@@ -261,7 +260,7 @@ module.exports = {
 		//updating user
         user.set({
 			status: body.status || user.status,
-			notes: body.notes || user.notes,
+			notes: body.notes == ""? null : user.notes,
 			banned_until: body.banned_until || user.banned_until
 		});
 
@@ -294,8 +293,8 @@ module.exports = {
                 user.carer.set({
                     dbs: {
                         status: carer.dbs.status || user.carer.dbs.status,
-                        ref_number: carer.dbs.ref_number || user.carer.dbs.ref_number,
-                        dbs_date: carer.dbs.dbs_date || user.carer.dbs.dbs_date
+                        ref_number: carer.dbs.ref_number == ""? null : carer.dbs.ref_number || user.carer.dbs.ref_number,
+                        dbs_date: carer.dbs.dbs_date == null ? null : carer.dbs.dbs_date || user.carer.dbs.dbs_date
                     }
                 });
             }
@@ -305,16 +304,16 @@ module.exports = {
             {
                 user.carer.set({
                     training_record: {
-                        other: carer.training_record.other || user.carer.training_record.other,
-                        fire_safety: carer.training_record.fire_safety || user.carer.training_record.fire_safety,
-                        dementia: carer.training_record.dementia || user.carer.training_record.dementia,
-                        h_and_s: carer.training_record.h_and_s || user.carer.training_record.h_and_s,
-                        first_aid_awareness: carer.training_record.first_aid_awareness || user.carer.training_record.first_aid_awareness,
-                        first_aid_and_basic_life_support: carer.training_record.first_aid_and_basic_life_support || user.carer.training_record.first_aid_and_basic_life_support,
-                        infection_control: carer.training_record.infection_control || user.carer.training_record.infection_control,
-                        medication_management: carer.training_record.medication_management || user.carer.training_record.medication_management,
-                        manual_handling_people: carer.training_record.manual_handling_people || user.carer.training_record.manual_handling_people,
-                        safeguarding: carer.training_record.safeguarding || user.carer.training_record.safeguarding,
+                        other: carer.training_record.other == "" ? null : carer.training_record.other || user.carer.training_record.other,
+                        fire_safety: carer.training_record.fire_safety == null ? null : carer.training_record.fire_safety || user.carer.training_record.fire_safety,
+                        dementia: carer.training_record.dementia == null ? null : carer.training_record.dementia || user.carer.training_record.dementia,
+                        h_and_s: carer.training_record.h_and_s == null ? null : carer.training_record.h_and_s || user.carer.training_record.h_and_s,
+                        first_aid_awareness: carer.training_record.first_aid_awareness == null ? null : carer.training_record.first_aid_awareness || user.carer.training_record.first_aid_awareness,
+                        first_aid_and_basic_life_support: carer.training_record.first_aid_and_basic_life_support == null ? null :  carer.training_record.first_aid_and_basic_life_support || user.carer.training_record.first_aid_and_basic_life_support,
+                        infection_control: carer.training_record.infection_control == null ? null : carer.training_record.infection_control || user.carer.training_record.infection_control,
+                        medication_management: carer.training_record.medication_management == null ? null : carer.training_record.medication_management || user.carer.training_record.medication_management,
+                        manual_handling_people: carer.training_record.manual_handling_people == null ? null : carer.training_record.manual_handling_people || user.carer.training_record.manual_handling_people,
+                        safeguarding: carer.training_record.safeguarding == null ? null : carer.training_record.safeguarding || user.carer.training_record.safeguarding,
                         qualifications: carer.training_record.qualifications || user.carer.training_record.qualifications
                     }
                 });

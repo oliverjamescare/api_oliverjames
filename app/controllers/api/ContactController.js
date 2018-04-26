@@ -22,7 +22,7 @@ module.exports = {
         const user = await User.findOne({ _id: req.body._id });
 
         //sending email
-        req.app.mailer.send(__dirname + "/../../views/emails/contact.jade", {
+        req.app.mailer.send(__dirname + "/../../../views/emails/contact.jade", {
             to: config.CONTACT_EMAIL,
             subject: "Sent via Oliver James contact form - '" + req.body.subject + "'",
         },

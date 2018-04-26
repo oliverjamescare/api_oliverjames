@@ -61,7 +61,7 @@ const schema = mongoose.Schema({
 	start_date: {
 		type: Date,
 		required: [ true, "{PATH} field is required." ],
-		validate: [ validators.futureDate('start_date'), validators.dateMaxDaysForward('start_date', 35) ],
+		validate: [ validators.futureDate('start_date', "{PATH} cannot be earlier than 30 minutes from now.", 1000 * 60 * 30), /* 30min delay */ validators.dateMaxDaysForward('start_date', 35) ],
 	},
 	end_date: {
 		type: Date,
@@ -77,6 +77,12 @@ const schema = mongoose.Schema({
 		type: Boolean,
 		default: false
 	},
+    percent_charge: {
+        type: Number,
+        min: 0,
+        max: 100,
+        default: 100
+    },
 	booking_pricing: {
 		manual_booking_pricing: {
 			type: Number,

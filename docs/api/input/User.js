@@ -414,7 +414,6 @@
  * @apiParam {String} [address_line_2] Address second line.
  * @apiParam {String} [company] Company address name.
  * @apiParam {String} [phone_number] Phone number.
- * @apiParam {String} [eligible_roles] Array of encoded to string eligible roles. E.g. ["Carer", "Senior Carer"]
  *
  * @apiSuccess (Success 200){Boolean} status Operation status.
  * @apiSuccessExample Success-Response:

@@ -228,7 +228,10 @@ module.exports = class
                             });
                         }
 
-                        return notifications.length ? job.save(() => callback(null)): callback(null);
+                        return notifications.length ? job.save().then(() => callback(null)).catch(error => {
+                            console.log(error)
+                            callback(null);
+                        }): callback(null);
                     });
 
                     async.waterfall(callbacks, () => resolve(notifications));
