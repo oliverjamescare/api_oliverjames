@@ -182,20 +182,9 @@ module.exports = {
         locationHandler.getCustomLocation(req.body)
             .then(address => {
 
-                //updating values
-                try
-                {
-                    var eligibleRoles = JSON.parse(req.body.eligible_roles);
-                }
-                catch (error)
-                {
-                    var eligibleRoles = []
-                }
-
                 req.user.phone_number = req.body.phone_number || req.user.phone_number;
                 req.user.carer.max_job_distance = req.body.max_job_distance || req.user.carer.max_job_distance;
                 req.user.carer.gender = req.body.gender || req.user.carer.gender;
-                req.user.carer.eligible_roles = eligibleRoles.length ? eligibleRoles : req.user.carer.eligible_roles;
 
                 if(req.body.address_line_1 && req.body.city && req.body.postal_code && address.location) //if required fields are not present then don't update address
                     req.user.address = address;

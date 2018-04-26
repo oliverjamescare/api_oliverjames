@@ -474,6 +474,10 @@ module.exports = {
         if(!careHome)
             return res.status(404).json(Utils.parseStringError("Care home not found", "care home"));
 
+        //card is required
+        if(!careHome.care_home.payment_system.customer_id)
+            return res.status(403).json(Utils.parseStringError("This care home has no added card", "card"));
+
         //floor plan upload
         const uploader = fileHandler(req, res);
         const filePath = await uploader.handleSingleUpload("floor_plan", "users/" + careHome._id,
@@ -488,7 +492,6 @@ module.exports = {
                 ],
                 maxFileSize: 10
             });
-
 
         //new general guidance
         const generalGuidance = {
@@ -525,7 +528,10 @@ module.exports = {
 
                     //updating general guidance
                     if (jobs.length)
+                    {
                         careHome.care_home.general_guidance = jobs[0].general_guidance;
+                        careHome.care_home.gender_preference = jobs[0].gender_preference;
+                    }
 
                     //saving job references
                     jobs.forEach(job => careHome.care_home.jobs.push(job));

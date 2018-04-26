@@ -161,4 +161,5 @@ h3
 .job-signature img
 {
     max-width: 100%;
+    height: auto;
 }

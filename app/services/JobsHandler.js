@@ -128,7 +128,8 @@ module.exports = {
 
                 //finds all jobs from your calendar
                 calendarJobsQuery: (callback) => {
-                    Job.find({ _id: { $in: req.user.carer.jobs }, 'assignment.summary_sheet': { $exists: false }}, { start_date: 1, end_date: 1}) // not counts jobs with sent summary sheet
+                    Job.find({ _id: { $in: req.user.carer.jobs }, 'assignment.summary_sheet': { $exists: false }}, { start_date: 1, end_date: 1})// not counts jobs with sent summary sheet
+                        .sort({ start_date: 1 })
                         .then(myCalendarJobs => {
 
                             let calendarJobsQuery = [];
@@ -152,15 +153,13 @@ module.exports = {
                 //building query
                 let query = {
                     status: JobModel.statuses.POSTED, //not accepted, not expired and not cancelled,
+                    end_date: { $gte: new Date() }, //end date not expired
                     role: { $in: req.user.carer.eligible_roles }, //without different role than you are allowed to
                     gender_preference: { $in: [ JobModel.genderPreferences.NO_PREFERENCE, req.user.carer.gender ] }, //without gender preference or matching to gender
                     care_home: { $in: results.careHomes }, //only from care homes within max distance area
                     $and: [{ _id: { $exists: true } }] //required only to properly build query
                 };
 
-                //not declined
-                if(!withDontMeetCriteria)
-                    query.$and.push({_id : { $not: { $in: req.user.carer.job_declines }}});
 
                 //without job
                 if(withoutJob)
@@ -168,12 +167,12 @@ module.exports = {
 
                 //exclude calendar conflicts
                 if(results.calendarJobsQuery[0].length)
+                {
                     query['$or'] = results.calendarJobsQuery[0];
+                    console.log(results.calendarJobsQuery[0]);
+                }
 
-                //availability handle
                 let filteredJobs = await Job.find(query, { start_date: 1, end_date: 1}).lean().exec();
-                if(!withDontMeetCriteria)
-                    filteredJobs = filteredJobs.filter(job => req.user.carer.checkAvailabilityForDateRange(job.start_date, job.end_date));
 
                 //query
                 let aggregateQuery = [
@@ -348,11 +347,7 @@ module.exports = {
                     query["carer.gender"] = job.gender_preference;
 
 
-                User.find(query).then(users => {
-
-                    users.filter(user => user.carer.checkAvailabilityForDateRange(new Date(job.start_date), new Date(job.end_date)));
-                    resolve(users)
-                });
+                User.find(query).then(users => resolve(users));
             });
         });
     },
@@ -476,8 +471,6 @@ module.exports = {
                     if(detailedJob)
                     {
                         //generating pdf, sending email and saving object
-                        detailedJob = Job.parse(detailedJob, req);
-
                         const handler = new PDFHandler(req);
                         handler.generatePdf("JOB_ACCEPTANCE", "jobs/" + job._id, { job: detailedJob })
                             .then(pdfPath => resolve(pdfPath));
@@ -528,7 +521,7 @@ module.exports = {
             total_cost:  parseFloat((totalCost + manualBookingCost ).toFixed(2)),
             job_income:  parseFloat((totalCost - applicationFee ).toFixed(2)),
             applicationFee: applicationFee,
-            deducted_minutes_cost: deductedCost,
+            deducted_income: parseFloat((deductedCost - ((job.booking_pricing.app_commission * deductedCost) / 100)).toFixed(2)),
             total_minutes: totalMinutes
         };
     },
