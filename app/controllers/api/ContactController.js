@@ -31,6 +31,9 @@ module.exports = {
             name: req.body.name,
             message: req.body.message,
             user: user
-        }, (error) => console.log(error));
+        }, (error) => {
+            console.log("Email error")
+            console.log(error)
+        });
     }
 }
