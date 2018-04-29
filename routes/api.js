@@ -86,6 +86,7 @@ router.put('/jobs/:id/request-carer-change', authenticate, security(["CARE_HOME_
 //Payments
 router.put('/payments/card', authenticate, security(["CARE_HOME_FULL"]), PaymentsController.updateCard);
 router.put('/payments/bank', authenticate, security(["CARER_FULL"]), PaymentsController.updateBankDetails);
+router.put('/payments/identity', authenticate, security(["CARER_FULL"]), PaymentsController.updateIdentityProof);
 
 //documentation
 router.get('/documentation', (req, res) => {

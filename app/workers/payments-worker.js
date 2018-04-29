@@ -74,12 +74,16 @@ QueuesHandler.subscribe(data => {
                                     }
                                 })
                             })
-                            .catch(error => console.log(error));
+                            .catch(error => {
+                                console.log(job._id)
+                                console.log(error)
+                            });
                     })
                     .catch(error => {
 
                         console.log(error);
                         job.status = JobModel.statuses.PAYMENT_REJECTED;
+                        console.log(job._id)
                         job.save().catch(error => console.log(error))
                     });
             }

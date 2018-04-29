@@ -5,6 +5,7 @@
  */
 
 const nodemailer = require('nodemailer');
+const sgTransport = require('nodemailer-sendgrid-transport');
 const jade = require("jade");
 const config = process.env;
 
@@ -42,9 +43,10 @@ function getConfig()
 {
     const mailConfig = {
         from: config.MAIL_FROM + "<" + config.MAIL_FROM_ADDRESS + ">",
-        host: config.MAIL_HOST || "localhost",
-        secure: false,
-        port: parseInt(config.MAIL_PORT),
+        service: "gmail"
+        // auth: {
+        //     api_key: "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"
+        // }
     };
     
     if(config.MAIL_USER)

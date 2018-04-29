@@ -74,7 +74,6 @@ module.exports = class
     updateCustomAccount(token, user, ip)
     {
         return this.stripe.accounts.update(user.carer.payment_system.account_id, {
-            //external_account: token,
             email: user.email,
             legal_entity: {
                 type: "individual",
@@ -100,6 +99,33 @@ module.exports = class
             }
         });
     }
+
+    getAccount(id)
+    {
+	    return new Promise(resolve => this.stripe.accounts.retrieve(id).then(account => resolve(account)).catch(error => resolve(null)))
+    }
+
+	sendIdentityProof(account, file)
+	{
+		return new Promise((resolve, reject) => {
+			this.stripe.fileUploads.create({
+				purpose: 'identity_document',
+				file: {
+					data: file,
+				}
+			}).then(response => {
+				return this.stripe.accounts.update(account, {
+					legal_entity: {
+						verification: {
+						    document: response.id
+                        }
+					}
+				});
+            })
+            .then(response => resolve(response))
+            .catch(error => reject(error));
+        });
+	}
 
     //charge
     createCustomerChargeToken(customer, account)

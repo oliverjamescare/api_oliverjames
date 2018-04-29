@@ -12,6 +12,7 @@ const User = require("../../models/User").schema;
 const Utils = require('../../services/utils');
 const fileHandler = require("../../services/fileHandler");
 const locationHandler = require('../../services/locationHandler');
+const PaymentsHandler = require('../../services/PaymentsHandler');
 
 module.exports = {
 
@@ -66,6 +67,13 @@ module.exports = {
         //carer properties
         if(req.user.carer)
         {
+			let stripeAccount = null;
+	        const paymentsHandler = new PaymentsHandler();
+	        if(req.user.carer.payment_system.account_id)
+	        {
+		        stripeAccount = await paymentsHandler.getAccount(req.user.carer.payment_system.account_id);
+	        }
+
             user["carer"] = {
                 first_name: req.user.carer.first_name,
                 surname: req.user.carer.surname,
@@ -75,9 +83,13 @@ module.exports = {
                 max_job_distance: req.user.carer.max_job_distance,
                 eligible_roles: req.user.carer.eligible_roles,
                 payment_system: {
-                    bank_number: req.user.carer.payment_system.bank_number || null
+                    bank_number: req.user.carer.payment_system.bank_number || null,
+	                account_status: stripeAccount ? stripeAccount.legal_entity.verification.status : "No account",
+	                verification_message: stripeAccount ? (stripeAccount.verification.disabled_reason ? stripeAccount.verification.disabled_reason.replace(/_/," ") : null) : null,
                 }
             }
+
+
         }
 
         //care home properties

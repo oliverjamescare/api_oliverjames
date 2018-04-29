@@ -341,32 +341,10 @@ const schema = mongoose.Schema({
 			type: String,
 			default: null
 		},
-        identity_document: {
-            type: String,
-            default: null
-        },
 		bank_number: {
 			type: String,
 			default: null
 		},
-        verification: {
-            details: {
-                type: String,
-                default: null
-            },
-            details_code: {
-                type: String,
-                default: null,
-            },
-            document: {
-                type: String,
-                default: null,
-            },
-            status: {
-                type: String,
-                default: null,
-            }
-        }
 	},
 	deductions: [ Transaction.schema ],
 	silent_notifications_settings: {

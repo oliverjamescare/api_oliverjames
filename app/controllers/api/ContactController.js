@@ -1,10 +1,15 @@
 const config = process.env;
 const User = require("../../models/User").schema;
+const Job = require("../../models/Job").schema;
 
 module.exports = {
     sendContactMessage: async function (req, res)
     {
         let errors;
+
+        const now = new Date();
+        console.log(now);
+        console.log(now.getHours());
 
         //validation
         req.check("email").notEmpty().withMessage('Email field is required.').isEmail().withMessage('Email field is not a valid email.');
