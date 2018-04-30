@@ -22,11 +22,11 @@ module.exports = {
 
             console.log(query)
             //GOOGLE
-            const googleParams = {
+            let googleParams = {
                 key: config.GOOGLE_KEY,
                 query: query
             };
-            const googleUrl = googleEndpoint + encodeUrlParams(googleParams);
+            let googleUrl = googleEndpoint + encodeUrlParams(googleParams);
 
             let address = {
                 postal_code: data.postal_code,
@@ -39,7 +39,7 @@ module.exports = {
             if(address.postal_code && address.city && address.address_line_1)
             {
                 request.get(googleUrl, { json: true }, (error, response, body) => {
-                    console.log(body)
+	                console.log("Full address fetch", body)
 
                     if(body["status"] == "OK" && body["results"].length)
                     {
@@ -50,8 +50,34 @@ module.exports = {
                                 body["results"][0]["geometry"]["location"]["lng"]
                             ],
                         };
+                        resolve(address);
                     }
-                    resolve(address);
+                    else //getting only by postcode
+                    {
+	                    //GOOGLE
+	                    googleParams = {
+		                    key: config.GOOGLE_KEY,
+		                    query: data.postal_code
+	                    };
+	                    googleUrl = googleEndpoint + encodeUrlParams(googleParams);
+
+	                    request.get(googleUrl, { json: true }, (error, response, body) => {
+		                    console.log("Postcode fetch", body)
+
+		                    if(body["status"] == "OK" && body["results"].length)
+		                    {
+			                    address["location"] = {
+				                    type: "Point",
+				                    coordinates: [
+					                    body["results"][0]["geometry"]["location"]["lat"],
+					                    body["results"][0]["geometry"]["location"]["lng"]
+				                    ],
+			                    };
+		                    }
+		                    resolve(address);
+	                    });
+                    }
+
                 });
             }
             else

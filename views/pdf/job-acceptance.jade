@@ -61,7 +61,7 @@ block content
             div.star-container
                 i.fa.fa-star
             div.reviews-container
-                span #{job.assignment.carer.carer.reviews.count > 0 ? job.assignment.carer.carer.reviews.average + ' from ' + job.assignment.carer.carer.reviews.count : 'No reviews so far'}
+                span #{job.assignment.carer.carer.reviews.count > 0 ? job.assignment.carer.carer.reviews.average + ' from ' + job.assignment.carer.carer.reviews.count + (job.assignment.carer.carer.reviews.count == 1 ? " review" : " reviews") : 'No reviews so far'}
 
     div.clear
     br
@@ -126,11 +126,11 @@ block content
             each review in job.assignment.carer.carer.jobs
                 li.review-item
                     div.review-content-container
-                        p.review #{review.review.description}
-                        p.author By #{review.care_home.care_home.care_service_name}, #{moment(review.review.created).format("YYYY-MM-DD")}
+                        p.review #{review.assignment.review.description}
+                        p.author By #{review.care_home.care_home.care_service_name}, #{moment(review.assignment.review.created).format("YYYY-MM-DD")}
                     div.rating-container
                         i.fa.fa-star
-                        span #{review.review.rate}
+                        span #{review.assignment.review.rate}
 
     if(!job.assignment.carer.carer.jobs.length)
         p This carer has no reviews

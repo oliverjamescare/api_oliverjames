@@ -136,13 +136,13 @@ module.exports = {
                             for(let i = 0; i < myCalendarJobs.length; i++)
                             {
                                 if (i == 0) //first element
-                                    calendarJobsQuery.push({ end_date: { $lt: myCalendarJobs[i].start_date } })
+                                    calendarJobsQuery.push({ end_date: { $lte: myCalendarJobs[i].start_date } })
 
                                 if (myCalendarJobs[i + 1]) // if next element exists
-                                    calendarJobsQuery.push({ $and: [ { start_date: { $gt: myCalendarJobs[i].end_date } }, { end_date: { $lt: myCalendarJobs[i + 1].start_date } } ] })
+                                    calendarJobsQuery.push({ $and: [ { start_date: { $gte: myCalendarJobs[i].end_date } }, { end_date: { $lte: myCalendarJobs[i + 1].start_date } } ] })
 
                                 if ((i + 1) == myCalendarJobs.length) //last element
-                                    calendarJobsQuery.push({ start_date: { $gt: myCalendarJobs[i].end_date } });
+                                    calendarJobsQuery.push({ start_date: { $gte: myCalendarJobs[i].end_date } });
                             }
 
                             callback(null, calendarJobsQuery, myCalendarJobs);
