@@ -88,7 +88,9 @@ module.exports = {
 
 	    //identity document upload
 	    const uploader = fileHandler(req, res);
-	    const filePath = await uploader.handleSingleUpload("identity_document", "users/" + req.user._id , { allowedMimeTypes: [ "image/png", "image/jpg", "image/jpeg"] });
+	    const filePath = await uploader.handleSingleUpload("identity_document", "users/" + req.user._id , {
+	    	allowedMimeTypes: [ "image/png", "image/jpg", "image/jpeg", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/pdf", "image/gif"]
+	    });
 
 	    if(!filePath)
 		    return res.status(406).json(Utils.parseStringError("Identity document is required", "identity_document"));

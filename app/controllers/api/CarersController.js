@@ -304,7 +304,7 @@ module.exports = {
         //pagination and sending response
         const notifications = await Utils.paginate(Notification, { query: query, options: options }, req);
         let paginated = Utils.parsePaginatedResults(notifications);
-        paginated.results.map(notification => Notification.parse(notification));
+        paginated.results.map(notification => Notification.parse(notification, req));
 
         res.json(paginated);
 
