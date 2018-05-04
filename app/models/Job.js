@@ -218,6 +218,10 @@ const schema = mongoose.Schema({
 //middlewares
 schema.pre("save", function (next)
 {
+	//dates handle
+	if (this.isNew)
+		this.created = new Date();
+
 	this.updated = new Date();
 	this.status = handleJobStatus(this);
 

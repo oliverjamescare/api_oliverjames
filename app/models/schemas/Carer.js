@@ -547,7 +547,8 @@ schema.methods.addDeduction = function(amount, job = null, description = null, s
                 amount: job ? - deductedAmount : deductedAmount,  //if job exists than this is reducer
                 job: job || null,
                 description: description || "Deduction reduce for Job ID: " + job._id,
-                status: status
+                status: status,
+	            created: new Date()
             });
         }
     }

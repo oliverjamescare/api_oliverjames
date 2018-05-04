@@ -774,7 +774,8 @@ module.exports = {
 
         job.assignment.review = {
             rate: req.body.rate,
-            description: req.body.description
+            description: req.body.description,
+            created: new Date()
         };
 
         //saving review and sending response
@@ -802,7 +803,8 @@ module.exports = {
             return res.status(409).json(Utils.parseStringError("This job cannot be challenged.", "job"));
 
         job.assignment.challenge = {
-            description: req.body.description
+            description: req.body.description,
+            created: new Date()
         };
 
         //saving challenge, sending response and email

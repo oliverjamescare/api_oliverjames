@@ -14,87 +14,121 @@ const PDFHandler = require('./../services/PDFHandler');
 
 
 //TO REMOVE
-const carer_night_set = {
-    monday_price: 12.15,
+//regular
+const carer_first_set = {
+    monday_price: 14.25,
     tuesday_price: 12.15,
     wednesday_price: 12.15,
     thursday_price: 12.15,
-    friday_price: 13.80,
-    saturday_price: 14.25,
-    sunday_price: 14.25,
-}
-const carer_day_set = {
-    monday_price: 11.25,
-    tuesday_price: 11.25,
-    wednesday_price: 11.25,
-    thursday_price: 11.25,
-    friday_price: 11.25,
-    saturday_price: 12.95,
-    sunday_price: 12.95,
+    friday_price: 12.15,
+    saturday_price: 13.80,
+    sunday_price: 14.25
 }
 
-const senior_set = {
-    monday_price: 13.25,
-    tuesday_price: 13.25,
-    wednesday_price: 13.25,
-    thursday_price: 13.25,
-    friday_price: 13.25,
-    saturday_price: 13.25,
-    sunday_price: 13.25,
+const carer_second_set = {
+	monday_price: 11.25,
+	tuesday_price: 11.25,
+	wednesday_price: 11.25,
+	thursday_price: 11.25,
+	friday_price: 11.25,
+	saturday_price: 12.95,
+	sunday_price: 12.95
 }
+
+const carer_third_set = {
+	monday_price: 12.15,
+	tuesday_price: 12.15,
+	wednesday_price: 12.15,
+	thursday_price: 12.15,
+	friday_price: 13.80,
+	saturday_price: 14.25,
+	sunday_price: 14.25
+}
+
+//senior
+const senior_first_set = {
+	monday_price: 16.25,
+	tuesday_price: 14.15,
+	wednesday_price: 14.15,
+	thursday_price: 14.15,
+	friday_price: 14.15,
+	saturday_price: 15.80,
+	sunday_price: 16.25
+}
+
+const senior_second_set = {
+	monday_price: 13.25,
+	tuesday_price: 13.25,
+	wednesday_price: 13.25,
+	thursday_price: 13.25,
+	friday_price: 13.25,
+	saturday_price: 14.95,
+	sunday_price: 14.95
+}
+
+const senior_third_set = {
+	monday_price: 14.15,
+	tuesday_price: 14.15,
+	wednesday_price: 14.15,
+	thursday_price: 14.15,
+	friday_price: 15.80,
+	saturday_price: 16.25,
+	sunday_price: 16.25
+}
+
 
 const booking_pricing = {
     carer: {
-        hour_0_1: carer_night_set,
-        hour_1_2: carer_night_set,
-        hour_2_3: carer_night_set,
-        hour_3_4: carer_night_set,
-        hour_4_5: carer_night_set,
-        hour_5_6: carer_night_set,
-        hour_6_7: carer_night_set,
-        hour_7_8: carer_night_set,
-        hour_8_9: carer_day_set,
-        hour_9_10: carer_day_set,
-        hour_10_11: carer_day_set,
-        hour_11_12: carer_day_set,
-        hour_12_13: carer_day_set,
-        hour_13_14: carer_day_set,
-        hour_14_15: carer_day_set,
-        hour_15_16: carer_day_set,
-        hour_16_17: carer_day_set,
-        hour_17_18: carer_day_set,
-        hour_18_19: carer_day_set,
-        hour_19_20: carer_day_set,
-        hour_20_21: carer_night_set,
-        hour_21_22: carer_night_set,
-        hour_22_23: carer_night_set,
-        hour_23_0: carer_night_set
+        hour_0_1: carer_first_set,
+        hour_1_2: carer_first_set,
+        hour_2_3: carer_first_set,
+        hour_3_4: carer_first_set,
+        hour_4_5: carer_first_set,
+        hour_5_6: carer_first_set,
+        hour_6_7: carer_first_set,
+        hour_7_8: carer_first_set,
+        hour_8_9: carer_second_set,
+        hour_9_10: carer_second_set,
+        hour_10_11: carer_second_set,
+        hour_11_12: carer_second_set,
+        hour_12_13: carer_second_set,
+        hour_13_14: carer_second_set,
+        hour_14_15: carer_second_set,
+        hour_15_16: carer_second_set,
+        hour_16_17: carer_second_set,
+        hour_17_18: carer_second_set,
+        hour_18_19: carer_second_set,
+        hour_19_20: carer_second_set,
+        hour_20_21: carer_third_set,
+        hour_21_22: carer_third_set,
+        hour_22_23: carer_third_set,
+        hour_23_0: carer_third_set
     },
     senior_carer: {
-        hour_0_1: senior_set,
-        hour_1_2: senior_set,
-        hour_2_3: senior_set,
-        hour_3_4: senior_set,
-        hour_4_5: senior_set,
-        hour_5_6: senior_set,
-        hour_6_7: senior_set,
-        hour_7_8: senior_set,
-        hour_8_9: senior_set,
-        hour_9_10: senior_set,
-        hour_10_11: senior_set,
-        hour_11_12: senior_set,
-        hour_12_13: senior_set,
-        hour_13_14: senior_set,
-        hour_14_15: senior_set,
-        hour_15_16: senior_set,
-        hour_16_17: senior_set,
-        hour_17_18: senior_set,
-        hour_18_19: senior_set,
-        hour_19_20: senior_set,
-        hour_20_21: senior_set,
-        hour_21_22: senior_set,
-        hour_22_23: senior_set,
-        hour_23_0: senior_set
+        hour_0_1: senior_second_set,
+        hour_1_2: senior_second_set,
+        hour_2_3: senior_second_set,
+        hour_3_4: senior_second_set,
+        hour_4_5: senior_third_set,
+        hour_5_6: senior_third_set,
+        hour_6_7: senior_third_set,
+        hour_7_8: senior_third_set,
+        hour_8_9: senior_first_set,
+        hour_9_10: senior_first_set,
+        hour_10_11: senior_first_set,
+        hour_11_12: senior_first_set,
+        hour_12_13: senior_first_set,
+        hour_13_14: senior_first_set,
+        hour_14_15: senior_first_set,
+        hour_15_16: senior_first_set,
+        hour_16_17: senior_second_set,
+        hour_17_18: senior_second_set,
+        hour_18_19: senior_second_set,
+        hour_19_20: senior_second_set,
+        hour_20_21: senior_second_set,
+        hour_21_22: senior_second_set,
+        hour_22_23: senior_second_set,
+        hour_23_0: senior_second_set
     },
 }
 

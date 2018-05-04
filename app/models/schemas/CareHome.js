@@ -120,7 +120,8 @@ schema.methods.addCredits = function(amount, job = null, description = null, sta
                 amount: job ? - creditedAmount : creditedAmount, //if job exists than this is reducer
                 job: job || null,
                 description: description || "Credits used for Job ID: " + job._id,
-                status: status
+                status: status,
+	            created: new Date()
             });
         }
 

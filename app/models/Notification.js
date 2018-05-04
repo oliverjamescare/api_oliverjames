@@ -37,7 +37,15 @@ const schema = mongoose.Schema({
     }
 }, { usePushEach: true });
 
-schema.plugin(mongoosePaginate);
+
+schema.pre("save", function(next)
+{
+	//dates handle
+	if (this.isNew)
+		this.created = new Date();
+
+	next();
+});
 
 schema.statics.parse = function (notification)
 {
@@ -51,4 +59,5 @@ schema.statics.parse = function (notification)
 }
 
 module.exports.schema = mongoose.model("Notification", schema);
+schema.plugin(mongoosePaginate);
 module.exports.statuses = statuses;
