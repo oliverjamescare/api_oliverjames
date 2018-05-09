@@ -727,9 +727,8 @@ module.exports = {
         if(job.start_date.getTime() - jobTimeBound <= now.getTime() && job.assignment.carer && job.assignment.created.getTime() + acceptanceTimeBound <= now.getTime())
         {
             halfCharge = true;
-            now.setMinutes(now.getMinutes() + 3); //one minute payment processing delay to apply all payment processing rules
+            now.setMinutes(now.getMinutes() + 2); //one minute payment processing delay to apply all payment processing rules
 
-            job.status = JobModel.statuses.PENDING_PAYMENT;
             job.percent_charge = 50;
             job.assignment.payment = {
                 debit_date: now
