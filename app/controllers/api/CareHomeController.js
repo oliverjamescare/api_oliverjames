@@ -129,8 +129,9 @@ module.exports = {
 				{ _id: {  $in: req.user.care_home.jobs } }, //
                 { end_date: { $gte: new Date() } }, //end date must be not expired
 				{ "assignment.summary_sheet": { $exists: false } }, //with summary sheet goes only to past jobs
+                { "assignment.payment": { $exists: false } }, //with payment goes only to past jobs
 				{ status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }} // cancelled and expired will be lost
-				]
+			]
 		};
 
 		const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
@@ -143,7 +144,7 @@ module.exports = {
 	//blocking carers
 	blockCarer: async function(req, res)
 	{
-		const carer = await User.findOne({ _id: req.params.id, carer: { $exists: true } }).exec();
+		const carer = await User.findOne({ _id: req.params.id, carer: { $exists: true } }).exec().catch(error => console.log("Invalid object id"));
 		if(!carer)
 			return res.status(404).json(Utils.parseStringError("Carer not found", "carer"));
 
@@ -212,7 +213,8 @@ module.exports = {
         	status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]}}, //expired and cancelled jobs will be lost
             $or: [
                 { end_date: { $lte: new Date() } }, //end date is expired
-                { "assignment.summary_sheet": { $exists: true } } // or summary sheet exists
+                { "assignment.summary_sheet": { $exists: true } }, // or summary sheet exists
+                { "assignment.payment": { $exists: true } } // or payment exists
             ]
         };
 
@@ -237,7 +239,8 @@ module.exports = {
             status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]}}, //expired and cancelled jobs will be lost
             $or: [
                 { end_date: { $lte: new Date() } }, //end date is expired
-                { "assignment.summary_sheet": { $exists: true } } // or summary sheet exists
+                { "assignment.summary_sheet": { $exists: true } }, // or summary sheet exists
+                { "assignment.payment": { $exists: true } } // or payment exists
             ]
         };
         const job = await Job.findOne(query, {

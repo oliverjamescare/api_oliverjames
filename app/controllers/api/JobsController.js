@@ -41,7 +41,7 @@ module.exports = {
                     job.projected_income = undefined;
 
                 res.json(job);
-            });
+            }).catch(error => console.log("Invalid object id"));;
     },
 
 	//only care home methods
@@ -286,7 +286,7 @@ module.exports = {
             return res.status(403).json(Utils.parseStringError("You have to add bank account before accepting jobs", "bank account"));
 
         //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const job = await Job.findOne({ _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));
 
         //not found
         if(!job)
@@ -318,7 +318,7 @@ module.exports = {
             return res.status(409).json(Utils.parseStringError("You are blocked by this care home.", "job"));
 
         //finding my jobs in this time
-        const conflicts = await Job.count({ $and: [{_id: { $in: req.user.carer.jobs }}, { start_date: { $lt: job.end_date }},  { end_date: { $gt: job.start_date }}, { 'assignment.summary_sheet': { $exists: false }} ]});
+        const conflicts = await Job.count({ $and: [{_id: { $in: req.user.carer.jobs }}, { start_date: { $lt: job.end_date }},  { end_date: { $gt: job.start_date }}, { 'assignment.payment': { $exists: false }} ]});
         if(Boolean(conflicts))
             return res.status(409).json(Utils.parseStringError("Conflict! You already have job in this time.", "job"));
 
@@ -342,7 +342,7 @@ module.exports = {
     requestCarerChange: async function(req, res)
     {
         //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const job = await Job.findOne({ _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));
 
         //not found
         if(!job)
@@ -384,8 +384,9 @@ module.exports = {
         job.save()
             .then(job => {
 
-                //sending notification
+                //sending notification and email to carer
                 QueuesHandler.publish({ carer_id: carer._id, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
+                job.sendJobCancellation(req.app.mailer, carer);
             })
             .catch(error => console.log(error));
 
@@ -397,7 +398,7 @@ module.exports = {
 	declineJob: async function (req, res)
 	{
         //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const job = await Job.findOne({ _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));
 
         //not found
         if(!job)
@@ -423,7 +424,7 @@ module.exports = {
     withdrawJob: async function(req, res)
     {
         //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const job = await Job.findOne({ _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));
 
         //not found
         if(!job)
@@ -484,7 +485,7 @@ module.exports = {
             return res.status(403).json(Utils.parseStringError("You have to add bank account before sending summary sheet", "bank account"));
 
         //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const job = await Job.findOne({ _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));;
 
         //not found
         if(!job)
@@ -579,7 +580,7 @@ module.exports = {
     getProjectedIncome: async function (req, res)
     {
         //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const job = await Job.findOne({ _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));;
 
         //not found
         if(!job)
@@ -611,7 +612,7 @@ module.exports = {
 	updateJob: async function(req, res)
 	{
         //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const job = await Job.findOne({ _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));;
 
         //not found
         if(!job)
@@ -697,7 +698,7 @@ module.exports = {
     cancelJob: async function(req, res)
     {
 		//getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const job = await Job.findOne({ _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));;
 
         //not found
         if(!job)
@@ -716,23 +717,55 @@ module.exports = {
             return res.status(409).json(Utils.parseStringError("This job has already been cancelled", "job"));
 
         job.status = JobModel.statuses.CANCELLED;
+
+        //half charge
+        const now = new Date();
+        const acceptanceTimeBound = 1000 * 60 *  60 * 2; //2 hours
+        const jobTimeBound = 1000 * 60 *  60 * 24; //24 hours
+        let halfCharge = false;
+
+        if(job.start_date.getTime() - jobTimeBound <= now.getTime() && job.assignment.carer && job.assignment.created.getTime() + acceptanceTimeBound <= now.getTime())
+        {
+            halfCharge = true;
+            now.setMinutes(now.getMinutes() + 3); //one minute payment processing delay to apply all payment processing rules
+
+            job.status = JobModel.statuses.PENDING_PAYMENT;
+            job.percent_charge = 50;
+            job.assignment.payment = {
+                debit_date: now
+            };
+        }
+
+        //sending response
+        res.json({ status: true, half_charge_applied: halfCharge });
+
         job.save()
             .then(job => {
 
-                //sending notification
-                if(job.assignment.carer)
+                if(halfCharge)
+                {
+                    const { total_minutes } = JobsHandler.calculateJobCost(job);
                     QueuesHandler.publish({ carer_id: job.assignment.carer, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
+                    job.sendJobCancellationCharge(req.app.mailer, job.assignment.carer, total_minutes);
+                }
+                else
+                {
+                    //sending notification and email to carer
+                    if(job.assignment.carer)
+                    {
+                        QueuesHandler.publish({ carer_id: job.assignment.carer, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
+                        job.sendJobCancellation(req.app.mailer, job.assignment.carer);
+                    }
+                }
             })
             .catch(error => console.log(error));
 
-        //sending response
-        res.json({ status: true });
     },
 
     getCareHomeOtherJobs: async function(req, res)
     {
         //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const job = await Job.findOne({ _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));;
 
         //not found
         if(!job)
@@ -754,7 +787,7 @@ module.exports = {
     reviewJob: async function (req, res)
     {
         //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const job = await Job.findOne({ _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));;
 
         //not found
         if(!job)
@@ -788,7 +821,7 @@ module.exports = {
     challengeJob: async function(req, res)
     {
         //getting job
-        const job = await Job.findOne({ _id: req.params.id }).exec();
+        const job = await Job.findOne({ _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));
 
         //not found
         if(!job)
@@ -799,7 +832,7 @@ module.exports = {
             return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
 
         //not payment stadium
-        if(job.status != JobModel.statuses.PENDING_PAYMENT || job.assignment.challenge)
+        if(job.status != JobModel.statuses.PENDING_PAYMENT || job.assignment.challenge || job.percent_charge != 100)
             return res.status(409).json(Utils.parseStringError("This job cannot be challenged.", "job"));
 
         job.assignment.challenge = {

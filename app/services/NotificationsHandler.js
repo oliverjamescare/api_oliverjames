@@ -180,7 +180,7 @@ module.exports = class
         {
             inputs.push(job.assignment.payment.net_income);
             inputs.push(careHome.care_home.care_service_name);
-            inputs.push(job.assignment.summary_sheet.start_date ? moment(job.assignment.summary_sheet.start_date).format("YYYY-MM-DD") : moment(job.start_date).format("YYYY-MM-DD"));
+            inputs.push(job.assignment.summary_sheet && job.assignment.summary_sheet.start_date ? moment(job.assignment.summary_sheet.start_date).format("YYYY-MM-DD") : moment(job.start_date).format("YYYY-MM-DD"));
         }
 
         return inputs;

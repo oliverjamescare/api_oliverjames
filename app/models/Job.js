@@ -382,6 +382,52 @@ schema.methods.sendJobChallenge = function(mailer)
     });
 }
 
+schema.methods.sendJobCancellation = function(mailer, carerId)
+{
+    const job = this;
+
+    async.parallel({
+        carer: (callback) => User.findOne({ _id: carerId }).then(user => callback(null, user)),
+        care_home: (callback) => User.findOne({ _id: job.care_home }).then(user => callback(null, user))
+    },(errors, results) => {
+
+        //sending email
+        mailer.send(__dirname + "/../../views/emails/job-cancelled.jade", {
+                to: results.carer.email,
+                subject: "Job cancelled"
+            },
+            {
+                carer: results.carer,
+                job: job,
+                care_home: results.care_home,
+                moment: moment
+            }, (error) => console.log(error));
+    });
+}
+
+schema.methods.sendJobCancellationCharge = function(mailer, carerId, totalMinutes)
+{
+    const job = this;
+
+    async.parallel({
+        carer: (callback) => User.findOne({ _id: carerId }).then(user => callback(null, user)),
+        care_home: (callback) => User.findOne({ _id: job.care_home }).then(user => callback(null, user))
+    },(errors, results) => {
+
+        //sending email
+        mailer.send(__dirname + "/../../views/emails/job-cancelled-charge.jade", {
+                to: results.carer.email,
+                subject: "Job cancelled"
+            },
+            {
+                carer: results.carer,
+                job: job,
+                care_home: results.care_home,
+                moment: moment,
+                total_minutes: totalMinutes
+            }, (error) => console.log(error));
+    });
+}
 //statics
 schema.statics.parse = function(job, req)
 {
@@ -494,11 +540,17 @@ function handleJobStatus(job)
         return statuses.POSTED;
     else if(!job.assignment.carer && job.end_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
         return statuses.EXPIRED;
-    else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() > new Date().getTime() && job.status != statuses.CANCELLED)
+    else if(job.assignment.carer && !job.assignment.payment && job.start_date.getTime() > new Date().getTime() && job.status != statuses.CANCELLED)
         return statuses.ACCEPTED;
-    else if(job.assignment.carer && !job.assignment.summary_sheet && job.start_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
+    else if(job.assignment.carer && !job.assignment.payment && job.start_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)
         return statuses.PENDING_SUMMARY_SHEET;
-    else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.payment && (job.assignment.payment.debit_date.getTime() > new Date().getTime()) && (!job.assignment.challenge || job.assignment.challenge.status == ChallengeSchema.challengeStatuses.CANCELLED) && job.status != statuses.CANCELLED)
+    else if(job.assignment.carer &&
+        job.assignment.payment &&
+        job.assignment.payment.debit_date.getTime() > new Date().getTime() &&
+        job.status != statuses.CANCELLED &&
+        (!job.assignment.challenge || job.assignment.challenge.status == ChallengeSchema.challengeStatuses.CANCELLED) &&
+        (job.assignment.summary_sheet || (!job.assignment.summary_sheet && job.percent_charge != 100))
+    )
         return statuses.PENDING_PAYMENT;
     else if(job.assignment.carer && job.assignment.summary_sheet && job.assignment.challenge && job.assignment.challenge.status == ChallengeSchema.challengeStatuses.ACTIVE && job.status != statuses.CANCELLED)
         return statuses.CHALLENGED;

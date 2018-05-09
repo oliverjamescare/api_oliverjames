@@ -192,7 +192,7 @@ module.exports = class
             if(
                 customer && // care home is connected to payment system
                 account && // carer is connected to payment system
-                job.status == JobModel.statuses.PENDING_PAYMENT && // summary sent
+                job.status == JobModel.statuses.PENDING_PAYMENT && // summary sent or half charge applied
                 !job.charge && // care home is not charged yet
                 (
                     job.assignment &&

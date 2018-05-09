@@ -28,13 +28,12 @@ module.exports.general_guidance = function (required = false)
 		},
 		floor_plan: {
 			type: String,
-			maxlength: [ 100, "{PATH} can't be longer than {MAXLENGTH} characters." ],
 			default: null
 		}
 	};
 
 	if (required)
-		Object.keys(guidanceConfig).forEach(property => guidanceConfig[ property ][ "required" ] = [ true, "{PATH} field is required." ]);
+		Object.keys(guidanceConfig).filter(key => key != "floor_plan").forEach(property => guidanceConfig[ property ][ "required" ] = [ true, "{PATH} field is required." ]);
 
 	return guidanceConfig;
 }

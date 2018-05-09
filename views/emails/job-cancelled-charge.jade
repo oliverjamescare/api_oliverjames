@@ -1,0 +1,19 @@
+//- 
+    To change this license header, choose License Headers in Project Properties.
+    To change this template file, choose Tools | Templates
+    and open the template in the editor.
+
+- const hours = Math.floor(total_minutes / 60);
+- const minutes = total_minutes % 60;
+
+p Dear #{carer.carer.first_name},
+
+p This care home cancelled the following job: #{care_home.care_home.care_service_name}, on #{moment(job.start_date).format("YYYY-MM-DD")}, from #{moment(job.start_date.getTime()).format('h:mm A')} to #{moment(job.end_date.getTime()).format('h:mm A')} ( #{hours > 0 ? hours : ""} #{hours == 0 ? '' : hours == 1 ? "hour" : "hours"}#{minutes > 0 && hours > 0 ? ", " + minutes : ""}#{minutes == 0 ? '' : minutes == 1 ? "minute" : "minutes"} ).
+p However though not all cancellations by care homes result in payments to carers – subject to our review, this one will. You will receive a 50% payment of the original income the job represented – i.e. you will receive £#{job.assignment.projected_income}
+
+br
+p
+    b ACCOUNTING INFORMATION
+p You can see your total payments received at any time by logging in to your account
+
+include _footer

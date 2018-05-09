@@ -162,7 +162,7 @@ module.exports = {
 
                 //finds all jobs from your calendar
                 calendarJobsQuery: (callback) => {
-                    Job.find({ _id: { $in: req.user.carer.jobs }, 'assignment.summary_sheet': { $exists: false }}, { start_date: 1, end_date: 1})// not counts jobs with sent summary sheet
+                    Job.find({ _id: { $in: req.user.carer.jobs }, 'assignment.payment': { $exists: false }}, { start_date: 1, end_date: 1})// not counts jobs with sent summary sheet
                         .sort({ start_date: 1 })
                         .then(myCalendarJobs => {
 
@@ -527,15 +527,17 @@ module.exports = {
 
         let currentTime = new Date(startDate.getTime());
 
+        //HALF CHARGE APPLIED ONLY TO MANUAL BOOKING COST, DEDUCTED COST AND JOB COST. Other values comes from these core values
+
         //manual booking cost
         const manualBookingPrice = findPriceForHour(startDate, job.booking_pricing) * job.booking_pricing.manual_booking_pricing;
-        const manualBookingCost = job.manual_booking ? parseFloat((( Math.max(durationMinutes - deductedMinutes, 0) / 60) * manualBookingPrice).toFixed(2)) : 0;
+        const manualBookingCost = job.manual_booking ? parseFloat(((( Math.max(durationMinutes - deductedMinutes, 0) / 60) * manualBookingPrice * job.percent_charge) / 100).toFixed(2)) : 0;
 
         while(durationMinutes > 0)
         {
             const price = findPriceForHour(currentTime, job.booking_pricing);
             const minutesInThisHour = (currentTime.getDate() != endDate.getDate() || currentTime.getHours() != endDate.getHours()) ? 60 - currentTime.getMinutes() : endDate.getMinutes() - currentTime.getMinutes();
-            const cost = parseFloat(((minutesInThisHour / 60) * price).toFixed(2));
+            const cost = parseFloat((((minutesInThisHour / 60) * price * job.percent_charge) / 100).toFixed(2));
 
             totalCost += cost;
             durationMinutes -= minutesInThisHour;
@@ -544,7 +546,7 @@ module.exports = {
 
         //deductions
         const priceToDeducted = findPriceForHour(startDate, job.booking_pricing);
-        const deductedCost = parseFloat(((deductedMinutes / 60) * priceToDeducted).toFixed(2));
+        const deductedCost = parseFloat((((deductedMinutes / 60) * priceToDeducted * job.percent_charge) / 100).toFixed(2));
         totalCost = Math.max(parseFloat((totalCost - deductedCost).toFixed(2)), 0); // protection against minus cost
 
         const applicationFee = parseFloat(((job.booking_pricing.app_commission * totalCost) / 100).toFixed(2))
