@@ -56,6 +56,7 @@
             "notes": null,
             "carer": {
                 "_id": "5a9404d68ce0962d6c988f97",
+                "acceptance_date": 1518422931942,
                 "carer": {
                     "first_name": "Test",
                     "surname": "Test",

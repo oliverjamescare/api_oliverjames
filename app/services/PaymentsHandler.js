@@ -218,8 +218,8 @@ module.exports = class
 
                         //preparing amounts
                         const { job_income, applicationFee, total_cost, job_cost, manual_booking_cost } = JobsHandler.calculateJobCost(job);
-                        const reducedDeduction = Math.min(parseFloat(((job_income * job.booking_pricing.max_to_deduct) / 100).toFixed(2)), carer.carer.getDeductionsBalance());
-                        const reducedCredits = Math.min(total_cost, careHome.care_home.getCreditsBalance());
+                        const reducedDeduction = Math.min(parseFloat(((job_income * job.booking_pricing.max_to_deduct) / 100).toFixed(2)), job.percent_charge != 100 ? 0 : carer.carer.getDeductionsBalance());
+                        const reducedCredits = Math.min(total_cost, job.percent_charge != 100 ? 0 : careHome.care_home.getCreditsBalance());
 
                         const applicationTransactionFee = Math.max(applicationFee + manual_booking_cost + reducedDeduction - reducedCredits, 0);
                         const chargeAmount = total_cost - reducedCredits;
@@ -347,10 +347,10 @@ module.exports = class
 
 
                             //handling reducers
-                            if(creditsReducerIndex != -1 && careHome.care_home.credits[creditsReducerIndex].amount == reducedCredits)
+                            if(creditsReducerIndex != -1 && careHome.care_home.credits[creditsReducerIndex].amount == -reducedCredits)
                                 careHome.care_home.credits[creditsReducerIndex].status = TransactionSchema.transactionStatuses.CONFIRMED;
 
-                            if(deductionReducerIndex != -1 && carer.carer.deductions[deductionReducerIndex].amount == reducedDeduction)
+                            if(deductionReducerIndex != -1 && carer.carer.deductions[deductionReducerIndex].amount == -reducedDeduction)
                                 carer.carer.deductions[deductionReducerIndex].status = TransactionSchema.transactionStatuses.CONFIRMED;
 
                             return resolve({ job, carer, careHome });

@@ -1,7 +1,6 @@
 extends _base
 
 block content
-
     div.date #{moment().format("YYYY-MM-DD h:mm A")}
     br
     br
@@ -22,10 +21,10 @@ block content
         span #{care_home.address.company ? care_home.address.company + "," : ""} #{care_home.address.address_line_1}, #{care_home.address.address_line_2 ? care_home.address.address_line_2 + "," : ""} #{care_home.address.city}, #{care_home.address.postal_code}
     p
         b Date worked: &nbsp;
-        span #{moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("YYYY-MM-DD")}
+        span #{moment(job.assignment.summary_sheet && job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("YYYY-MM-DD")}
     p
         b Time worked: &nbsp;
-        span #{moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("h:mm A")} to #{moment(job.assignment.summary_sheet.end_date ? job.assignment.summary_sheet.end_date : job.end_date).format("h:mm A")}
+        span #{moment(job.assignment.summary_sheet && job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("h:mm A")} to #{moment(job.assignment.summary_sheet && job.assignment.summary_sheet.end_date ? job.assignment.summary_sheet.end_date : job.end_date).format("h:mm A")}
 
     br
     br
@@ -39,7 +38,7 @@ block content
         span £#{job.charge.manual_booking_cost}
     p
         b Deducted credits from care home: &nbsp;
-        span -£#{job.charge.deductions}
+        span #{(job.charge.deductions > 0 ? "- £" : "£") + job.charge.deductions}
     p
         b Carer deductions: &nbsp;
         span £#{job.assignment.payment.deductions}

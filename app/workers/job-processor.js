@@ -5,6 +5,7 @@ require("./../../config/database");
 
 //core
 const cron = require('node-cron');
+const async = require('async');
 
 //custom
 const JobModel = require("./../models/Job");
@@ -27,17 +28,23 @@ cron.schedule('* * * * *', () =>
 
     Job.find({ status: { $not: { $in: excludedStatuses }} })
         .then(jobs => {
-            jobs.forEach(job => {
 
-
+            async.every(jobs, (job, callback) => {
                 if(job.initial.status != job.status) //if status changed
-                    job.save().catch(error => console.log(error));
+                    job.save((error, job) => callback(null, !error));
+                else callback(null, true);
+            }, (errors, result) => {
+                if(!errors)
+                {
+                    jobs.forEach(job => {
 
-                //sending request to payment processor
-                if(job.status == JobModel.statuses.PENDING_PAYMENT && job.assignment && job.assignment.payment && job.assignment.payment.debit_date.getTime() <= new Date().getTime())
-                    QueuesHandler.publish({ job_id: job._id }, { exchange: "payments", queue: "payments" })
+                        //sending request to payment processor
+                        if(job.status == JobModel.statuses.PENDING_PAYMENT && job.assignment && job.assignment.payment && job.assignment.payment.debit_date.getTime() <= new Date().getTime())
+                            QueuesHandler.publish({ job_id: job._id }, { exchange: "payments", queue: "payments" });
+                    })
+                }
+            });
 
-            })
         });
 
 

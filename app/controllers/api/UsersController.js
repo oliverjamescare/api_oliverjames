@@ -85,11 +85,9 @@ module.exports = {
                 payment_system: {
                     bank_number: req.user.carer.payment_system.bank_number || null,
 	                account_status: stripeAccount ? stripeAccount.legal_entity.verification.status : "No account",
-	                verification_message: stripeAccount ? (stripeAccount.verification.disabled_reason ? stripeAccount.verification.disabled_reason.replace(/_/," ") : null) : null,
+	                verification_message: stripeAccount ? stripeAccount.legal_entity.verification.details : null,
                 }
             }
-
-
         }
 
         //care home properties
@@ -237,13 +235,12 @@ module.exports = {
 		req.user.care_home.gender_preference = req.body.gender_preference || req.user.care_home.gender_preference;
 
 		//general guidance
-		req.user.care_home.general_guidance.superior_contact = req.body.superior_contact === "" ? null : req.user.care_home.general_guidance.superior_contact;
-		req.user.care_home.general_guidance.report_contact = req.body.report_contact === "" ? null :req.user.care_home.general_guidance.report_contact;
-		req.user.care_home.general_guidance.emergency_guidance = req.body.emergency_guidance === "" ? null :req.user.care_home.general_guidance.emergency_guidance;
-		req.user.care_home.general_guidance.notes_for_carers = req.body.notes_for_carers === "" ? null :req.user.care_home.general_guidance.notes_for_carers;
-		req.user.care_home.general_guidance.parking = req.body.parking === "" ? null : req.user.care_home.general_guidance.parking;
+		req.user.care_home.general_guidance.superior_contact = req.body.superior_contact === "" ? null : req.body.superior_contact || req.user.care_home.general_guidance.superior_contact;
+		req.user.care_home.general_guidance.report_contact = req.body.report_contact === "" ? null : req.body.report_contact || req.user.care_home.general_guidance.report_contact;
+		req.user.care_home.general_guidance.emergency_guidance = req.body.emergency_guidance === "" ? null : req.body.emergency_guidance || req.user.care_home.general_guidance.emergency_guidance;
+		req.user.care_home.general_guidance.notes_for_carers = req.body.notes_for_carers === "" ? null : req.body.notes_for_carers || req.user.care_home.general_guidance.notes_for_carers;
+		req.user.care_home.general_guidance.parking = req.body.parking === "" ? null : req.body.parking || req.user.care_home.general_guidance.parking;
 		req.user.care_home.general_guidance.floor_plan = filePath || req.user.care_home.general_guidance.floor_plan;
-
 
 		if(req.body.address_line_1 && req.body.city && req.body.postal_code && address.location) //if required fields are not present then don't update address
 			req.user.address = address;

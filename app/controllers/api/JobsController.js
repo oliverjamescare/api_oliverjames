@@ -40,6 +40,9 @@ module.exports = {
                 if(req.user.care_home)
                     job.projected_income = undefined;
 
+                if(req.user.carer)
+                    job.acceptance_date = undefined;
+
                 res.json(job);
             }).catch(error => console.log("Invalid object id"));;
     },
@@ -727,7 +730,7 @@ module.exports = {
         if(job.start_date.getTime() - jobTimeBound <= now.getTime() && job.assignment.carer && job.assignment.created.getTime() + acceptanceTimeBound <= now.getTime())
         {
             halfCharge = true;
-            now.setMinutes(now.getMinutes() + 2); //one minute payment processing delay to apply all payment processing rules
+            now.setMinutes(now.getMinutes() + 1); //one minute payment processing delay to apply all payment processing rules
 
             job.percent_charge = 50;
             job.assignment.payment = {

@@ -201,10 +201,7 @@ module.exports = {
 
                 //exclude calendar conflicts
                 if(results.calendarJobsQuery[0].length)
-                {
                     query['$or'] = results.calendarJobsQuery[0];
-                    console.log(results.calendarJobsQuery[0]);
-                }
 
                 let filteredJobs = await Job.find(query, { start_date: 1, end_date: 1}).lean().exec();
 
@@ -427,7 +424,7 @@ module.exports = {
 
     getJobDetailsQuery: function(id, withCarerDetails = false)
     {
-        const jobQuery = Job.findOne({_id: id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, gender_preference: 1, status: 1, 'assignment.projected_income': 1 })
+        const jobQuery = Job.findOne({_id: id }, { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1, gender_preference: 1, status: 1, 'assignment.projected_income': 1, 'assignment.created': 1 })
             .populate("care_home",{
                 "email": 1,
                 "phone_number": 1,

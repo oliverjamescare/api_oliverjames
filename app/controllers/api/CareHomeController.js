@@ -316,4 +316,10 @@ module.exports = {
 
         res.json(paginated);
     },
+
+	getBookedJobs: async function(req, res)
+	{
+		const jobs = await Job.count({ _id: { $in: req.user.care_home.jobs } }).exec();
+		res.json({ jobs })
+	}
 }

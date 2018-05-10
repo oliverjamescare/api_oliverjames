@@ -58,6 +58,6 @@ schema.statics.parse = function (notification)
     return notification;
 }
 
-module.exports.schema = mongoose.model("Notification", schema);
 schema.plugin(mongoosePaginate);
+module.exports.schema = mongoose.model("Notification", schema);
 module.exports.statuses = statuses;

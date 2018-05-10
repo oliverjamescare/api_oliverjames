@@ -470,6 +470,9 @@ schema.statics.parse = function(job, req)
 				job.carer = job.assignment.carer ? User.parse(job.assignment.carer, req) : null;
                 if(job.assignment.acceptance_document)
                     job.carer.acceptance_document = fileHandler.getFileUrl(job.assignment.acceptance_document);
+
+                if(job.assignment.created)
+                    job.carer.acceptance_date = job.assignment.created.getTime();
             }
 
 			//review
@@ -536,6 +539,8 @@ schema.statics.parse = function(job, req)
 
 function handleJobStatus(job)
 {
+    if(job.status == statuses.PAID || job.status == statuses.PAYMENT_CANCELLED || job.status == statuses.PAYMENT_REJECTED)
+        return job.status;
 	if(!job.assignment.carer && job.end_date.getTime() > new Date().getTime() && job.status != statuses.CANCELLED)
 		return statuses.POSTED;
 	else if(!job.assignment.carer && job.end_date.getTime() < new Date().getTime() && job.status != statuses.CANCELLED)

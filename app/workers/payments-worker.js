@@ -44,13 +44,14 @@ QueuesHandler.subscribe(data => {
                         const careHome = resolve.careHome;
 
                         //updating carer and care home deductions and credits
-                        carer.save().catch(error => console.log(error));
-                        careHome.save().catch(error => console.log(error));
+                        async.waterfall([
+                            (callback) => carer.save(() => callback(null)),
+                            (callback) => careHome.save(() => callback(null)),
+                            (callback) => job.save(() => callback(null, job))
+                        ],(errors, job) => {
 
-                        job
-                            .save()
-                            .then(job => {
-
+                            if(!errors)
+                            {
                                 //payments notification
                                 QueuesHandler.publish({ carer_id: carer._id, job_id: job._id, care_home_id: careHome._id, type: "PAYMENT_PROCESSED" }, { exchange: "notifications", queue: "notifications" })
 
@@ -73,17 +74,13 @@ QueuesHandler.subscribe(data => {
                                         job.save().catch(error => console.log(error));
                                     }
                                 })
-                            })
-                            .catch(error => {
-                                console.log(job._id)
-                                console.log(error)
-                            });
+                            }
+                            else
+                                console.log(errors);
+                        });
                     })
                     .catch(error => {
-
-                        console.log(error);
                         job.status = JobModel.statuses.PAYMENT_REJECTED;
-                        console.log(job._id)
                         job.save().catch(error => console.log(error))
                     });
             }

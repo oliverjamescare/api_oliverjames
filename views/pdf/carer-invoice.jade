@@ -1,7 +1,6 @@
 extends _base
 
 block content
-
     div.date #{moment().format("YYYY-MM-DD h:mm A")}
     br
     br
@@ -24,10 +23,10 @@ block content
         span #{care_home.address.company ? care_home.address.company + "," : ""} #{care_home.address.address_line_1}, #{care_home.address.address_line_2 ? care_home.address.address_line_2 + "," : ""} #{care_home.address.city}, #{care_home.address.postal_code}
     p
         b Date worked: &nbsp;
-        span #{moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("YYYY-MM-DD")}
+        span #{moment(job.assignment.summary_sheet && job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("YYYY-MM-DD")}
     p
         b Time worked: &nbsp;
-        span #{moment(job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("h:mm A")} to #{moment(job.assignment.summary_sheet.end_date ? job.assignment.summary_sheet.end_date : job.end_date).format("h:mm A")}
+        span #{moment(job.assignment.summary_sheet && job.assignment.summary_sheet.start_date ? job.assignment.summary_sheet.start_date : job.start_date).format("h:mm A")} to #{moment(job.assignment.summary_sheet && job.assignment.summary_sheet.end_date ? job.assignment.summary_sheet.end_date : job.end_date).format("h:mm A")}
 
     br
     br
@@ -38,10 +37,10 @@ block content
         span £#{job.assignment.payment.job_income}
     p
         b Less deductions*: &nbsp;
-        span -£-#{job.assignment.payment.deductions}
+        span #{(job.assignment.payment.deductions > 0 ? "- £" : "£") + job.assignment.payment.deductions}
     p
         b Less transaction charges**: &nbsp;
-        span -£#{job.assignment.payment.transaction_charge}
+        span #{(job.assignment.payment.transaction_charge > 0 ? "- £" : "£") + job.assignment.payment.transaction_charge}
     p
         b Net payment: &nbsp;
         span £#{job.assignment.payment.net_income}
@@ -51,9 +50,11 @@ block content
     p ** Charges levied by third parties (not Oliver James), for each transaction
 
     br
-    p
-        b JOB SHEET
-    p Your job sheet is below
 
-    div.job-signature
-        img(src=file('/uploads/' + job.assignment.summary_sheet.signature))
+    if(job.assignment.summary_sheet)
+        p
+            b JOB SHEET
+        p Your job sheet is below
+
+        div.job-signature
+            img(src=file('/uploads/' + job.assignment.summary_sheet.signature))
