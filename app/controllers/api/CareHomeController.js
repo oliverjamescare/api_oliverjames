@@ -34,7 +34,7 @@ module.exports = {
 						start_date: { $gte:  new Date(calendar[0].day + " 00:00:00")},
 						end_date: { $lte: new Date(calendar[34].day + " 23:59:59")},
 						_id: { $in: req.user.care_home.jobs },
-        				"assignment.summary_sheet": { $exists: false },
+        				"assignment.payment": { $exists: false },
                         status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }
 					},
             		{ start_date: 1, end_date: 1, care_home: 1, role: 1, status: 1 }
@@ -128,7 +128,6 @@ module.exports = {
 			$and: [
 				{ _id: {  $in: req.user.care_home.jobs } }, //
                 { end_date: { $gte: new Date() } }, //end date must be not expired
-				{ "assignment.summary_sheet": { $exists: false } }, //with summary sheet goes only to past jobs
                 { "assignment.payment": { $exists: false } }, //with payment goes only to past jobs
 				{ status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }} // cancelled and expired will be lost
 			]
@@ -213,7 +212,6 @@ module.exports = {
         	status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]}}, //expired and cancelled jobs will be lost
             $or: [
                 { end_date: { $lte: new Date() } }, //end date is expired
-                { "assignment.summary_sheet": { $exists: true } }, // or summary sheet exists
                 { "assignment.payment": { $exists: true } } // or payment exists
             ]
         };
@@ -239,7 +237,6 @@ module.exports = {
             status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]}}, //expired and cancelled jobs will be lost
             $or: [
                 { end_date: { $lte: new Date() } }, //end date is expired
-                { "assignment.summary_sheet": { $exists: true } }, // or summary sheet exists
                 { "assignment.payment": { $exists: true } } // or payment exists
             ]
         };
@@ -297,6 +294,7 @@ module.exports = {
                     select: {
                         "carer.first_name": 1,
                         "carer.surname": 1,
+                        //"carer.profile_image": 1,
                         "carer.reviews": 1,
                         "carer.care_experience": 1
                     }
@@ -308,11 +306,15 @@ module.exports = {
         };
 
         //query
-        const query = { $and: [ { _id: {  $in: req.user.care_home.jobs } }, { "assignment.summary_sheet": { $exists: true } }, { "assignment.review": { $exists: false } }, { status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }} ]};
+        const query = { $and: [ { _id: {  $in: req.user.care_home.jobs } }, { "assignment.payment": { $exists: true } }, { "assignment.review": { $exists: false } }, { status: { $not: { $in: [ JobModel.statuses.CANCELLED, JobModel.statuses.EXPIRED ]} }} ]};
 
         const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
         let paginated = Utils.parsePaginatedResults(jobs);
-        paginated.results.map(job => Job.parse(job, req));
+        paginated.results.map(job => {
+
+        	console.log(job.assignment.carer.carer.profile_image);
+        	return Job.parse(job, req)
+        });
 
         res.json(paginated);
     },

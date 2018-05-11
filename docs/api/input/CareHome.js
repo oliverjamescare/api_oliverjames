@@ -560,6 +560,7 @@
                         "carer": {
                             "first_name": "Test",
                             "surname": "Test",
+                            "profile_image": null,
                             "care_experience": {
                                 "months": 1,
                                 "years": 3

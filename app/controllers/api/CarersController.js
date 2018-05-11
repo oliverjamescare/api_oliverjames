@@ -105,7 +105,7 @@ module.exports = {
 						start_date: { $gte:  new Date(calendar[0].day + " 00:00:00")},
 						end_date: { $lte: new Date(calendar[34].day + " 23:59:59")},
 						_id: { $in: req.user.carer.jobs },
-        				"assignment.summary_sheet": { $exists: false },
+        				"assignment.payment": { $exists: false },
 						status: { $ne: JobModel.statuses.CANCELLED }
 					},
             		{ start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1,  status: 1, 'assignment.projected_income': 1 }
@@ -149,7 +149,7 @@ module.exports = {
                     start_date: { $gte:  new Date(calendar[0].day + " 00:00:00")},
                     end_date: { $lte: new Date(calendar[calendar.length - 1].day + " 23:59:59")},
                     _id: { $in: req.user.carer.jobs },
-                    "assignment.summary_sheet": { $exists: false },
+                    "assignment.payment": { $exists: false },
                     status: { $ne: JobModel.statuses.CANCELLED }
                 },
                 { start_date: 1, end_date: 1, care_home: 1, role: 1, notes: 1, general_guidance: 1,  status: 1, 'assignment.projected_income': 1  }
@@ -212,7 +212,7 @@ module.exports = {
 			leanWithId: false
 		};
 
-		const query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } }, { status: { $ne: JobModel.statuses.CANCELLED } } ]};
+		const query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.payment": { $exists: false } }, { status: { $ne: JobModel.statuses.CANCELLED } } ]};
 
 		const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
 		let paginated = Utils.parsePaginatedResults(jobs);
@@ -242,7 +242,7 @@ module.exports = {
         async.parallel({
 			nearestJob: (callback) => {
 
-                Job.find({ $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } }, { start_date: { $gt:  new Date() }} ]})
+                Job.find({ $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.payment": { $exists: false } }, { start_date: { $gt:  new Date() }} ]})
                 .sort({ start_date: 1 })
                 .limit(1)
 				.exec()
@@ -254,7 +254,7 @@ module.exports = {
                 let tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
 
-                Job.count({ $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: false } }, { start_date: { $gte: new Date() } }, { start_date: { $lte: tomorrow } } ]})
+                Job.count({ $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.payment": { $exists: false } }, { start_date: { $gte: new Date() } }, { start_date: { $lte: tomorrow } } ]})
 					.exec()
                     .then(results => callback(null, results));
 			},
@@ -369,7 +369,7 @@ module.exports = {
         };
 
         //query
-        const query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.summary_sheet": { $exists: true } }, { status: { $ne: JobModel.statuses.CANCELLED } } ]};
+        const query = { $and: [ { _id: {  $in: req.user.carer.jobs } }, { "assignment.payment": { $exists: true } }, { status: { $ne: JobModel.statuses.CANCELLED } } ]};
 
         if(from)
             query.$and.push({ start_date: { $gte: from }});

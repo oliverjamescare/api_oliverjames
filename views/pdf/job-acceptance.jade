@@ -117,6 +117,21 @@ block content
                 span.label Safeguarding:
                 p.content #{moment(job.assignment.carer.carer.training_record.safeguarding).format("YYYY-MM-DD")}
 
+        if job.assignment.carer.carer.dbs.ref_number
+            li
+                span.label DBS ref number:
+                p.content #{job.assignment.carer.carer.dbs.ref_number}
+
+        if job.assignment.carer.carer.dbs.dbs_date
+            li
+                span.label DBS date:
+                p.content #{moment(job.assignment.carer.carer.dbs.dbs_date).format("YYYY-MM-DD")}
+
+        if job.assignment.carer.carer.dbs.status
+            li
+                span.label DBS status:
+                p.content #{job.assignment.carer.carer.dbs.status}
+
     br
 
     //carer reviews

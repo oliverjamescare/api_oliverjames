@@ -360,7 +360,7 @@ module.exports = {
             return res.status(409).json(Utils.parseStringError("This job has no carer", "job"));
 
         //summary sent
-        if(job.assignment.summary_sheet)
+        if(job.assignment.payment)
             return res.status(409).json(Utils.parseStringError("You can't request for carer change in job with summary sheet sent", "job"));
 
         //summary sent
@@ -436,7 +436,7 @@ module.exports = {
         if(!job.assignment.carer || (job.assignment.carer && job.assignment.carer.toString() != req.user._id.toString()))
             return res.status(409).json(Utils.parseStringError("You are not assigned to this job", "job"));
 
-        if(job.assignment.summary_sheet)
+        if(job.assignment.payment)
             return res.status(409).json(Utils.parseStringError("You can't withdraw from job which has summary sheet sent", "job"));
 
         //getting care home
@@ -503,7 +503,7 @@ module.exports = {
             return res.status(409).json(Utils.parseStringError("This job is cancelled", "job"));
 
         //summary sheet already sent
-        if(job.assignment.summary_sheet && job.assignment.summary_sheet.signature)
+        if((job.assignment.summary_sheet && job.assignment.summary_sheet.signature) || job.assignment.payment)
             return res.status(409).json(Utils.parseStringError("This job already has summary sheet", "job"));
 
         //summary sheet already sent
@@ -626,7 +626,7 @@ module.exports = {
             return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
 
         //summary sent
-        if(job.assignment.summary_sheet)
+        if(job.assignment.payment)
             return res.status(409).json(Utils.parseStringError("You can\'t edit this job, because summary sheet for this job has already been sent", "job"));
 
         //summary sent
@@ -712,7 +712,7 @@ module.exports = {
             return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
 
         //summary sent
-        if(job.assignment.summary_sheet)
+        if(job.assignment.payment)
             return res.status(409).json(Utils.parseStringError("You can\'t cancel this job, because summary sheet for this job has already been sent", "job"));
 
         //summary sent
@@ -800,7 +800,7 @@ module.exports = {
             return res.status(403).json(Utils.parseStringError("You are not author of this job", "author"));
 
         //without assignment or job summary
-        if(!job.assignment || !job.assignment.summary_sheet)
+        if(!job.assignment || !job.assignment.payment)
             return res.status(409).json(Utils.parseStringError("This job cannot be rated yet.", "job"));
 
         //review exists
