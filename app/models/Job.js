@@ -460,6 +460,9 @@ schema.statics.parse = function(job, req)
         {
             if(job.charge.charge_date)
                 job.charge.charge_date = job.charge.charge_date.getTime();
+
+            if(job.charge.invoice)
+                job.charge.invoice = fileHandler.getFileUrl(job.charge.invoice);
         }
 
 		if(job.assignment)
@@ -508,6 +511,9 @@ schema.statics.parse = function(job, req)
                     job.assignment.summary_sheet.end_date = job.assignment.summary_sheet.end_date.getTime();
 				}
 
+				if(job.assignment.summary_sheet.standard_invoice)
+                    job.assignment.summary_sheet.standard_invoice = fileHandler.getFileUrl(job.assignment.summary_sheet.standard_invoice);
+
                 job.summary_sheet = job.assignment.summary_sheet;
             }
 
@@ -523,6 +529,12 @@ schema.statics.parse = function(job, req)
 
                 if(job.assignment.payment.payment_date)
                     job.assignment.payment.payment_date = job.assignment.payment.payment_date.getTime();
+
+                if(job.assignment.payment.invoice)
+                    job.assignment.payment.invoice = fileHandler.getFileUrl(job.assignment.payment.invoice);
+
+                if(job.assignment.payment.commission_confirmation)
+                    job.assignment.payment.commission_confirmation = fileHandler.getFileUrl(job.assignment.payment.commission_confirmation);
 
                 job.payment = job.assignment.payment;
             }

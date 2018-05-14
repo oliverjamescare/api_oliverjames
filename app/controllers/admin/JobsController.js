@@ -172,6 +172,7 @@ module.exports = {
                 'charge.manual_booking_cost': 1,
                 'charge.job_cost': 1,
                 'charge.deductions': 1,
+                'charge.invoice': 1,
 
                 'assignment.carer': 1,
 
@@ -183,6 +184,8 @@ module.exports = {
                 'assignment.payment.status': 1,
                 'assignment.payment.payment_date': 1,
                 'assignment.payment.debit_date': 1,
+                'assignment.payment.invoice': 1,
+                'assignment.payment.commission_confirmation': 1,
 
                 'assignment.review.description': 1,
                 'assignment.review.rate': 1,
@@ -202,6 +205,7 @@ module.exports = {
                 'assignment.summary_sheet.position': 1,
                 'assignment.summary_sheet.name': 1,
                 'assignment.summary_sheet.signature': 1,
+                'assignment.summary_sheet.standard_invoice': 1,
             }
         )
         .populate({

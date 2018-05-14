@@ -123,7 +123,8 @@
                 "total_cost": 103.5,
                 "manual_booking_cost": 51.75,
                 "job_cost": 51.75,
-                "deductions": 10
+                "deductions": 10,
+                "invoice": "http://localhost:8000/uploads/jobs/5a95290a1e28cd1d88ea64cd/152162607972516344484_1321466411247611_2119070772_n.pdf",
             },
             "author": {
                 "_id": "5a9419d8e33cb930aa7c3856",
@@ -176,6 +177,7 @@
                 "position": "CEO",
                 "name": "Richard",
                 "signature": "http://localhost:8000/uploads/jobs/5a95290a1e28cd1d88ea64cd/152162607972516344484_1321466411247611_2119070772_n.jpg"
+                "standard_invoice": "http://localhost:8000/uploads/jobs/5a95290a1e28cd1d88ea64cd/152162607972516344484_1321466411247611_2119070772_n.pdf"
             },
             "payment": {
                 "transaction_charge": 2.91,
@@ -185,7 +187,9 @@
                 "net_income": 34.35,
                 "status": "PAID",
                 "payment_date": 1523440106661,
-                "debit_date": 1522879200000
+                "debit_date": 1522879200000,
+                "invoice": "http://localhost:8000/uploads/jobs/5a95290a1e28cd1d88ea64cd/152162607972516344484_1321466411247611_2119070772_n.pdf",
+                "commission_confirmation": "http://localhost:8000/uploads/jobs/5a95290a1e28cd1d88ea64cd/152162607972516344484_1321466411247611_2119070772_n.pdf"
             }
         }
  *

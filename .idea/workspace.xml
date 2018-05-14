@@ -3,12 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="a5f3ecfb-1581-4980-b07d-73788c6cf78a" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/controllers/api/CareHomeController.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/api/CareHomeController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/controllers/api/CarersController.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/api/CarersController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/controllers/api/JobsController.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/api/JobsController.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/services/JobsHandler.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/JobsHandler.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/api/input/CareHome.js" beforeDir="false" afterPath="$PROJECT_DIR$/docs/api/input/CareHome.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/pdf/job-acceptance.jade" beforeDir="false" afterPath="$PROJECT_DIR$/views/pdf/job-acceptance.jade" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/controllers/admin/JobsController.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/controllers/admin/JobsController.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/Job.js" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/Job.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/admin/input/Job.js" beforeDir="false" afterPath="$PROJECT_DIR$/docs/admin/input/Job.js" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -25,29 +22,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="CarersController.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/controllers/api/CarersController.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3658">
-              <caret line="380" column="58" lean-forward="true" selection-start-line="380" selection-start-column="7" selection-end-line="380" selection-end-column="58" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="JobsHandler.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="JobsHandler.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/services/JobsHandler.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="364">
-              <caret line="465" column="22" lean-forward="true" selection-start-line="465" selection-start-column="22" selection-end-line="465" selection-end-column="22" />
+            <state relative-caret-position="75">
+              <caret line="397" column="37" selection-start-line="397" selection-start-column="37" selection-end-line="397" selection-end-column="37" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CareHomeController.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/controllers/api/CareHomeController.js">
+      <file leaf-file-name="JobsController.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/controllers/admin/JobsController.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="245">
-              <caret line="295" column="43" lean-forward="true" selection-start-line="295" selection-start-column="43" selection-end-line="295" selection-end-column="43" />
+            <state relative-caret-position="238">
+              <caret line="389" lean-forward="true" selection-start-line="389" selection-end-line="389" />
+              <folding>
+                <element signature="n#!!doc" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -55,7 +46,7 @@
       <file leaf-file-name="job-acceptance.jade" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/views/pdf/job-acceptance.jade">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="516">
+            <state relative-caret-position="2227">
               <caret line="131" column="37" selection-start-line="131" selection-start-column="37" selection-end-line="131" selection-end-column="37" />
             </state>
           </provider>
@@ -64,51 +55,58 @@
       <file leaf-file-name="Carer.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/models/schemas/Carer.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="227">
+            <state relative-caret-position="4726">
               <caret line="278" column="18" selection-start-line="278" selection-start-column="8" selection-end-line="278" selection-end-column="18" />
             </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Carer.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/docs/api/input/Carer.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-204" />
           </provider>
         </entry>
       </file>
       <file leaf-file-name="Job.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/models/Job.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="532">
-              <caret line="465" column="9" lean-forward="true" selection-start-line="465" selection-start-column="9" selection-end-line="465" selection-end-column="9" />
+            <state relative-caret-position="6920">
+              <caret line="458" column="22" lean-forward="true" selection-start-line="458" selection-start-column="22" selection-end-line="458" selection-end-column="22" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="User.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/models/User.js">
+      <file leaf-file-name="Charge.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/models/schemas/Charge.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="362" column="88" selection-start-line="362" selection-start-column="88" selection-end-line="362" selection-end-column="88" />
+            <state relative-caret-position="-204" />
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Job.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/docs/admin/input/Job.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="123" column="41" selection-start-line="123" selection-start-column="41" selection-end-line="123" selection-end-column="41" />
             </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Payment.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/models/schemas/Payment.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-459" />
           </provider>
         </entry>
       </file>
       <file leaf-file-name="Challenge.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/models/schemas/Challenge.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="20" column="21" lean-forward="true" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
+            <state relative-caret-position="187">
+              <caret line="20" column="21" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="fileHandler.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/services/fileHandler.js">
+      <file leaf-file-name="SummarySheet.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/models/schemas/SummarySheet.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="60" column="65" selection-start-line="60" selection-start-column="65" selection-end-line="60" selection-end-column="65" />
+            <state relative-caret-position="635">
+              <caret line="40" column="20" selection-start-line="40" selection-start-column="4" selection-end-line="40" selection-end-column="20" />
             </state>
           </provider>
         </entry>
@@ -157,10 +155,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/app/controllers/api/AuthController.js" />
         <option value="$PROJECT_DIR$/app/controllers/admin/CarersController.js" />
         <option value="$PROJECT_DIR$/docs/api/input/Address.js" />
-        <option value="$PROJECT_DIR$/app/controllers/admin/JobsController.js" />
         <option value="$PROJECT_DIR$/bin/www" />
         <option value="$PROJECT_DIR$/.env" />
         <option value="$PROJECT_DIR$/views/emails/contact.jade" />
@@ -196,7 +192,6 @@
         <option value="$PROJECT_DIR$/views/pdf/commission-confirmation.jade" />
         <option value="$PROJECT_DIR$/views/pdf/carer-invoice.jade" />
         <option value="$PROJECT_DIR$/views/pdf/care-home-invoice.jade" />
-        <option value="$PROJECT_DIR$/app/models/Job.js" />
         <option value="$PROJECT_DIR$/app/controllers/api/UsersController.js" />
         <option value="$PROJECT_DIR$/routes/api.js" />
         <option value="$PROJECT_DIR$/docs/api/input/Job.js" />
@@ -208,6 +203,9 @@
         <option value="$PROJECT_DIR$/app/controllers/api/CareHomeController.js" />
         <option value="$PROJECT_DIR$/views/pdf/job-acceptance.jade" />
         <option value="$PROJECT_DIR$/app/services/JobsHandler.js" />
+        <option value="$PROJECT_DIR$/app/controllers/admin/JobsController.js" />
+        <option value="$PROJECT_DIR$/app/models/Job.js" />
+        <option value="$PROJECT_DIR$/docs/admin/input/Job.js" />
       </list>
     </option>
   </component>
@@ -280,14 +278,14 @@
               <item name="api_oliver_james" type="b2602c69:ProjectViewProjectNode" />
               <item name="api_oliver_james" type="462c0819:PsiDirectoryNode" />
               <item name="app" type="462c0819:PsiDirectoryNode" />
-              <item name="controllers" type="462c0819:PsiDirectoryNode" />
-              <item name="api" type="462c0819:PsiDirectoryNode" />
+              <item name="models" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="api_oliver_james" type="b2602c69:ProjectViewProjectNode" />
               <item name="api_oliver_james" type="462c0819:PsiDirectoryNode" />
               <item name="app" type="462c0819:PsiDirectoryNode" />
               <item name="models" type="462c0819:PsiDirectoryNode" />
+              <item name="schemas" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="api_oliver_james" type="b2602c69:ProjectViewProjectNode" />
@@ -304,29 +302,7 @@
             <path>
               <item name="api_oliver_james" type="b2602c69:ProjectViewProjectNode" />
               <item name="api_oliver_james" type="462c0819:PsiDirectoryNode" />
-              <item name="docs" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="api_oliver_james" type="b2602c69:ProjectViewProjectNode" />
-              <item name="api_oliver_james" type="462c0819:PsiDirectoryNode" />
               <item name="routes" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="api_oliver_james" type="b2602c69:ProjectViewProjectNode" />
-              <item name="api_oliver_james" type="462c0819:PsiDirectoryNode" />
-              <item name="views" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="api_oliver_james" type="b2602c69:ProjectViewProjectNode" />
-              <item name="api_oliver_james" type="462c0819:PsiDirectoryNode" />
-              <item name="views" type="462c0819:PsiDirectoryNode" />
-              <item name="emails" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="api_oliver_james" type="b2602c69:ProjectViewProjectNode" />
-              <item name="api_oliver_james" type="462c0819:PsiDirectoryNode" />
-              <item name="views" type="462c0819:PsiDirectoryNode" />
-              <item name="pdf" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -339,7 +315,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="js.buildTools.grunt.grunt-cli.package" value="$USER_HOME$/AppData/Roaming/npm/node_modules/grunt-cli" />
     <property name="jsx.switch.disabled" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../GetRig/api_getrig" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../cms_oliverjames" />
     <property name="node.js.detected.package.prettier" value="true" />
     <property name="node.js.path.for.package.prettier" value="project" />
     <property name="node.js.selected.package.prettier" value="" />
@@ -430,9 +406,9 @@
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Grunt.js.Docs" />
         <item itemvalue="npm.debug" />
         <item itemvalue="Grunt.js.apidoc" />
-        <item itemvalue="Grunt.js.Docs" />
         <item itemvalue="Grunt.js.apidoc:api" />
         <item itemvalue="npm.start" />
       </list>
@@ -479,11 +455,12 @@
       <workItem from="1525776978005" duration="15000" />
       <workItem from="1525789639505" duration="21691000" />
       <workItem from="1525892897263" duration="6715000" />
+      <workItem from="1526285300040" duration="4759000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1277906000" />
+    <option name="totallyTimeSpent" value="1282665000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -498,39 +475,26 @@
     <frame x="-8" y="-8" width="1616" height="876" extended-state="6" />
     <editor active="true" />
     <layout>
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4085028" visible="true" weight="0.23764259" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.15853658" />
+      <window_info anchor="bottom" id="Docker" order="11" show_stripe_button="false" />
+      <window_info id="Grunt " order="4" sideWeight="0.59149724" side_tool="true" weight="0.23764259" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32972974" />
-      <window_info id="npm" order="2" sideWeight="0.59149724" side_tool="true" weight="0.2382763" />
       <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.26693767" />
-      <window_info anchor="bottom" id="Terminal" order="9" weight="0.32655826" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4085028" visible="true" weight="0.2382763" />
-      <window_info anchor="bottom" id="Docker" order="11" show_stripe_button="false" />
-      <window_info id="Grunt " order="4" sideWeight="0.59149724" side_tool="true" weight="0.2382763" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32972974" />
+      <window_info id="npm" order="2" sideWeight="0.5904936" side_tool="true" weight="0.23764259" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Terminal" order="9" weight="0.2588076" />
       <window_info id="Favorites" order="3" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="bottom" id="Docker" order="11" show_stripe_button="false" />
-      <window_info id="npm" order="2" sideWeight="0.5896488" side_tool="true" weight="0.23891002" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32972974" />
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.4103512" visible="true" weight="0.23814541" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="TODO" order="6" weight="0.15853658" />
       <window_info anchor="bottom" id="TypeScript" order="10" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.26693767" />
-      <window_info anchor="bottom" id="Terminal" order="9" visible="true" weight="0.32570806" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32972974" />
-      <window_info id="Grunt " order="4" sideWeight="0.58943087" side_tool="true" weight="0.23891002" />
-      <window_info id="Favorites" order="3" side_tool="true" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -664,11 +628,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/models/schemas/Payment.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-459" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/services/NotificationsHandler.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="248">
@@ -683,21 +642,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/views/emails/_footer.jade">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="file://$PROJECT_DIR$/views/pdf/_base.jade">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
           <caret line="4" column="90" selection-start-line="4" selection-start-column="90" selection-end-line="4" selection-end-column="90" />
         </state>
       </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/views/pdf/registration-carer-details.jade">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/views/pdf/registration-carer-q-a.jade">
-      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/public/stylesheets/pdf-style.css">
       <provider selected="true" editor-type-id="text-editor">
@@ -776,15 +726,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/controllers/admin/JobsController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-5169">
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/docs/api/input/CareHome.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="279">
@@ -801,7 +742,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/services/fileHandler.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
+        <state relative-caret-position="1020">
           <caret line="60" column="65" selection-start-line="60" selection-start-column="65" selection-end-line="60" selection-end-column="65" />
         </state>
       </provider>
@@ -813,64 +754,96 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/models/schemas/Challenge.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="20" column="21" lean-forward="true" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/models/User.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
+        <state relative-caret-position="6154">
           <caret line="362" column="88" selection-start-line="362" selection-start-column="88" selection-end-line="362" selection-end-column="88" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/models/Job.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="532">
-          <caret line="465" column="9" lean-forward="true" selection-start-line="465" selection-start-column="9" selection-end-line="465" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/controllers/api/CarersController.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3658">
-          <caret line="380" column="58" lean-forward="true" selection-start-line="380" selection-start-column="7" selection-end-line="380" selection-end-column="58" />
+        <state relative-caret-position="6460">
+          <caret line="380" column="58" selection-start-line="380" selection-start-column="7" selection-end-line="380" selection-end-column="58" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/controllers/api/CareHomeController.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="245">
-          <caret line="295" column="43" lean-forward="true" selection-start-line="295" selection-start-column="43" selection-end-line="295" selection-end-column="43" />
+        <state relative-caret-position="4947">
+          <caret line="295" column="43" selection-start-line="295" selection-start-column="43" selection-end-line="295" selection-end-column="43" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/docs/api/input/Carer.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-204" />
-      </provider>
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/app/models/schemas/Carer.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="227">
+        <state relative-caret-position="4726">
           <caret line="278" column="18" selection-start-line="278" selection-start-column="8" selection-end-line="278" selection-end-column="18" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/views/pdf/job-acceptance.jade">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="516">
+        <state relative-caret-position="2227">
           <caret line="131" column="37" selection-start-line="131" selection-start-column="37" selection-end-line="131" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/services/JobsHandler.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="364">
-          <caret line="465" column="22" lean-forward="true" selection-start-line="465" selection-start-column="22" selection-end-line="465" selection-end-column="22" />
+        <state relative-caret-position="75">
+          <caret line="397" column="37" selection-start-line="397" selection-start-column="37" selection-end-line="397" selection-end-column="37" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/models/schemas/Challenge.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="20" column="21" selection-start-line="20" selection-start-column="21" selection-end-line="20" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/models/schemas/SummarySheet.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="635">
+          <caret line="40" column="20" selection-start-line="40" selection-start-column="4" selection-end-line="40" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/models/schemas/Payment.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-459" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/models/schemas/Charge.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-204" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/models/Job.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6920">
+          <caret line="458" column="22" lean-forward="true" selection-start-line="458" selection-start-column="22" selection-end-line="458" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docs/admin/input/Job.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="123" column="41" selection-start-line="123" selection-start-column="41" selection-end-line="123" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/controllers/admin/JobsController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="389" lean-forward="true" selection-start-line="389" selection-end-line="389" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
