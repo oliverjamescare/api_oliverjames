@@ -22,6 +22,7 @@ const Utils = require("../../services/utils");
 const fileHandler = require("../../services/fileHandler");
 const QueuesHandler = require('../../services/QueuesHandler');
 const JobsHandler = require('../../services/JobsHandler');
+const PaymentsHandler = require('../../services/PaymentsHandler');
 
 module.exports = {
     getJobs: async function(req, res)
@@ -289,7 +290,14 @@ module.exports = {
         //sending response
         res.json({ status: true });
 
-        //updating status
+        //updating and setting new debit date
+        let now = new Date();
+        const handler = new PaymentsHandler();
+        const debitDate = handler.calculateDebitDate(now);
+
+        job.assignment.payment = {
+            debit_date: debitDate
+        };
         job.status = JobModel.statuses.PENDING_PAYMENT;
         job.save().catch(error => console.log(error));
     },
@@ -367,7 +375,7 @@ module.exports = {
             start_date: req.body.start_date || job.start_date,
             end_date: req.body.end_date || job.end_date,
             role: req.body.role || job.role,
-            notes: req.body.notes || job.notes,
+            notes: req.body.notes == "" ? null : req.body.notes || job.notes,
             gender_preference: req.body.gender_preference || job.gender_preference,
             manual_booking: req.body.manual_booking ? (req.body.manual_booking == "ENABLED" ? true : false) : job.manual_booking,
             general_guidance: {
@@ -375,7 +383,7 @@ module.exports = {
                 report_contact: req.body.report_contact || job.general_guidance.report_contact,
                 emergency_guidance: req.body.emergency_guidance || job.general_guidance.emergency_guidance,
                 notes_for_carers: req.body.notes_for_carers || job.general_guidance.notes_for_carers,
-                parking: req.body.report_contact || job.general_guidance.parking,
+                parking: req.body.parking || job.general_guidance.parking,
                 floor_plan: filePath || job.general_guidance.floor_plan,
             }
         });
@@ -456,12 +464,42 @@ module.exports = {
             return res.status(409).json(Utils.parseStringError("This job cannot be cancelled at this stage", "job"));
 
         job.status = JobModel.statuses.CANCELLED;
+
+        //half charge
+        const now = new Date();
+        const acceptanceTimeBound = 1000 * 60 *  60 * 2; //2 hours
+        const jobTimeBound = 1000 * 60 *  60 * 24; //24 hours
+        let halfCharge = false;
+
+        if(job.start_date.getTime() - jobTimeBound <= now.getTime() && job.assignment.carer && job.assignment.created.getTime() + acceptanceTimeBound <= now.getTime() && waiveCharges == "NO")
+        {
+            halfCharge = true;
+            now.setMinutes(now.getMinutes() + 1); //one minute payment processing delay to apply all payment processing rules
+
+            job.percent_charge = 50;
+            job.assignment.payment = {
+                debit_date: now
+            };
+        }
+
         job.save()
             .then(job => {
 
-                //sending notification
-                if(job.assignment.carer)
+                if(halfCharge)
+                {
+                    const { total_minutes } = JobsHandler.calculateJobCost(job);
                     QueuesHandler.publish({ carer_id: job.assignment.carer, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
+                    job.sendJobCancellationCharge(req.app.mailer, job.assignment.carer, total_minutes);
+                }
+                else
+                {
+                    //sending notification and email to carer
+                    if(job.assignment.carer)
+                    {
+                        QueuesHandler.publish({ carer_id: job.assignment.carer, job_id: job._id, type: "JOB_CANCELLED" }, { exchange: "notifications", queue: "notifications" })
+                        job.sendJobCancellation(req.app.mailer, job.assignment.carer);
+                    }
+                }
             })
             .catch(error => console.log(error));
 

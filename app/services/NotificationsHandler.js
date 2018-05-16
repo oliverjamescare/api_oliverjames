@@ -174,7 +174,7 @@ module.exports = class
         let inputs = [];
 
         if(type == "REVIEW_PUBLISHED")
-            inputs.push(user.carer.reviews.average);
+            inputs.push(carer.carer.reviews.average);
 
         if(type == "PAYMENT_PROCESSED")
         {
