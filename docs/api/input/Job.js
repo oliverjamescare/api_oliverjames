@@ -97,7 +97,8 @@
                     ],
                     "dbs": {
                         "status": "Clear",
-                        "dbs_date": 157766400000
+                        "dbs_date": 157766400000,
+                        "ref_number": "354783912343",
                     },
                     "training_record": {
                         "fire_safety": null,
@@ -109,6 +110,7 @@
                         "medication_management": null,
                         "manual_handling_people": null,
                         "safeguarding": null,
+                        "other": null,
                         "qualifications": [
                             "Nursing qualification (elsewhere)",
                             "Agency carer induction training"

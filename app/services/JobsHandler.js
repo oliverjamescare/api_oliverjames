@@ -457,6 +457,7 @@ module.exports = {
                         "carer.training_record.h_and_s": 1,
                         "carer.training_record.dementia": 1,
                         "carer.training_record.fire_safety": 1,
+                        "carer.training_record.other": 1,
                         "carer.dbs.status": 1,
                         "carer.dbs.dbs_date": 1,
                         "carer.dbs.ref_number": 1,

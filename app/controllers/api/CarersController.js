@@ -6,6 +6,7 @@
 
 //core
 const moment = require("moment");
+const momentTz = require("moment-timezone");
 const async = require("async");
 
 //models
@@ -92,6 +93,7 @@ module.exports = {
 		//generating calendar
 		const currentWeek = Utils.getDatesRange();
 		const start = moment(currentWeek.from);
+        const timezone = !!momentTz.tz.zone(req.query.timezone) ? req.query.timezone : "utc";
 		let calendar = [];
 
 		for(let i = 0; i < 35; i++)
@@ -124,7 +126,7 @@ module.exports = {
 
 		//parsing
         jobs.map(job => Job.parse(job, req));
-		calendar.forEach(day => day["jobs"] = jobs.filter(job => moment(job.start_date).format("YYYY-MM-DD") == day.day));
+		calendar.forEach(day => day["jobs"] = jobs.filter(job => momentTz(job.start_date).tz(timezone).format("YYYY-MM-DD") == day.day));
 
         res.json({ calendar });
 	},
@@ -136,6 +138,7 @@ module.exports = {
 
         //generating calendar
         let calendar = [];
+        const timezone = !!momentTz.tz.zone(req.query.timezone) ? req.query.timezone : "utc";
         for(let i = 0; startDate.format("YYYY-MM-DD") != endDate.format("YYYY-MM-DD") && i < 62; i++)
         {
             calendar.push({ day: startDate.format("YYYY-MM-DD")});
@@ -168,7 +171,7 @@ module.exports = {
 
             //parsing
             jobs.map(job => Job.parse(job, req));
-            calendar.forEach(day => day["jobs"] = jobs.filter(job => moment(job.start_date).format("YYYY-MM-DD") == day.day));
+            calendar.forEach(day => day["jobs"] = jobs.filter(job => momentTz(job.start_date).tz(timezone).format("YYYY-MM-DD") == day.day));
 		}
 
         return res.json({ calendar });

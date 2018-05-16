@@ -19,7 +19,8 @@ const ReviewSchema = require("./schemas/Review");
 const Review = ReviewSchema.schema;
 const ChallengeSchema = require("./schemas/Challenge");
 const Challenge = ChallengeSchema.schema;
-const Payment = require("./schemas/Payment").schema;
+const PaymentSchema = require("./schemas/Payment");
+const Payment = PaymentSchema.schema;
 const Charge = require("./schemas/Charge").schema;
 const SummarySheet = require("./schemas/SummarySheet").schema;
 
@@ -66,7 +67,7 @@ const schema = mongoose.Schema({
 	end_date: {
 		type: Date,
 		required: [ true, "{PATH} field is required." ],
-		validate: [ validators.dateGreaterThanDateField("start_date"), validators.maxDateRangeAccordingToField("start_date", 1000 * 60 * 60 * 24) ]
+		validate: [ validators.dateGreaterThanDateField("start_date"), validators.maxDateRangeAccordingToField("start_date", 1000 * 60 * 60 * 24, "Job cannot be longer than 24h") ]
 	},
 	care_home: {
 		type: mongoose.Schema.Types.ObjectId,
@@ -230,6 +231,13 @@ schema.pre("save", function (next)
     const costs = JobsHandler.calculateJobCost(this);
     this.cost = { job_cost: costs.job_cost, manual_booking_cost: costs.manual_booking_cost, total_cost: costs.total_cost }
     this.assignment.projected_income  = costs.job_income;
+
+    //handling partial payment
+    if(this.assignment && this.assignment.payment && this.assignment.payment.status == PaymentSchema.statuses.IN_PROGRESS)
+    {
+        this.assignment.payment.application_fee = costs.applicationFee;
+        this.assignment.payment.job_income = costs.job_income;
+    }
 
 	if(this.assignment.carer)
 	{

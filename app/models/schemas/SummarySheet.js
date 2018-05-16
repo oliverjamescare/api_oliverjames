@@ -31,7 +31,7 @@ const schema = mongoose.Schema({
     end_date: {
         type: Date,
         required: validators.required_if_present("start_date"),
-        validate: [ validators.dateGreaterThanDateField("start_date"), validators.maxDateRangeAccordingToField("start_date", 1000 * 60 * 60 * 24) ]
+        validate: [ validators.dateGreaterThanDateField("start_date"), validators.maxDateRangeAccordingToField("start_date", 1000 * 60 * 60 * 24, "Job cannot be longer than 24h") ]
     },
     voluntary_deduction: { //number of minutes to deduct
         type: Number,

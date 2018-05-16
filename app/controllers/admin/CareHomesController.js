@@ -241,7 +241,7 @@ module.exports = {
         //updating user
         user.set({
             status: body.status || user.status,
-            notes: body.notes || user.notes,
+            notes: body.notes == ""? null : user.notes,
             banned_until: body.banned_until || user.banned_until
         });
 
@@ -252,11 +252,11 @@ module.exports = {
             name: body.name || user.care_home.name,
             gender_preference: body.gender_preference || user.care_home.gender_preference,
             general_guidance: {
-                superior_contact: body.superior_contact || user.care_home.general_guidance.superior_contact,
-                report_contact: body.report_contact || user.care_home.general_guidance.report_contact,
-                emergency_guidance: body.emergency_guidance || user.care_home.general_guidance.emergency_guidance,
-                notes_for_carers: body.notes_for_carers || user.care_home.general_guidance.notes_for_carers,
-                parking: body.parking || user.care_home.general_guidance.parking,
+                superior_contact: body.superior_contact == "" ? null : body.superior_contact || user.care_home.general_guidance.superior_contact,
+                report_contact: body.report_contact == "" ? null : body.report_contact || user.care_home.general_guidance.report_contact,
+                emergency_guidance: body.emergency_guidance == "" ? null : body.emergency_guidance || user.care_home.general_guidance.emergency_guidance,
+                notes_for_carers: body.notes_for_carers == "" ? null : body.notes_for_carers || user.care_home.general_guidance.notes_for_carers,
+                parking: body.parking == "" ? null : body.parking || user.care_home.general_guidance.parking,
                 floor_plan: filePath || user.care_home.general_guidance.floor_plan
             }
         });

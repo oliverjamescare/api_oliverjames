@@ -215,6 +215,7 @@
  * @apiGroup Carer
  *
  * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} [timezone] User timezone
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK
@@ -318,6 +319,7 @@
  * @apiGroup Carer
  *
  * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} [timezone] User timezone
  * @apiParam {String} [start_date] Formatted to string start day e.g. 2018-03-01
  * @apiParam {String} [end_date] Formatted to string end day e.g. 2018-03-31
  *

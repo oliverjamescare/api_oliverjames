@@ -6,6 +6,7 @@
 
 //core
 const moment = require("moment");
+const momentTz = require("moment-timezone");
 
 //custom
 const JobModel = require("../../models/Job");
@@ -20,6 +21,7 @@ module.exports = {
 		//generating calendar
 		const currentWeek = Utils.getDatesRange();
 		const start = moment(currentWeek.from);
+		const timezone = !!momentTz.tz.zone(req.query.timezone) ? req.query.timezone : "utc";
 		let calendar = [];
 
 		for(let i = 0; i < 35; i++)
@@ -53,7 +55,7 @@ module.exports = {
 
 		//parsing
         jobs.map(job => Job.parse(job, req));
-		calendar.forEach(day => day["jobs"] = jobs.filter(job => moment(job.start_date).format("YYYY-MM-DD") == day.day));
+		calendar.forEach(day => day["jobs"] = jobs.filter(job => momentTz(job.start_date).tz(timezone).format("YYYY-MM-DD") == day.day));
 
         res.json({ calendar });
 	},
@@ -294,7 +296,7 @@ module.exports = {
                     select: {
                         "carer.first_name": 1,
                         "carer.surname": 1,
-                        //"carer.profile_image": 1,
+                        "carer.profile_image": 1,
                         "carer.reviews": 1,
                         "carer.care_experience": 1
                     }
@@ -310,11 +312,7 @@ module.exports = {
 
         const jobs = await Utils.paginate(Job, { query: query, options: options }, req);
         let paginated = Utils.parsePaginatedResults(jobs);
-        paginated.results.map(job => {
-
-        	console.log(job.assignment.carer.carer.profile_image);
-        	return Job.parse(job, req)
-        });
+        paginated.results.map(job => Job.parse(job, req));
 
         res.json(paginated);
     },

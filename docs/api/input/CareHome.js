@@ -7,6 +7,7 @@
  * @apiGroup Care Home
 
  * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} [timezone] User timezone
  *
  * @apiSuccessExample Success-Response:
  *  HTTP/1.1 200 OK

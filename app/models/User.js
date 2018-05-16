@@ -332,7 +332,6 @@ schema.statics.parse = function(user, req)
         if(user.care_home.general_guidance && user.care_home.general_guidance.floor_plan)
 	        user.care_home.general_guidance.floor_plan = fileHandler.getFileUrl(user.care_home.general_guidance.floor_plan);
 
-
         //distance
 	    if(user.distance != undefined)
 		    user.distance = parseFloat(user.distance.toFixed(2));
@@ -359,8 +358,8 @@ schema.statics.parse = function(user, req)
         if(user.carer.date_of_birth)
             user.carer.date_of_birth = moment(user.carer.date_of_birth).format("YYYY-MM-DD");
 
-        if(user.carer.profile_image)
-		    user.carer.profile_image = fileHandler.getFileUrl(user.carer.profile_image);
+        if(user.carer.profile_image && !/^http/.test(user.carer.profile_image))
+		     user.carer.profile_image = fileHandler.getFileUrl(user.carer.profile_image);
 
         //training record
         if(user.carer.training_record)

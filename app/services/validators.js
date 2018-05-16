@@ -183,11 +183,11 @@ module.exports.dateGreaterThanDateField = function (field)
     }
 }
 
-module.exports.maxDateRangeAccordingToField = function (field, range)
+module.exports.maxDateRangeAccordingToField = function (field, range, message = "{PATH} has too wide range according to " + field + " field.")
 {
     return {
         validator: function(value) { return !value || value.getTime() < (this[field].getTime()  + range) },
-        message: "{PATH} has too wide range according to " + field + " field."
+        message: message
     }
 }
 

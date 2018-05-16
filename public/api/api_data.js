@@ -810,6 +810,19 @@ define({ "api": [
         ]
       }
     },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "timezone",
+            "description": "<p>User timezone</p>"
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {
@@ -1263,7 +1276,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n   {\n        \"results\": [\n            {\n                \"_id\": \"5ab5012f16427217b04ed694\",\n                \"start_date\": 1523404800000,\n                \"end_date\": 1523404900000,\n                \"created\": 1521811725872,\n                \"status\": \"PENDING_PAYMENT\",\n                \"carer\": {\n                    \"_id\": \"5a9418e7e33cb930aa7c384f\",\n                    \"carer\": {\n                        \"first_name\": \"Test\",\n                        \"surname\": \"Test\",\n                        \"care_experience\": {\n                            \"months\": 1,\n                            \"years\": 3\n                        },\n                        \"reviews\": {\n                            \"average\": 5,\n                            \"count\": 1\n                        }\n                    }\n                }\n            }\n         ],\n         \"pages\": 1,\n         \"total\": 3\n   }",
+          "content": "HTTP/1.1 200 OK\n   {\n        \"results\": [\n            {\n                \"_id\": \"5ab5012f16427217b04ed694\",\n                \"start_date\": 1523404800000,\n                \"end_date\": 1523404900000,\n                \"created\": 1521811725872,\n                \"status\": \"PENDING_PAYMENT\",\n                \"carer\": {\n                    \"_id\": \"5a9418e7e33cb930aa7c384f\",\n                    \"carer\": {\n                        \"first_name\": \"Test\",\n                        \"surname\": \"Test\",\n                        \"profile_image\": null,\n                        \"care_experience\": {\n                            \"months\": 1,\n                            \"years\": 3\n                        },\n                        \"reviews\": {\n                            \"average\": 5,\n                            \"count\": 1\n                        }\n                    }\n                }\n            }\n         ],\n         \"pages\": 1,\n         \"total\": 3\n   }",
           "type": "json"
         }
       ]
@@ -2022,6 +2035,19 @@ define({ "api": [
         ]
       }
     },
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "timezone",
+            "description": "<p>User timezone</p>"
+          }
+        ]
+      }
+    },
     "success": {
       "examples": [
         {
@@ -2103,6 +2129,13 @@ define({ "api": [
     "parameter": {
       "fields": {
         "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "timezone",
+            "description": "<p>User timezone</p>"
+          },
           {
             "group": "Parameter",
             "type": "String",
@@ -4515,7 +4548,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "HTTP/1.1 200 OK\n{\n        \"_id\": \"5a814b8deb5cee1dc0720128\",\n        \"start_date\": 1518422931942,\n        \"end_date\": 1518425101942,\n        \"projected_income\": 75,\n        \"author\": {\n            \"_id\": \"5a71b2834f1f26305c6abf2a\",\n            \"care_home\": {\n                \"care_service_name\": \"Test care home\",\n                \"type_of_home\": \"Nursing\",\n                \"name\": \"Test Test\"\n            },\n            \"email\": \"test.test@test.com\",\n            \"phone_number\": \"123456788777\",\n            \"address\": {\n                    \"postal_code\": \"Ex8 2el\",\n                    \"city\": \"Exmouth\",\n                    \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                    \"location\": {\n                        \"coordinates\": [\n                            50.7583820,\n                            19.005533\n                        ],\n                        \"type\": \"Point\"\n                    },\n                    \"address_line_2\": null,\n                    \"company\": null,\n                    \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n                }\n        },\n        \"role\": \"Senior Carer\",\n        \"status\": \"POSTED\",\n        \"gender_preference\": \"No preference\",\n        \"general_guidance\": {\n            \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012.floor_plan.docx\",\n            \"parking\": \"test\",\n            \"notes_for_carers\": \"test\",\n            \"emergency_guidance\": \"test\",\n            \"report_contact\": \"test\",\n            \"superior_contact\": \"test\"\n        },\n        \"notes\": null,\n        \"carer\": {\n            \"_id\": \"5a9404d68ce0962d6c988f97\",\n            \"acceptance_date\": 1518422931942,\n            \"carer\": {\n                \"first_name\": \"Test\",\n                \"surname\": \"Test\",\n                \"jobs\": [\n                    {\n                        \"_id\": \"5a95290a1e28cd1d88ea64cd\",\n                        \"author\": {\n                            \"_id\": \"5a9419d8e33cb930aa7c3856\",\n                            \"care_home\": {\n                                \"care_service_name\": \"Test Care  Home\",\n                                \"type_of_home\": \"Residential\",\n                                \"name\": \"Test Test\"\n                            },\n                            \"email\": \"test.test@test.com\",\n                            \"phone_number\": \"3545232323\",\n                            \"address\": {\n                                \"postal_code\": \"Ex8 2el\",\n                                \"city\": \"Exmouth\",\n                                \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                                \"location\": {\n                                    \"coordinates\": [\n                                        50.7583820,\n                                        19.005533\n                                    ],\n                                    \"type\": \"Point\"\n                                },\n                                \"address_line_2\": null,\n                                \"company\": null,\n                                \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n                            }\n                        },\n                        \"review\": {\n                            \"created\": 1520957549836,\n                            \"description\": \"Great work\",\n                            \"rate\": 5\n                        }\n                    }\n                ],\n                \"dbs\": {\n                    \"status\": \"Clear\",\n                    \"dbs_date\": 157766400000\n                },\n                \"training_record\": {\n                    \"fire_safety\": null,\n                    \"dementia\": null,\n                    \"h_and_s\": null,\n                    \"first_aid_awareness\": 1471816800000,\n                    \"first_aid_and_basic_life_support\": null,\n                    \"infection_control\": null,\n                    \"medication_management\": null,\n                    \"manual_handling_people\": null,\n                    \"safeguarding\": null,\n                    \"qualifications\": [\n                        \"Nursing qualification (elsewhere)\",\n                        \"Agency carer induction training\"\n                    ]\n                },\n                \"profile_image\": null,\n                \"care_experience\": {\n                    \"months\": 2,\n                    \"years\": 1\n                },\n                \"reviews\": {\n                    \"average\": 5,\n                    \"count\": 1\n                }\n            },\n            \"email\": \"test@test.pl\",\n            \"phone_number\": \"111222111\"\n        }\n}",
+          "content": "HTTP/1.1 200 OK\n{\n        \"_id\": \"5a814b8deb5cee1dc0720128\",\n        \"start_date\": 1518422931942,\n        \"end_date\": 1518425101942,\n        \"projected_income\": 75,\n        \"author\": {\n            \"_id\": \"5a71b2834f1f26305c6abf2a\",\n            \"care_home\": {\n                \"care_service_name\": \"Test care home\",\n                \"type_of_home\": \"Nursing\",\n                \"name\": \"Test Test\"\n            },\n            \"email\": \"test.test@test.com\",\n            \"phone_number\": \"123456788777\",\n            \"address\": {\n                    \"postal_code\": \"Ex8 2el\",\n                    \"city\": \"Exmouth\",\n                    \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                    \"location\": {\n                        \"coordinates\": [\n                            50.7583820,\n                            19.005533\n                        ],\n                        \"type\": \"Point\"\n                    },\n                    \"address_line_2\": null,\n                    \"company\": null,\n                    \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n                }\n        },\n        \"role\": \"Senior Carer\",\n        \"status\": \"POSTED\",\n        \"gender_preference\": \"No preference\",\n        \"general_guidance\": {\n            \"floor_plan\": \"http://localhost:8000/uploads/users/151808246323012.floor_plan.docx\",\n            \"parking\": \"test\",\n            \"notes_for_carers\": \"test\",\n            \"emergency_guidance\": \"test\",\n            \"report_contact\": \"test\",\n            \"superior_contact\": \"test\"\n        },\n        \"notes\": null,\n        \"carer\": {\n            \"_id\": \"5a9404d68ce0962d6c988f97\",\n            \"acceptance_date\": 1518422931942,\n            \"carer\": {\n                \"first_name\": \"Test\",\n                \"surname\": \"Test\",\n                \"jobs\": [\n                    {\n                        \"_id\": \"5a95290a1e28cd1d88ea64cd\",\n                        \"author\": {\n                            \"_id\": \"5a9419d8e33cb930aa7c3856\",\n                            \"care_home\": {\n                                \"care_service_name\": \"Test Care  Home\",\n                                \"type_of_home\": \"Residential\",\n                                \"name\": \"Test Test\"\n                            },\n                            \"email\": \"test.test@test.com\",\n                            \"phone_number\": \"3545232323\",\n                            \"address\": {\n                                \"postal_code\": \"Ex8 2el\",\n                                \"city\": \"Exmouth\",\n                                \"address_line_1\": \"Elwyn Rd, Exmouth EX8 2E\",\n                                \"location\": {\n                                    \"coordinates\": [\n                                        50.7583820,\n                                        19.005533\n                                    ],\n                                    \"type\": \"Point\"\n                                },\n                                \"address_line_2\": null,\n                                \"company\": null,\n                                \"link\": \"https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533\"\n                            }\n                        },\n                        \"review\": {\n                            \"created\": 1520957549836,\n                            \"description\": \"Great work\",\n                            \"rate\": 5\n                        }\n                    }\n                ],\n                \"dbs\": {\n                    \"status\": \"Clear\",\n                    \"dbs_date\": 157766400000,\n                    \"ref_number\": \"354783912343\",\n                },\n                \"training_record\": {\n                    \"fire_safety\": null,\n                    \"dementia\": null,\n                    \"h_and_s\": null,\n                    \"first_aid_awareness\": 1471816800000,\n                    \"first_aid_and_basic_life_support\": null,\n                    \"infection_control\": null,\n                    \"medication_management\": null,\n                    \"manual_handling_people\": null,\n                    \"safeguarding\": null,\n                    \"other\": null,\n                    \"qualifications\": [\n                        \"Nursing qualification (elsewhere)\",\n                        \"Agency carer induction training\"\n                    ]\n                },\n                \"profile_image\": null,\n                \"care_experience\": {\n                    \"months\": 2,\n                    \"years\": 1\n                },\n                \"reviews\": {\n                    \"average\": 5,\n                    \"count\": 1\n                }\n            },\n            \"email\": \"test@test.pl\",\n            \"phone_number\": \"111222111\"\n        }\n}",
           "type": "json"
         }
       ]
