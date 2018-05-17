@@ -230,6 +230,7 @@ module.exports = {
                     banned_until: 1,
 					email: 1,
 					phone_number: 1,
+                    address: 1,
 					email_verified: 1,
 					created: 1,
 				}
@@ -263,6 +264,11 @@ module.exports = {
 			notes: body.notes == ""? null : user.notes,
 			banned_until: body.banned_until || user.banned_until
 		});
+
+        //updating address
+        const address = await locationHandler.getCustomLocation(body.address);
+        if(body.address && body.address.address_line_1 && body.address.city && body.address.postal_code && address.location) //if required fields are not present then don't update address
+            user.address = address;
 
         //carer
         if(carer)

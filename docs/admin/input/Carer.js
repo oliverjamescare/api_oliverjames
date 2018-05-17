@@ -67,6 +67,21 @@
  *     HTTP/1.1 200 OK
  *     {
  *          "_id": "5a9418e7e33cb930aa7c384f",
+ *          "address": {
+                "postal_code": "Ex8 2el",
+                "city": "Exmouth",
+                "address_line_1": "Elwyn Rd, Exmouth EX8 2E",
+                "location": {
+                    "coordinates": [
+                        50.7583820,
+                        19.005533
+                    ],
+                    "type": "Point"
+                },
+                "address_line_2": null,
+                "company": null,
+                "link": "https://www.google.com/maps/search/?api=1&query=50.7583820,19.005533"
+            }
             "carer": {
                 "first_name": "Test",
                 "surname": "Test",
@@ -221,6 +236,13 @@
                     "Senior Carer"
                 ],
             },
+            "address": {
+                "postal_code": "Ex8 2el",
+                "city": "Exmouth",
+                "address_line_1": "Elwyn Rd, Exmouth EX8 2E",
+                "address_line_2": null,
+                "company": null,
+            }
             "status": "ACTIVE",
             "notes": "Carer notes",
             "banned_until": 1521474300000

@@ -358,7 +358,7 @@ schema.statics.parse = function(user, req)
         if(user.carer.date_of_birth)
             user.carer.date_of_birth = moment(user.carer.date_of_birth).format("YYYY-MM-DD");
 
-        if(user.carer.profile_image && !/^http/.test(user.carer.profile_image))
+        if(user.carer.profile_image)
 		     user.carer.profile_image = fileHandler.getFileUrl(user.carer.profile_image);
 
         //training record

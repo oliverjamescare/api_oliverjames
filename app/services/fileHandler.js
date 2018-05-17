@@ -59,7 +59,7 @@ module.exports = function(req, res)
 		getFileUrl: function (filePath)
 		{
 			const protocol = req.secure ? "https://" : "http://";
-			return protocol + req.headers.host + uploadsPath.substr(uploadsPath.indexOf("/")) + filePath;
+			return /^http/.test(filePath) ? filePath : protocol + req.headers.host + uploadsPath.substr(uploadsPath.indexOf("/")) + filePath;
 		},
 
         getFileFromUrl: function(url = "")
