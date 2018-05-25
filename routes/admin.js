@@ -8,6 +8,7 @@ const AdminController = require('../app/controllers/admin/AdminController');
 const CareHomesController = require('../app/controllers/admin/CareHomesController');
 const CarersController = require('../app/controllers/admin/CarersController');
 const JobsController = require('../app/controllers/admin/JobsController');
+const ExportsController = require('../app/controllers/admin/ExportsController');
 
 //middlewares
 const adminAuthenticate = require('../app/middlewares/admin-authenticate');
@@ -54,6 +55,9 @@ router.put('/jobs/:id/payment-retry', adminAuthenticate, JobsController.retryJob
 router.put('/jobs/:id/challenge', adminAuthenticate, JobsController.resolveJobChallenge);
 router.put('/jobs/:id', adminAuthenticate, JobsController.updateJob);
 router.put('/jobs/:id/cancel', adminAuthenticate, JobsController.cancelJob);
+
+//Exports
+router.get("/exports/:type", adminAuthenticate, ExportsController.exportData)
 
 
 //documentation
