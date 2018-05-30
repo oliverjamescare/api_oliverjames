@@ -9,6 +9,7 @@ const CareHomesController = require('../app/controllers/admin/CareHomesControlle
 const CarersController = require('../app/controllers/admin/CarersController');
 const JobsController = require('../app/controllers/admin/JobsController');
 const ExportsController = require('../app/controllers/admin/ExportsController');
+const ParametersController = require('../app/controllers/admin/ParametersController');
 
 //middlewares
 const adminAuthenticate = require('../app/middlewares/admin-authenticate');
@@ -58,6 +59,16 @@ router.put('/jobs/:id/cancel', adminAuthenticate, JobsController.cancelJob);
 
 //Exports
 router.get("/exports/:type", adminAuthenticate, ExportsController.exportData)
+
+//Parameters
+router.get("/parameters/commission", adminAuthenticate, ParametersController.getCommissionParameters);
+router.put("/parameters/commission", adminAuthenticate, ParametersController.updateCommissionParameters);
+router.get("/parameters/notifications", adminAuthenticate, ParametersController.getNotificationsParameters);
+router.put("/parameters/notifications", adminAuthenticate, ParametersController.updateNotificationsParameters);
+router.get("/parameters/pricing/roles", adminAuthenticate, ParametersController.getGeneralPricingRoles);
+router.get("/parameters/pricing/roles/:id", adminAuthenticate, ParametersController.getGeneralPricing);
+router.put("/parameters/pricing/roles/:id", adminAuthenticate, ParametersController.updateGeneralPricing);
+
 
 
 //documentation
