@@ -80,6 +80,18 @@
  *              }
  *          ]
  *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
  */
 
 /**
@@ -216,6 +228,18 @@
  *              }
  *          ]
  *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
  */
 
 /**
@@ -280,6 +304,18 @@
  *              {
  *                   "field": "job",
  *                   "message": "This job has no review added yet"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }
@@ -352,6 +388,18 @@
  *              }
  *          ]
  *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
  */
 
 /**
@@ -403,6 +451,18 @@
  *              {
  *                   "field": "job",
  *                   "message": "Payment process for this job cannot be renewed"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }
@@ -487,6 +547,18 @@
  *              }
  *          ]
  *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
  */
 
 /**
@@ -554,6 +626,18 @@
  *              }
  *          ]
  *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
  */
 
 /**
@@ -613,6 +697,18 @@
  *              {
  *                   "field": "card",
  *                   "message": "This care home has no added card"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }

@@ -11,6 +11,7 @@ const UserModel = require("./../../models/User");
 const AdminModel = require("./../../models/Admin");
 const User = UserModel.schema;
 const Admin = AdminModel.schema;
+const permissions = require("./../../../config/permissions");
 
 //services
 const Utils = require("../../services/utils");
@@ -91,8 +92,10 @@ module.exports = {
             _id: req.user._id,
             email: req.user.email,
             first_name: req.user.first_name,
-            surname: req.user.surname
-        }
+            surname: req.user.surname,
+            role: req.user.roles[0]
+        };
+
         res.json(admin);
     },
 
@@ -143,7 +146,8 @@ module.exports = {
             	email: 1,
 				first_name: 1,
 				surname: 1,
-                created: 1
+                created: 1,
+                roles: 1
 			},
 			lean: true,
 			leanWithId: false
@@ -155,6 +159,12 @@ module.exports = {
         paginated.results.map(admin => {
             if(admin.created)
                 admin.created = admin.created.getTime();
+
+            if(admin.roles && admin.roles.length)
+            {
+                admin["role"] = admin.roles[0];
+                admin.roles = undefined;
+            }
 
             return admin;
         });
@@ -170,7 +180,8 @@ module.exports = {
             email: body.email,
             password: body.password,
             first_name: body.first_name,
-            surname: body.surname
+            surname: body.surname,
+            roles: ["ADMIN"]
         })
 
         admin
@@ -199,10 +210,14 @@ module.exports = {
         if(!admin)
             return res.status(404).json(Utils.parseStringError("Admin not found", "admin"));
 
+        //permissions handle
+        const availableRoles = req.user.roles.includes("ADMIN_DIRECTOR") ? ["ADMIN_DIRECTOR", "ADMIN_MANAGER", "ADMIN"] : ["ADMIN_MANAGER", "ADMIN"]
+
         admin.set({
             email: body.email || admin.email,
             first_name: body.first_name || admin.first_name,
-            surname: body.surname || admin.surname
+            surname: body.surname || admin.surname,
+            roles: availableRoles.includes(body.role) ? [ body.role ] : admin.roles
         })
 
         //updating admin

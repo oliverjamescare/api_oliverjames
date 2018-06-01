@@ -413,7 +413,7 @@ schema.statics.parse = function(user, req)
                 if(deduction.created)
                     deduction.created = deduction.created.getTime();
 
-            })
+            });
         }
     }
 

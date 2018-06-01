@@ -10,14 +10,14 @@
 
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
-     {
-        "failed_payments": 1,
-        "challenged_jobs": 0,
-        "pending_reviews": 1,
-        "booked_in_24_jobs": 2,
-        "waiting_list": 0,
-        "in_progress_carers": 2
-    }
+ *     {
+ *          "failed_payments": 1,
+ *          "challenged_jobs": 0,
+ *          "pending_reviews": 1,
+ *          "booked_in_24_jobs": 2,
+ *          "waiting_list": 0,
+ *          "in_progress_carers": 2
+ *      }
  *
  * @apiError AccessDenied Access Denied.
  * @apiErrorExample Error-Response:
@@ -31,6 +31,17 @@
  *          ]
  *      }
  *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
  */
 
 /**
@@ -41,15 +52,15 @@
  * @apiGroup Admin
  *
  * @apiHeader {String} X-access-token Access token
-
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
-     {
-        "_id": "5aafa3323a243902b0de7e15",
-        "email": "test.test@test.com",
-        "first_name": "Admin",
-        "surname": "Admin"
-    }
+ *      {
+ *          "_id": "5aafa3323a243902b0de7e15",
+ *          "email": "test.test@test.com",
+ *          "first_name": "Admin",
+ *          "surname": "Admin",
+ *          "role": "ADMIN"
+ *      }
  *
  * @apiError AccessDenied Access Denied.
  * @apiErrorExample Error-Response:
@@ -63,6 +74,17 @@
  *          ]
  *      }
  *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
  */
 
 /**
@@ -104,6 +126,18 @@
  *              {
  *                   "field": "email",
  *                   "message": "Email is required."
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }
@@ -150,6 +184,18 @@
  *              }
  *          ]
  *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
  */
 
 /**
@@ -165,19 +211,19 @@
 
  * @apiSuccess (Success 200){Object} results Pagination results.
  * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
- *     {
- *        "results": [
-            {
-                 "_id": "5a747d3fba335747a0473d88",
-                "email": "admin@admin.com",
-                "first_name": "Admin",
-                "surname": "Admin",
-                "created": 1517583676679
-            }
-        ],
-        "pages": 1,
-        "total": 3
+ *      HTTP/1.1 200 OK
+ *      {
+ *          "results": [
+ *              {
+ *                  "_id": "5a747d3fba335747a0473d88",
+ *                  "email": "admin@admin.com",
+ *                  "first_name": "Admin",
+ *                  "surname": "Admin",
+ *                  "created": 1517583676679
+ *              }
+ *          ],
+ *          "pages": 1,
+ *          "total": 3
  *     }
  *
  * @apiError AccessDenied Access Denied.
@@ -188,6 +234,30 @@
  *              {
  *                   "field": "user",
  *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }
@@ -225,6 +295,18 @@
  *          ]
  *      }
  *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
  * @apiError WrongParameters Wrong Parameters.
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 406 Wrong Parameters
@@ -233,6 +315,18 @@
  *              {
  *                   "field": "email",
  *                   "message": "Email is required."
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }
@@ -247,9 +341,10 @@
  *
  * @apiHeader {String} X-access-token Access token
  * @apiParam {String} id Admin id.
- * @apiParam {String} email Valid email address.
- * @apiParam {String} first_name Admin first name.
- * @apiParam {String} surname Admin surname.
+ * @apiParam {String} [email] Valid email address.
+ * @apiParam {String} [first_name] Admin first name.
+ * @apiParam {String} [surname] Admin surname.
+ * @apiParam {String} [role] Admin role. Available roles: ADMIN, ADMIN_MANAGER, ADMIN_DIRECTOR(available only when you are director)
 
  * @apiSuccess (Success 200){Boolean} status Operation status.
  * @apiSuccessExample Success-Response:
@@ -269,7 +364,19 @@
  *              }
  *          ]
  *      }
-
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
  * @apiError NotFound Not found.
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not found
@@ -290,6 +397,19 @@
  *              {
  *                   "field": "email",
  *                   "message": "Email is required."
+ *              }
+ *          ]
+ *      }
+ *
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }
@@ -324,6 +444,18 @@
  *              }
  *          ]
  *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
 
  * @apiError NotFound Not found.
  * @apiErrorExample Error-Response:
@@ -345,6 +477,18 @@
  *              {
  *                   "field": "password",
  *                   "message": "Password must have at least 8 characters."
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }
@@ -378,6 +522,18 @@
  *              }
  *          ]
  *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
 
  * @apiError NotFound Not found.
  * @apiErrorExample Error-Response:
@@ -390,5 +546,16 @@
  *              }
  *          ]
  *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
  */
-

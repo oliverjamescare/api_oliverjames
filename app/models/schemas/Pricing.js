@@ -2,8 +2,8 @@
 //config
 const dayPrice = {
     type: Number,
-    min: 0,
-    default: 0
+    required: [ true, "{PATH} field is required." ],
+    min: [0, "{PATH} cannot be lower than {MIN}."],
 };
 
 const days = {

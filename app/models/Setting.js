@@ -3,16 +3,23 @@ const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
 //settings
-const settingTypes = ["price_days", "commission", "max_deducts", "manual_booking_charge", "notifications"];
+const settingTypes = [ "general_commission", "notifications", "general_price_matrix", "special_price_matrix" ];
+
+//sub schemas
+const { schema: CommissionSettings } = require("./schemas/CommissionSettings");
+const { schema: NotificationsSettings } = require("./schemas/NotificationsSettings");
+const { schema: GeneralPriceMatrix } = require("./schemas/GeneralPriceMatrix");
 
 const schema = mongoose.Schema({
     type: {
         type: String,
-        required: [true, "{PATH} field is required."],
-        enum: settingTypes,
-        unique: true
+        required: [ true, "{PATH} field is required." ],
+        enum: settingTypes
     },
-    value: mongoose.Schema.Types.Mixed
+    notifications:  NotificationsSettings,
+    general_commission:  CommissionSettings,
+    general_price_matrix:  GeneralPriceMatrix,
+
 }, { usePushEach: true });
 
 schema.plugin(uniqueValidator, { message: 'The {PATH} has already been taken.' });
