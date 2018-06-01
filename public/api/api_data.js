@@ -37,7 +37,7 @@ define({ "api": [
     "title": "Address search",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/address/search"
+        "url": "https://api.oliver-james.ready4s.it/api/address/search"
       }
     ],
     "version": "0.0.1",
@@ -81,7 +81,7 @@ define({ "api": [
     "title": "Add care home to waiting list",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/care-home/waiting-list"
+        "url": "https://api.oliver-james.ready4s.it/api/care-home/waiting-list"
       }
     ],
     "version": "0.0.1",
@@ -190,7 +190,7 @@ define({ "api": [
     "title": "Forgot password",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/password/remind"
+        "url": "https://api.oliver-james.ready4s.it/api/password/remind"
       }
     ],
     "version": "0.0.1",
@@ -257,7 +257,7 @@ define({ "api": [
     "title": "Forgot password change",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/password/remind/change"
+        "url": "https://api.oliver-james.ready4s.it/api/password/remind/change"
       }
     ],
     "version": "0.0.1",
@@ -353,7 +353,7 @@ define({ "api": [
     "title": "Login",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/login"
+        "url": "https://api.oliver-james.ready4s.it/api/login"
       }
     ],
     "version": "0.0.1",
@@ -445,7 +445,7 @@ define({ "api": [
     "title": "Register",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/register"
+        "url": "https://api.oliver-james.ready4s.it/api/register"
       }
     ],
     "version": "0.0.1",
@@ -791,7 +791,7 @@ define({ "api": [
     "title": "Care home jobs calendar",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/care-home/calendar"
+        "url": "https://api.oliver-james.ready4s.it/api/care-home/calendar"
       }
     ],
     "version": "0.0.1",
@@ -882,7 +882,7 @@ define({ "api": [
     "title": "Care home my jobs",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/care-home/my-jobs"
+        "url": "https://api.oliver-james.ready4s.it/api/care-home/my-jobs"
       }
     ],
     "version": "0.0.1",
@@ -1099,7 +1099,7 @@ define({ "api": [
     "title": "Care home past jobs",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/care-home/past-jobs"
+        "url": "https://api.oliver-james.ready4s.it/api/care-home/past-jobs"
       }
     ],
     "version": "0.0.1",
@@ -1222,7 +1222,7 @@ define({ "api": [
     "title": "Care home pending reviews",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/care-home/pending-reviews"
+        "url": "https://api.oliver-james.ready4s.it/api/care-home/pending-reviews"
       }
     ],
     "version": "0.0.1",
@@ -1331,7 +1331,7 @@ define({ "api": [
     "title": "Care home total jobs",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/care-home/jobs"
+        "url": "https://api.oliver-james.ready4s.it/api/care-home/jobs"
       }
     ],
     "version": "0.0.1",
@@ -1420,7 +1420,7 @@ define({ "api": [
     "title": "Carers search",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/care-home/carers/search"
+        "url": "https://api.oliver-james.ready4s.it/api/care-home/carers/search"
       }
     ],
     "version": "0.0.1",
@@ -1608,7 +1608,7 @@ define({ "api": [
     "title": "Carer availability calendar",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/availability"
+        "url": "https://api.oliver-james.ready4s.it/api/carer/availability"
       }
     ],
     "version": "0.0.1",
@@ -1699,7 +1699,7 @@ define({ "api": [
     "title": "Carer availability calendar update",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/availability"
+        "url": "https://api.oliver-james.ready4s.it/api/carer/availability"
       }
     ],
     "version": "0.0.1",
@@ -1808,7 +1808,7 @@ define({ "api": [
     "title": "Carer available jobs",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/jobs"
+        "url": "https://api.oliver-james.ready4s.it/api/carer/jobs"
       }
     ],
     "version": "0.0.1",
@@ -1938,7 +1938,7 @@ define({ "api": [
     "title": "Carer home screen",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/home"
+        "url": "https://api.oliver-james.ready4s.it/api/carer/home"
       }
     ],
     "version": "0.0.1",
@@ -2016,7 +2016,7 @@ define({ "api": [
     "title": "Carer jobs calendar",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/calendar"
+        "url": "https://api.oliver-james.ready4s.it/api/carer/calendar"
       }
     ],
     "version": "0.0.1",
@@ -2107,7 +2107,7 @@ define({ "api": [
     "title": "Carer jobs calendar monthly",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/calendar/monthly"
+        "url": "https://api.oliver-james.ready4s.it/api/carer/calendar/monthly"
       }
     ],
     "version": "0.0.1",
@@ -2212,7 +2212,7 @@ define({ "api": [
     "title": "Carer my jobs",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/my-jobs"
+        "url": "https://api.oliver-james.ready4s.it/api/carer/my-jobs"
       }
     ],
     "version": "0.0.1",
@@ -2321,7 +2321,7 @@ define({ "api": [
     "title": "Carer notifications",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/home"
+        "url": "https://api.oliver-james.ready4s.it/api/carer/home"
       }
     ],
     "version": "0.0.1",
@@ -2419,7 +2419,7 @@ define({ "api": [
     "title": "Carer notifications settings",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/notifications"
+        "url": "https://api.oliver-james.ready4s.it/api/carer/notifications"
       }
     ],
     "version": "0.0.1",
@@ -2497,7 +2497,7 @@ define({ "api": [
     "title": "Carer notifications settings update",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/notifications"
+        "url": "https://api.oliver-james.ready4s.it/api/carer/notifications"
       }
     ],
     "version": "0.0.1",
@@ -2606,7 +2606,7 @@ define({ "api": [
     "title": "Carer submitted jobs",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/carer/submitted-jobs"
+        "url": "https://api.oliver-james.ready4s.it/api/carer/submitted-jobs"
       }
     ],
     "version": "0.0.1",
@@ -2729,7 +2729,7 @@ define({ "api": [
     "title": "Checks carers near point",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/carers/nearby"
+        "url": "https://api.oliver-james.ready4s.it/api/carers/nearby"
       }
     ],
     "version": "0.0.1",
@@ -2805,7 +2805,7 @@ define({ "api": [
     "title": "Send contact message",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/contact"
+        "url": "https://api.oliver-james.ready4s.it/api/contact"
       }
     ],
     "version": "0.0.1",
@@ -3942,7 +3942,7 @@ define({ "api": [
     "title": "Check carers to contact with",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/jobs/carers"
+        "url": "https://api.oliver-james.ready4s.it/api/jobs/carers"
       }
     ],
     "version": "0.0.1",
@@ -5107,7 +5107,7 @@ define({ "api": [
     "title": "Add / Update bank details",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/payments/card"
+        "url": "https://api.oliver-james.ready4s.it/api/payments/card"
       }
     ],
     "version": "0.0.1",
@@ -5220,7 +5220,7 @@ define({ "api": [
     "title": "Add / Update card details",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/payments/card"
+        "url": "https://api.oliver-james.ready4s.it/api/payments/card"
       }
     ],
     "version": "0.0.1",
@@ -5539,7 +5539,7 @@ define({ "api": [
     "title": "Change carer profile",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/user/carer"
+        "url": "https://api.oliver-james.ready4s.it/api/user/carer"
       }
     ],
     "version": "0.0.1",
@@ -5701,7 +5701,7 @@ define({ "api": [
     "title": "Change email",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/user/email"
+        "url": "https://api.oliver-james.ready4s.it/api/user/email"
       }
     ],
     "version": "0.0.1",
@@ -5803,7 +5803,7 @@ define({ "api": [
     "title": "Change password",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/user/password"
+        "url": "https://api.oliver-james.ready4s.it/api/user/password"
       }
     ],
     "version": "0.0.1",
@@ -6009,7 +6009,7 @@ define({ "api": [
     "title": "Check uniqueness",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/user/uniqueness"
+        "url": "https://api.oliver-james.ready4s.it/api/user/uniqueness"
       }
     ],
     "version": "0.0.1",
@@ -6083,7 +6083,7 @@ define({ "api": [
     "title": "Confirm email",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/user/confirm-email"
+        "url": "https://api.oliver-james.ready4s.it/api/user/confirm-email"
       }
     ],
     "version": "0.0.1",
@@ -6172,7 +6172,7 @@ define({ "api": [
     "title": "Resend email verification",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/user/email/verification"
+        "url": "https://api.oliver-james.ready4s.it/api/user/email/verification"
       }
     ],
     "version": "0.0.1",
@@ -6261,7 +6261,7 @@ define({ "api": [
     "title": "Update notifications token",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/user/notifications/token"
+        "url": "https://api.oliver-james.ready4s.it/api/user/notifications/token"
       }
     ],
     "version": "0.0.1",
@@ -6359,7 +6359,7 @@ define({ "api": [
     "title": "User profile",
     "sampleRequest": [
       {
-        "url": "http://api.oliver-james.ready4s.it/api/user/profile"
+        "url": "https://api.oliver-james.ready4s.it/api/user/profile"
       }
     ],
     "version": "0.0.1",

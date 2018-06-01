@@ -1,3 +1,5 @@
+//modules
+const moment = require("moment");
 
 //models
 const Setting = require('./../../models/Setting').schema;
@@ -108,4 +110,105 @@ module.exports = {
             .then(() => res.json({ status: true }))
             .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },
+
+	getSpecialDates: async function(req, res)
+	{
+	    //getting dates
+		const specialDates = await Setting.find({ type: "special_price_matrix" }, { "special_price_matrix.role": 1, "special_price_matrix.date": 1 }).lean().exec();
+		const special_dates = specialDates.map(specialDate => { return { _id: specialDate._id, date: moment(specialDate.special_price_matrix.date).format("YYYY-MM-DD"), role: specialDate.special_price_matrix.role} });
+
+		//sending response
+		res.json({ special_dates });
+
+	},
+
+	getPricingSpecialDate: async function(req, res)
+	{
+	    //getting special date pricing
+		const specialDate = await Setting.findOne({ type: "special_price_matrix", _id: req.params.id }, { "special_price_matrix.role": 1, "special_price_matrix.date": 1, "special_price_matrix.pricing": 1, })
+            .lean()
+            .exec()
+            .catch(error => console.log("Invalid object id"));
+
+		//not found
+		if(!specialDate)
+			return res.status(404).json(Utils.parseStringError("Special date pricing not found", "special_date"));
+
+		//sending response
+		res.json({
+            _id: specialDate._id,
+            date: moment(specialDate.special_price_matrix.date).format("YYYY-MM-DD"),
+            role: specialDate.special_price_matrix.role,
+            pricing: specialDate.special_price_matrix.pricing,
+		});
+	},
+
+    addPricingSpecialDate: async function(req, res)
+    {
+        //preparing date and role
+	    const date = !isNaN(Date.parse(req.body.date)) ? new Date(req.body.date) :  false;
+	    if(!date)
+		    return res.status(406).json(Utils.parseStringError("Invalid date", "date"));
+	    else
+	        date.setHours(0,0,0,0);
+
+	    if(!Object.values(roles).includes(req.body.role))
+		    return res.status(406).json(Utils.parseStringError("Invalid role", "role"));
+
+        //checking if date for this role doesn't exists
+	    const exists = await Setting.count({ type: "special_price_matrix", "special_price_matrix.date": date, "special_price_matrix.role": req.body.role });
+
+	    console.log(exists);
+	    if(Boolean(exists))
+		    return res.status(409).json(Utils.parseStringError("Special date for this day already exists", "special_date"));
+
+
+        const specialPriceMatrix = new Setting({
+            type: "special_price_matrix",
+            special_price_matrix: {
+                role: req.body.role,
+                date: date,
+                pricing: req.body.pricing
+            }
+        });
+
+        //validation and saving special date
+	    specialPriceMatrix
+		    .save()
+		    .then(() => res.status(201).json({ status: true }))
+		    .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+    },
+
+	updatePricingSpecialDate: async function(req, res)
+	{
+		//getting special date pricing
+		const specialDate = await Setting.findOne({ type: "special_price_matrix", _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));
+
+		//not found
+		if(!specialDate)
+			return res.status(404).json(Utils.parseStringError("Special date pricing not found", "special_date"));
+
+		//updating special date pricing
+		specialDate.special_price_matrix.pricing = req.body || specialDate.special_price_matrix.pricing;
+		specialDate
+			.save()
+			.then(() => res.json({ status: true }))
+			.catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+	},
+
+	deletePricingSpecialDate: async function(req, res)
+	{
+		//getting special date pricing
+		const specialDate = await Setting.findOne({ type: "special_price_matrix", _id: req.params.id }).exec().catch(error => console.log("Invalid object id"));
+
+		//not found
+		if(!specialDate)
+			return res.status(404).json(Utils.parseStringError("Special date pricing not found", "special_date"));
+
+		//sending response
+		res.json({ status: true });
+
+		//removing special date
+		specialDate.remove().catch(error => console.log(error))
+	}
 }

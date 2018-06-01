@@ -955,3 +955,422 @@
  *          ]
  *      }
  */
+
+
+/**
+ * @api {post} /parameters/pricing/special-dates Add special date pricing
+ * @apiSampleRequest /parameters/pricing/special-dates
+ * @apiVersion 0.0.1
+ * @apiName Add special date pricing
+ * @apiGroup Parameters
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParamExample {json} Request-Example:
+    {
+		"date": "2018-06-10",
+		"role": "Senior Carer",
+		"pricing": {
+			"hour_0_1": 10,
+			"hour_1_2": 10,
+			"hour_2_3": 10,
+			"hour_3_4": 10,
+			"hour_4_5": 10,
+			"hour_5_6": 10,
+			"hour_6_7": 10,
+			"hour_7_8": 10,
+			"hour_8_9": 10,
+			"hour_9_10": 10,
+			"hour_10_11": 10,
+			"hour_11_12": 10,
+			"hour_12_13": 10,
+			"hour_13_14": 10,
+			"hour_14_15": 10,
+			"hour_15_16": 10,
+			"hour_16_17": 10,
+			"hour_17_18": 10,
+			"hour_18_19": 10,
+			"hour_19_20": 10,
+			"hour_20_21": 10,
+			"hour_21_22": 10,
+			"hour_22_23": 10,
+			"hour_23_0": 10
+		}
+	}
+ *
+ * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 201 OK
+ *     {
+ *          "status": true
+ *     }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError WrongParameters Wrong Parameters.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 406 Wrong Parameters
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "hours_0_1",
+ *                   "message": "Hours 0 1 cannot be lower than 0."
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {put} /parameters/pricing/special-dates/:id Update special date pricing
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Update special date pricing
+ * @apiGroup Parameters
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Special date id.
+ * @apiParamExample {json} Request-Example:
+	 {
+		 "hour_0_1": 10,
+		 "hour_1_2": 10,
+		 "hour_2_3": 10,
+		 "hour_3_4": 10,
+		 "hour_4_5": 10,
+		 "hour_5_6": 10,
+		 "hour_6_7": 10,
+		 "hour_7_8": 10,
+		 "hour_8_9": 10,
+		 "hour_9_10": 10,
+		 "hour_10_11": 10,
+		 "hour_11_12": 10,
+		 "hour_12_13": 10,
+		 "hour_13_14": 10,
+		 "hour_14_15": 10,
+		 "hour_15_16": 10,
+		 "hour_16_17": 10,
+		 "hour_17_18": 10,
+		 "hour_18_19": 10,
+		 "hour_19_20": 10,
+		 "hour_20_21": 10,
+		 "hour_21_22": 10,
+		 "hour_22_23": 10,
+		 "hour_23_0": 10
+	 }
+ *
+ * @apiSuccess (Success 200){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          "status": true
+ *     }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "special_date",
+ *                   "message": "Special date pricing not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError WrongParameters Wrong Parameters.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 406 Wrong Parameters
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "hours_0_1",
+ *                   "message": "Hours 0 1 cannot be lower than 0."
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {delete} /parameters/pricing/special-dates/:id Delete special date pricing
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Delete special date pricing
+ * @apiGroup Parameters
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Special date id.
+ *
+ * @apiSuccess (Success 200){Boolean} status Operation status.
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          "status": true
+ *     }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "special_date",
+ *                   "message": "Special date pricing not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {get} /parameters/pricing/special-dates/:id Get special date pricing
+ * @apiSampleRequest off
+ * @apiVersion 0.0.1
+ * @apiName Get special date pricing
+ * @apiGroup Parameters
+ *
+ * @apiHeader {String} X-access-token Access token
+ * @apiParam {String} id Special date id.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          "_id": "5b1150adf01c7a407c960ded",
+ *          "date": "2018-06-10",
+ *          "role": "Senior Carer",
+ *          "pricing": {
+ *              "hour_0_1": 10,
+ *              "hour_1_2": 10,
+ *              "hour_2_3": 10,
+ *              "hour_3_4": 10,
+ *              "hour_4_5": 10,
+ *              "hour_5_6": 10,
+ *              "hour_6_7": 10,
+ *              "hour_7_8": 10,
+ *              "hour_8_9": 10,
+ *              "hour_9_10": 10,
+ *              "hour_10_11": 10,
+ *              "hour_11_12": 10,
+ *              "hour_12_13": 10,
+ *              "hour_13_14": 10,
+ *              "hour_14_15": 10,
+ *              "hour_15_16": 10,
+ *              "hour_16_17": 10,
+ *              "hour_17_18": 10,
+ *              "hour_18_19": 10,
+ *              "hour_19_20": 10,
+ *              "hour_20_21": 10,
+ *              "hour_21_22": 10,
+ *              "hour_22_23": 10,
+ *              "hour_23_0": 10
+ *          }
+ *     }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError NotFound Not found.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 404 Not found
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "special_date",
+ *                   "message": "Special date pricing not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */
+
+/**
+ * @api {get} /parameters/pricing/special-dates Get special dates
+ * @apiSampleRequest /parameters/pricing/special-dates
+ * @apiVersion 0.0.1
+ * @apiName Get special dates
+ * @apiGroup Parameters
+ *
+ * @apiHeader {String} X-access-token Access token
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *          "special_dates": [
+ *	            {
+ *                  "_id": "5b1150adf01c7a407c960ded",
+ *                  "date": "2018-06-10",
+ *                  "role": "Senior Carer"
+ *              }
+ *          ]
+ *     }
+ *
+ * @apiError AccessDenied Access Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 401 Access Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
+ */

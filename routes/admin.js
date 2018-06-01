@@ -69,8 +69,11 @@ router.put("/parameters/notifications", adminAuthenticate, security(["ADMIN_PARA
 router.get("/parameters/pricing/roles", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.getGeneralPricingRoles);
 router.get("/parameters/pricing/roles/:id", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.getGeneralPricing);
 router.put("/parameters/pricing/roles/:id", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.updateGeneralPricing);
-
-
+router.post("/parameters/pricing/special-dates", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.addPricingSpecialDate);
+router.get("/parameters/pricing/special-dates", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.getSpecialDates);
+router.get("/parameters/pricing/special-dates/:id", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.getPricingSpecialDate);
+router.put("/parameters/pricing/special-dates/:id", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.updatePricingSpecialDate);
+router.delete("/parameters/pricing/special-dates/:id", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.deletePricingSpecialDate);
 
 //documentation
 router.get('/documentation', (req, res) => {

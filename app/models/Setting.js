@@ -9,6 +9,7 @@ const settingTypes = [ "general_commission", "notifications", "general_price_mat
 const { schema: CommissionSettings } = require("./schemas/CommissionSettings");
 const { schema: NotificationsSettings } = require("./schemas/NotificationsSettings");
 const { schema: GeneralPriceMatrix } = require("./schemas/GeneralPriceMatrix");
+const { schema: SpecialPriceMatrix } = require("./schemas/SpecialPriceMatrix");
 
 const schema = mongoose.Schema({
     type: {
@@ -19,6 +20,7 @@ const schema = mongoose.Schema({
     notifications:  NotificationsSettings,
     general_commission:  CommissionSettings,
     general_price_matrix:  GeneralPriceMatrix,
+    special_price_matrix:  SpecialPriceMatrix,
 
 }, { usePushEach: true });
 

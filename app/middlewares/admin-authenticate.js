@@ -20,6 +20,7 @@ module.exports = function(req, res, next)
 		//token verification
 		token: (callback) => {
 			JWT.verify(token, config.SECRET_AUTH , (error) => {
+
 				//error handle
 				if(error && !res.headersSent)
 				{

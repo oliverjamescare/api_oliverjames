@@ -3,6 +3,6 @@
   "version": "0.0.1",
   "description": "",
   "title": "Oliver James Admin API Documentation",
-  "url" : "http://api.oliver-james.ready4s.it/admin",
-  "sampleUrl" : "http://api.oliver-james.ready4s.it/admin"
+  "url" : "https://api.oliver-james.ready4s.it/admin",
+  "sampleUrl" : "https://api.oliver-james.ready4s.it/admin"
 }
