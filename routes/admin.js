@@ -13,6 +13,7 @@ const ParametersController = require('../app/controllers/admin/ParametersControl
 
 //middlewares
 const adminAuthenticate = require('../app/middlewares/admin-authenticate');
+const security = require('../app/middlewares/security');
 
 //Auth
 router.post('/login', AuthController.login);
@@ -23,11 +24,11 @@ router.get('/profile', adminAuthenticate, AdminController.getProfile);
 router.put('/profile', adminAuthenticate, AdminController.updateProfile);
 router.put('/password', adminAuthenticate, AdminController.changePassword);
 
-router.get('/admins', adminAuthenticate, AdminController.getAdminsList);
-router.post('/admins', adminAuthenticate, AdminController.addAdmin);
-router.put('/admins/:id', adminAuthenticate, AdminController.updateAdmin);
-router.put('/admins/:id/password', adminAuthenticate, AdminController.changeAdminPassword);
-router.delete('/admins/:id', adminAuthenticate, AdminController.removeAdminAccount);
+router.get('/admins', adminAuthenticate, security(["ADMIN_STAFF"]), AdminController.getAdminsList);
+router.post('/admins', adminAuthenticate, security(["ADMIN_STAFF"]), AdminController.addAdmin);
+router.put('/admins/:id', adminAuthenticate, security(["ADMIN_STAFF"]), AdminController.updateAdmin);
+router.put('/admins/:id/password', adminAuthenticate, security(["ADMIN_STAFF"]), AdminController.changeAdminPassword);
+router.delete('/admins/:id', adminAuthenticate, security(["ADMIN_STAFF"]), AdminController.removeAdminAccount);
 
 //Care homes
 router.get('/care-homes', adminAuthenticate, CareHomesController.getCareHomes);
@@ -61,13 +62,13 @@ router.put('/jobs/:id/cancel', adminAuthenticate, JobsController.cancelJob);
 router.get("/exports/:type", adminAuthenticate, ExportsController.exportData)
 
 //Parameters
-router.get("/parameters/commission", adminAuthenticate, ParametersController.getCommissionParameters);
-router.put("/parameters/commission", adminAuthenticate, ParametersController.updateCommissionParameters);
-router.get("/parameters/notifications", adminAuthenticate, ParametersController.getNotificationsParameters);
-router.put("/parameters/notifications", adminAuthenticate, ParametersController.updateNotificationsParameters);
-router.get("/parameters/pricing/roles", adminAuthenticate, ParametersController.getGeneralPricingRoles);
-router.get("/parameters/pricing/roles/:id", adminAuthenticate, ParametersController.getGeneralPricing);
-router.put("/parameters/pricing/roles/:id", adminAuthenticate, ParametersController.updateGeneralPricing);
+router.get("/parameters/commission", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.getCommissionParameters);
+router.put("/parameters/commission", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.updateCommissionParameters);
+router.get("/parameters/notifications", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.getNotificationsParameters);
+router.put("/parameters/notifications", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.updateNotificationsParameters);
+router.get("/parameters/pricing/roles", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.getGeneralPricingRoles);
+router.get("/parameters/pricing/roles/:id", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.getGeneralPricing);
+router.put("/parameters/pricing/roles/:id", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.updateGeneralPricing);
 
 
 

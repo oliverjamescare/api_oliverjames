@@ -28,6 +28,30 @@
  *              }
  *          ]
  *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
+ *              }
+ *          ]
+ *      }
  */
 
 /**
@@ -61,6 +85,18 @@
  *          ]
  *      }
  *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
  * @apiError WrongParameters Wrong Parameters.
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 406 Wrong Parameters
@@ -69,6 +105,18 @@
  *              {
  *                   "field": "app_commission",
  *                   "message": "App commission cannot be lower than 0."
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }
@@ -134,6 +182,30 @@
  *              {
  *                   "field": "user",
  *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }
@@ -206,6 +278,18 @@
  *          ]
  *      }
  *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
  * @apiError WrongParameters Wrong Parameters.
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 406 Wrong Parameters
@@ -214,6 +298,18 @@
  *              {
  *                   "field": "lessThanFourHours",
  *                   "message": "lessThanFourHours cannot be lower than 0."
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }
@@ -250,6 +346,30 @@
  *              {
  *                   "field": "user",
  *                   "message": "Access Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }
@@ -502,6 +622,18 @@
  *          ]
  *      }
  *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
  * @apiError NotFound Not found.
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not found
@@ -510,6 +642,18 @@
  *              {
  *                   "field": "role",
  *                   "message": "Pricing role not found"
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }
@@ -763,6 +907,18 @@
  *          ]
  *      }
  *
+ * @apiError PermissionDenied Permission Denied.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 403 Permission Denied
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "user",
+ *                   "message": "Permission Denied"
+ *              }
+ *          ]
+ *      }
+ *
  * @apiError NotFound Not found.
  * @apiErrorExample Error-Response:
  *     HTTP/1.1 404 Not found
@@ -783,6 +939,18 @@
  *              {
  *                   "field": "sunday_price",
  *                   "message": "Sunday price cannot be lower than 0."
+ *              }
+ *          ]
+ *      }
+ *
+ * @apiError ExpiredToken Token expired.
+ * @apiErrorExample Error-Response:
+ *     HTTP/1.1 410 Token expired
+ *     {
+ *          "errors": [
+ *              {
+ *                   "field": "token",
+ *                   "message": "Access token expired"
  *              }
  *          ]
  *      }

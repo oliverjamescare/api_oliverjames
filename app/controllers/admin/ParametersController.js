@@ -101,7 +101,11 @@ module.exports = {
         if(!pricingRole)
             return res.status(404).json(Utils.parseStringError("Pricing role not found", "role"));
 
+	    //updating settings
         pricingRole.general_price_matrix.pricing = req.body || pricingRole.general_price_matrix.pricing;
-        pricingRole.save().then(() => res.json({ status: true })).catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
+        pricingRole
+            .save()
+            .then(() => res.json({ status: true }))
+            .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },
 }
