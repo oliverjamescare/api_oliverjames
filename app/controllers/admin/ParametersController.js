@@ -175,7 +175,7 @@ module.exports = {
         //validation and saving special date
 	    specialPriceMatrix
 		    .save()
-		    .then(() => res.status(201).json({ status: true }))
+		    .then(specialPriceMatrix => res.status(201).json({ status: true, _id: specialPriceMatrix._id }))
 		    .catch(error => res.status(406).json(Utils.parseValidatorErrors(error)));
     },
 

@@ -998,10 +998,12 @@
 	}
  *
  * @apiSuccess (Success 201){Boolean} status Operation status.
+ * @apiSuccess (Success 201){Boolean} _id Special date id.
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 201 OK
  *     {
- *          "status": true
+ *          "status": true,
+ *          "_id": "5b1150adf01c7a407c960ded"
  *     }
  *
  * @apiError AccessDenied Access Denied.

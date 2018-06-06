@@ -59,7 +59,7 @@ router.put('/jobs/:id', adminAuthenticate, JobsController.updateJob);
 router.put('/jobs/:id/cancel', adminAuthenticate, JobsController.cancelJob);
 
 //Exports
-router.get("/exports/:type", adminAuthenticate, ExportsController.exportData)
+router.get("/exports/:collection", adminAuthenticate, ExportsController.exportData)
 
 //Parameters
 router.get("/parameters/commission", adminAuthenticate, security(["ADMIN_PARAMETERS"]), ParametersController.getCommissionParameters);

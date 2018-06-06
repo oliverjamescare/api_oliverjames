@@ -70,7 +70,6 @@ const schema = mongoose.Schema({
         }
     },
     credits: [ Transaction.schema ]
-
 });
 
 //methods
