@@ -210,6 +210,10 @@ module.exports = {
         if(!admin)
             return res.status(404).json(Utils.parseStringError("Admin not found", "admin"));
 
+        //managers can't edit directors
+        if(req.user.roles.includes("ADMIN_MANAGER") && admin.roles.includes("ADMIN_DIRECTOR"))
+            return res.status(403).json(Utils.parseStringError("Permission denied", "permission"));
+
         //permissions handle
         const availableRoles = req.user.roles.includes("ADMIN_DIRECTOR") ? ["ADMIN_DIRECTOR", "ADMIN_MANAGER", "ADMIN"] : ["ADMIN_MANAGER", "ADMIN"]
 
@@ -235,6 +239,10 @@ module.exports = {
         //user not found
         if(!admin)
             return res.status(404).json(Utils.parseStringError("Admin not found", "admin"));
+
+        //managers can't edit directors
+        if(req.user.roles.includes("ADMIN_MANAGER") && admin.roles.includes("ADMIN_DIRECTOR"))
+            return res.status(403).json(Utils.parseStringError("Permission denied", "permission"));
 
         admin.password = req.body.password;
         admin
@@ -262,6 +270,10 @@ module.exports = {
         //user not found
         if(!admin)
             return res.status(404).json(Utils.parseStringError("Admin not found", "admin"));
+
+        //managers can't edit directors
+        if(req.user.roles.includes("ADMIN_MANAGER") && admin.roles.includes("ADMIN_DIRECTOR"))
+            return res.status(403).json(Utils.parseStringError("Permission denied", "permission"));
 
         //sending response
         res.status(200).json({ status: true });
