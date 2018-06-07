@@ -7,6 +7,7 @@ const JobModel = require("./../models/Job");
 const Job = JobModel.schema;
 const ReviewSchema = require("./../models/schemas/Review");
 const User = require("./../models/User").schema;
+const Setting = require('./../models/Setting').schema;
 
 //handlers
 const CarersHandler = require('./CarersHandler');
@@ -395,7 +396,7 @@ module.exports = {
         JobModel.buckets.forEach(bucket => {
 
             //time delay apply
-            applyTimeDelay ? time.setMinutes(time.getMinutes() + settings.value[bucket][timeRangeName]) : applyTimeDelay = true;
+            applyTimeDelay ? time.setMinutes(time.getMinutes() + settings.notifications[bucket][timeRangeName]) : applyTimeDelay = true;
 
             users.forEach(user => {
 
@@ -561,7 +562,7 @@ module.exports = {
         };
     },
 
-    prepareBookingJobs: function (user, requestedJobsArray, genderPreference, generalGuidance = {}, manualBooking = false)
+    prepareBookingJobs: async function (user, requestedJobsArray, genderPreference, generalGuidance = {}, manualBooking = false)
     {
         //getting job objects
         const group = randomstring.generate(32);
@@ -570,6 +571,9 @@ module.exports = {
             jobsObjects = Array.isArray(JSON.parse(requestedJobsArray)) ? JSON.parse(requestedJobsArray) : [];
         }
         catch (error) {}
+
+        //getting general commission
+        const generalCommission = await Setting.findOne({ type: "general_commission" }).exec();
 
         //creating job objects
         jobsObjects.forEach(jobObject => {
@@ -588,10 +592,9 @@ module.exports = {
                         group: group,
                         manual_booking: manualBooking,
                         booking_pricing: {
-                            manual_booking_pricing: 1,
-                            app_commission: 8,
-                            max_to_deduct: 20,
-                            pricing: getBookingPricing(jobObject.role)
+                            manual_booking_pricing: generalCommission.general_commission.manual_booking_pricing,
+                            app_commission: generalCommission.general_commission.app_commission,
+                            max_to_deduct: generalCommission.general_commission.max_to_deduct
                         },
                         priority_carers: Array.isArray(jobObject.priority_carers) ? jobObject.priority_carers.filter(carerId => ObjectId.isValid(carerId)) : [],
                         gender_preference: Object.values(JobModel.genderPreferences).indexOf(genderPreference) != -1 ? genderPreference : JobModel.genderPreferences.NO_PREFERENCE,
@@ -610,13 +613,54 @@ module.exports = {
             }
         });
 
+
+        //preparing pricing
+        jobs = await Promise.all(jobs.map(async job => {
+            job.booking_pricing.pricing = await getBookingPricing(job.role, job.start_date, job.end_date);
+            return job;
+        }));
+
         return jobs;
     },
 }
 
-function getBookingPricing(role)
+function getBookingPricing(role, start, end)
 {
-    return role == "Senior Carer" ? booking_pricing.senior_carer : booking_pricing.carer;
+    return new Promise(async resolve => {
+
+        //preparing bounds
+        let startBound = new Date(start.getTime());
+        startBound.setHours(0,0,0,0);
+
+        let endBound = new Date(end.getTime());
+        end.setHours(23,59,59,999);
+
+        //getting general price matrix and special dates
+        const generalPriceMatrix = await Setting.findOne({ type: "general_price_matrix", 'general_price_matrix.role': role }).lean().exec();
+        const specialDates = await Setting.find({
+            type: "special_price_matrix",
+            'special_price_matrix.role': role,
+            $and:[ { 'special_price_matrix.date': { $gte: startBound } }, { 'special_price_matrix.date': { $lte: endBound } }]
+        })
+        .lean()
+        .exec();
+
+
+        console.log("special dates", specialDates)
+
+        //preparing pricing
+        const pricing = generalPriceMatrix.general_price_matrix.pricing;
+        const weekdays = [ "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+        //overriding special dates
+        specialDates.forEach(specialDate => {
+            Object.keys(pricing).forEach(hourKey => {
+                pricing[hourKey][weekdays[specialDate.special_price_matrix.date.getDay()] + "_price"] = specialDate.special_price_matrix.pricing[hourKey];
+            });
+        });
+
+        resolve(pricing);
+    });
 }
 
 function getTimeRangeName(jobStart)

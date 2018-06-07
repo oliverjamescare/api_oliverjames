@@ -80,7 +80,7 @@ module.exports = {
         }
 
         //preparing jobs instances
-        const jobs = JobsHandler.prepareBookingJobs(req.user, req.body.jobs, req.body.gender_preference, generalGuidance);
+        const jobs = await JobsHandler.prepareBookingJobs(req.user, req.body.jobs, req.body.gender_preference, generalGuidance);
         if(!jobs.length)
             return res.status(406).json(Utils.parseStringError("Invalid jobs", "jobs"));
 
@@ -154,7 +154,7 @@ module.exports = {
                     gender_preference: Object.values(JobModel.genderPreferences).indexOf(gender) != -1 ? gender : JobModel.genderPreferences.NO_PREFERENCE
                 }
 
-                const availableCarers = await JobsHandler.getAvailableCarers(job, req.user);
+                const availableCarers = await JobsHandler.getAvailableCarers(job, req.user).catch(error => console.log(error));
                 job["carersToContact"] = availableCarers.length;
 
                 return job;
