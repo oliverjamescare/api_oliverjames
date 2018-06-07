@@ -34,10 +34,10 @@ module.exports = function(req, res, next)
         },
         //checking if token is assigned to admin
         admin: (callback) => {
-            Admin.findOne({ "token": token }, (error, admin) => callback(null, admin));
+            Admin.findOne({ "access_token.token": token }, (error, admin) => callback(null, admin));
         }
     }, (error, result) => {
-        if((result.user && !result.token) || result.admin)
+        if((result.user && !result.token) || (result.admin && !result.token))
             next();
         else
             return res.status(401).json(Utils.parseStringError("Access Denied", "user"));
