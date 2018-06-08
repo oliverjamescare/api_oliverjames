@@ -633,7 +633,7 @@ function getBookingPricing(role, start, end)
         startBound.setHours(0,0,0,0);
 
         let endBound = new Date(end.getTime());
-        end.setHours(23,59,59,999);
+        endBound.setHours(23,59,59,999);
 
         //getting general price matrix and special dates
         const generalPriceMatrix = await Setting.findOne({ type: "general_price_matrix", 'general_price_matrix.role': role }).lean().exec();

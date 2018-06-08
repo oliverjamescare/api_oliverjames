@@ -67,7 +67,7 @@ const schema = mongoose.Schema({
 	end_date: {
 		type: Date,
 		required: [ true, "{PATH} field is required." ],
-		validate: [ validators.dateGreaterThanDateField("start_date"), validators.maxDateRangeAccordingToField("start_date", 1000 * 60 * 60 * 24, "Job cannot be longer than 24h") ]
+		validate: [ validators.dateGreaterThanDateField("start_date"), validators.maxDateRangeAccordingToField("start_date", 1000 * 60 * 60 * 24, "Job cannot be longer than 24h.") ]
 	},
 	care_home: {
 		type: mongoose.Schema.Types.ObjectId,

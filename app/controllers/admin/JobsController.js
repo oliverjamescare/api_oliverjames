@@ -545,8 +545,7 @@ module.exports = {
             floor_plan: filePath
         }
 
-        const jobs = JobsHandler.prepareBookingJobs(careHome, req.body.jobs, req.body.gender_preference, generalGuidance, true);
-
+        const jobs = await JobsHandler.prepareBookingJobs(careHome, req.body.jobs, req.body.gender_preference, generalGuidance, true);
         if(!jobs.length)
             return res.status(406).json(Utils.parseStringError("Invalid jobs", "jobs"));
 

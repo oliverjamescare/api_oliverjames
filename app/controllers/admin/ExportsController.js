@@ -71,7 +71,7 @@ module.exports = {
                     { label: "Job id", value: "_id" }, { label: "Start date", value: "start_date"}, { label: "End date", value: "end_date"},
                     { label: "Care home id", value: "care_home"}, { label: "Manual booking enabled", value: "manual_booking"},
                     { label: "Booking id", value: "group"}, { label: "Role", value: "role"}, { label: "Gender preference", value: "gender_preference"},
-                    { label: "Notes", value: "notes"}, { label: "Status", value: "status" }, { label: "Booking date", value: "created" },
+                    { label: "Notes", value: "notes"}, { label: "Status", value: "status" }, { label: "Created date", value: "created" },
 
                     //general guidance
                     { label: "General guidance - parking", value: "general_guidance.parking"}, { label: "General guidance - notes for carers", value: "general_guidance.notes_for_carers"},
@@ -109,9 +109,13 @@ module.exports = {
                     { label: "Challenge - description", value: "assignment.challenge.description"}, { label: "Challenge - admin response", value: "assignment.challenge.response"}, { label: "Challenge - status", value: "assignment.challenge.status"}, { label: "Challenge - date", value: "assignment.challenge.created"},
 
                     //Notifications
-                    { label: "Priority carers ids", value: "priority_carers"}, { label: "Scheduled notifications", value: "notifications"},
+                    { label: "Priority carer id", value: "priority_carers"},
+                    { label: "Scheduled notification - user id", value: "notifications.user"}, { label: "Scheduled notification - time", value: "notifications.time"},
+                    { label: "Scheduled notification - bucket", value: "notifications.bucket"}, { label: "Scheduled notification - status", value: "notifications.status"},
 
                 ];
+
+                options["unwind"] = ["priority_carers", "notifications"];
 
                 const parser = new Json2csvParser({ fields, ...options });
                 csv = parser.parse(data);
@@ -129,55 +133,58 @@ module.exports = {
                     { label: "Carer id", value: "_id" }, { label: "Email", value: "email" },
                     { label: "Is email verified", value: "email_verified" }, { label: "Phone number", value: "phone_number" },  { label: "Activation date", value: "activation_date" },
                     { label: "Banned until date", value: "banned_until" }, { label: "Carer notes", value: "notes" },
-                    { label: "Account status", value: "status" },{ label: "Roles", value: "roles" }, { label: "Registration date", value: "created" },
+                    { label: "Account status", value: "status" },{ label: "Role", value: "roles" }, { label: "Created date", value: "created" },
 
                     //carer
                     { label: "First name", value: "carer.first_name" }, { label: "Middle names", value: "carer.middle_name" }, { label: "Surname", value: "carer.surname" },
                     { label: "Date of birth", value: "carer.date_of_birth" }, { label: "Gender", value: "carer.gender" }, { label: "Max jobs distance", value: "carer.max_job_distance" },
-                    { label: "Is created by admin", value: "carer.created_by_admin" }, { label: "Eligible roles", value: "carer.eligible_roles" },
+                    { label: "Is created by admin", value: "carer.created_by_admin" }, { label: "Eligible role", value: "carer.eligible_roles" },
 
                     //Q&A form
-                    { label: "Criminal record answer index", value: "carer.criminal_record.value" }, { label: "Criminal record answer text", value: "carer.criminal_record.text" },
-                    { label: "Physical issues answer index", value: "carer.physical_issues.value" }, { label: "Engaging in moving answer index", value: "carer.engaging_in_moving.value" }, { label: "Engaging in moving answer text", value: "carer.engaging_in_moving.text" },
-                    { label: "Personal care for resident answer index", value: "carer.personal_care_for_resident.value" }, { label: "When you are late answer index", value: "carer.you_are_late.value" },
-                    { label: "If you find fallen resident answer index", value: "carer.find_fallen_resident.value" }, { label: "Serve lunch meals answer index", value: "carer.serve_lunch_meals.value" },
+                    { label: "Criminal record - answer index", value: "carer.criminal_record.value" }, { label: "Criminal record - answer text", value: "carer.criminal_record.text" },
+                    { label: "Physical issues - answer index", value: "carer.physical_issues.value" }, { label: "Engaging in moving - answer index", value: "carer.engaging_in_moving.value" }, { label: "Engaging in moving - answer text", value: "carer.engaging_in_moving.text" },
+                    { label: "Personal care for resident - answer index", value: "carer.personal_care_for_resident.value" }, { label: "When you are late - answer index", value: "carer.you_are_late.value" },
+                    { label: "If you find fallen resident - answer index", value: "carer.find_fallen_resident.value" }, { label: "Serve lunch meals - answer index", value: "carer.serve_lunch_meals.value" },
 
                     //Training record
-                    { label: "Training record qualifications", value: "carer.training_record.qualifications" }, { label: "Training record safeguarding date", value: "carer.training_record.safeguarding" },
-                    { label: "Training record manual handling people date", value: "carer.training_record.manual_handling_people" }, { label: "Training record medication management date", value: "carer.training_record.medication_management" },
-                    { label: "Training record infection control date", value: "carer.training_record.infection_control" }, { label: "Training record first aid and basic life support date", value: "carer.training_record.first_aid_and_basic_life_support" },
-                    { label: "Training record first aid awareness date", value: "carer.training_record.first_aid_awareness" }, { label: "Training record H&S date", value: "carer.training_record.h_and_s" }, { label: "Training record dementia date", value: "carer.training_record.dementia" },
-                    { label: "Training record fire safety date", value: "carer.training_record.fire_safety" }, { label: "Training record other", value: "carer.training_record.other" },
+                    { label: "Training record - qualification", value: "carer.training_record.qualifications" }, { label: "Training record - safeguarding date", value: "carer.training_record.safeguarding" },
+                    { label: "Training record - manual handling people date", value: "carer.training_record.manual_handling_people" }, { label: "Training record - medication management date", value: "carer.training_record.medication_management" },
+                    { label: "Training record - infection control date", value: "carer.training_record.infection_control" }, { label: "Training record - first aid and basic life support date", value: "carer.training_record.first_aid_and_basic_life_support" },
+                    { label: "Training record - first aid awareness date", value: "carer.training_record.first_aid_awareness" }, { label: "Training record - H&S date", value: "carer.training_record.h_and_s" }, { label: "Training record - dementia date", value: "carer.training_record.dementia" },
+                    { label: "Training record - fire safety date", value: "carer.training_record.fire_safety" }, { label: "Training record - other", value: "carer.training_record.other" },
 
                     //care experience
-                    { label: "Joining care experience years", value: "carer.joining_care_experience.years" }, { label: "Joining care experience months", value: "carer.joining_care_experience.months" },
-                    { label: "Care experience years", value: "carer.care_experience.years" }, { label: "Care experience months", value: "carer.care_experience.months" },
+                    { label: "Joining care experience - years", value: "carer.joining_care_experience.years" }, { label: "Joining care experience - months", value: "carer.joining_care_experience.months" },
+                    { label: "Care experience - years", value: "carer.care_experience.years" }, { label: "Care experience - months", value: "carer.care_experience.months" },
 
                     //reviews
-                    { label: "Reviews count", value: "carer.reviews.count" }, { label: "Reviews average", value: "carer.reviews.average" },
+                    { label: "Reviews - count", value: "carer.reviews.count" }, { label: "Reviews - average", value: "carer.reviews.average" },
 
                     //DBS
-                    { label: "DBS date", value: "carer.dbs.dbs_date" }, { label: "DBS ref number", value: "carer.dbs.ref_number" },  { label: "DBS status", value: "carer.dbs.status" },
+                    { label: "DBS - date", value: "carer.dbs.dbs_date" }, { label: "DBS - ref number", value: "carer.dbs.ref_number" },  { label: "DBS - status", value: "carer.dbs.status" },
 
                     //References
-                    { label: "References", value: "carer.reference.references" },
+                    { label: "Reference - name", value: "carer.reference.references.name" }, { label: "Reference - type", value: "carer.reference.references.type" },
 
                     //Payments
-                    { label: "Stripe connect id", value: "carer.payment_system.account_id" }, { label: "Payment system bank number", value: "carer.payment_system.bank_number" },
-                    { label: "Deductions", value: "carer.deductions" },
+                    { label: "Stripe connect id", value: "carer.payment_system.account_id" }, { label: "Payment system - bank number", value: "carer.payment_system.bank_number" },
+                    { label: "Deduction - description", value: "carer.deductions.description" }, { label: "Deduction - amount", value: "carer.deductions.amount" },
+                    { label: "Deduction - job id", value: "carer.deductions.job" }, { label: "Deduction - status", value: "carer.deductions.status" },
+                    { label: "Deduction - date created", value: "carer.deductions.created" },
 
                     //Silent notifications
-                    { label: "Notifications config from minutes offset", value: "carer.silent_notifications_settings.from" }, { label: "Notifications config to minutes offset", value: "carer.silent_notifications_settings.to" },
-                    { label: "Notifications config monday", value: "carer.silent_notifications_settings.days.monday" }, { label: "Notifications config tuesday", value: "carer.silent_notifications_settings.days.tuesday" },
-                    { label: "Notifications config wednesday", value: "carer.silent_notifications_settings.days.wednesday" }, { label: "Notifications config thursday", value: "carer.silent_notifications_settings.days.thursday" },
-                    { label: "Notifications config friday", value: "carer.silent_notifications_settings.days.friday" }, { label: "Notifications config saturday", value: "carer.silent_notifications_settings.days.saturday" },
-                    { label: "Notifications config sunday", value: "carer.silent_notifications_settings.days.sunday" },
+                    { label: "Notifications config - from minutes offset", value: "carer.silent_notifications_settings.from" }, { label: "Notifications config - to minutes offset", value: "carer.silent_notifications_settings.to" },
+                    { label: "Notifications config - monday", value: "carer.silent_notifications_settings.days.monday" }, { label: "Notifications config - tuesday", value: "carer.silent_notifications_settings.days.tuesday" },
+                    { label: "Notifications config - wednesday", value: "carer.silent_notifications_settings.days.wednesday" }, { label: "Notifications config - thursday", value: "carer.silent_notifications_settings.days.thursday" },
+                    { label: "Notifications config - friday", value: "carer.silent_notifications_settings.days.friday" }, { label: "Notifications config - saturday", value: "carer.silent_notifications_settings.days.saturday" },
+                    { label: "Notifications config - sunday", value: "carer.silent_notifications_settings.days.sunday" },
 
                     //address
-                    { label: "Address postcode", value: "address.postal_code" }, { label: "Address company", value: "address.company" }, { label: "Address line 1", value: "address.address_line_1" },
-                    { label: "Address line 2", value: "address.address_line_2" }, { label: "Address city", value: "address.city" }, { label: "Address latitude", value: "address.location.coordinates[0]" },  { label: "Address longitude", value: "address.location.coordinates[1]" },
+                    { label: "Address - postcode", value: "address.postal_code" }, { label: "Address - company", value: "address.company" }, { label: "Address - line 1", value: "address.address_line_1" },
+                    { label: "Address - line 2", value: "address.address_line_2" }, { label: "Address - city", value: "address.city" }, { label: "Address - latitude", value: "address.location.coordinates[0]" },  { label: "Address - longitude", value: "address.location.coordinates[1]" },
                 ];
 
+                options["unwind"] = ["roles", "carer.eligible_roles", "carer.training_record.qualifications", "carer.reference.references", "carer.deductions"];
                 const parser = new Json2csvParser({ fields, ...options });
                 csv = parser.parse(data);
 
@@ -194,28 +201,31 @@ module.exports = {
                     { label: "Care home id", value: "_id" }, { label: "Email", value: "email" }, { label: "Is email verified", value: "email_verified" },
                     { label: "Phone number", value: "phone_number" }, { label: "Banned until date", value: "banned_until" },
                     { label: "Care home notes", value: "notes" }, { label: "Account status", value: "status" },
-                    { label: "Roles", value: "roles" }, { label: "Registration date", value: "created" },
+                    { label: "Role", value: "roles" }, { label: "Created date", value: "created" },
 
                     //care home
                     { label: "Care service name", value: "care_home.care_service_name" }, { label: "Type of home", value: "care_home.type_of_home" },
                     { label: "Name", value: "care_home.name" }, { label: "Name", value: "care_home.name" },
-                    { label: "Blocked carers ids", value: "care_home.blocked_carers" },
+                    { label: "Blocked carer id", value: "care_home.blocked_carers" },
 
                     //general guidance
                     { label: "Gender preference", value: "care_home.gender_preference"},
-                    { label: "General guidance parking", value: "care_home.general_guidance.parking"}, { label: "General guidance notes for carers", value: "care_home.general_guidance.notes_for_carers"},
-                    { label: "General guidance emergency guidance", value: "care_home.general_guidance.emergency_guidance"}, { label: "General guidance report contact", value: "care_home.general_guidance.report_contact"},
-                    { label: "General guidance superior contact", value: "care_home.general_guidance.superior_contact"},
+                    { label: "General guidance - parking", value: "care_home.general_guidance.parking"}, { label: "General guidance - notes for carers", value: "care_home.general_guidance.notes_for_carers"},
+                    { label: "General guidance - emergency guidance", value: "care_home.general_guidance.emergency_guidance"}, { label: "General guidance - report contact", value: "care_home.general_guidance.report_contact"},
+                    { label: "General guidance - superior contact", value: "care_home.general_guidance.superior_contact"},
 
                     //Payments
-                    { label: "Stripe customer id", value: "care_home.payment_system.customer_id" }, { label: "Payment system card number", value: "care_home.payment_system.card_number" },
-                    { label: "Credits", value: "care_home.credits" },
+                    { label: "Stripe customer id", value: "care_home.payment_system.customer_id" }, { label: "Payment system - card number", value: "care_home.payment_system.card_number" },
+                    { label: "Credit - description", value: "care_home.credits.description" }, { label: "Credit - amount", value: "care_home.credits.amount" },
+                    { label: "Credit - job id", value: "care_home.credits.job" }, { label: "Credit - status", value: "care_home.credits.status" },
+                    { label: "Credit - date created", value: "care_home.credits.created" },
 
                     //address
-                    { label: "Address postcode", value: "address.postal_code" }, { label: "Address company", value: "address.company" }, { label: "Address line 1", value: "address.address_line_1" },
-                    { label: "Address line 2", value: "address.address_line_2" }, { label: "Address city", value: "address.city" }, { label: "Address latitude", value: "address.location.coordinates[0]" },  { label: "Address longitude", value: "address.location.coordinates[1]" },
+                    { label: "Address - postcode", value: "address.postal_code" }, { label: "Address - company", value: "address.company" }, { label: "Address - line 1", value: "address.address_line_1" },
+                    { label: "Address - line 2", value: "address.address_line_2" }, { label: "Address - city", value: "address.city" }, { label: "Address - latitude", value: "address.location.coordinates[0]" },  { label: "Address - longitude", value: "address.location.coordinates[1]" },
                 ];
 
+                options["unwind"] = ["roles", "care_home.blocked_carers", "care_home.credits" ];
                 const parser = new Json2csvParser({ fields, ...options });
                 csv = parser.parse(data);
 
@@ -228,9 +238,10 @@ module.exports = {
                 const fields = [
                     { label: "Admin id", value: "_id" }, { label: "Email", value: "email" },
                     { label: "First name", value: "first_name" }, { label: "Surname", value: "surname" },
-                    { label: "Roles", value: "roles" }, { label: "Created date", value: "created" },
+                    { label: "Role", value: "roles" }, { label: "Created date", value: "created" },
                 ];
 
+                options["unwind"] = ["roles"];
                 const parser = new Json2csvParser({ fields, ...options });
                 csv = parser.parse(data);
 
@@ -244,8 +255,8 @@ module.exports = {
                     { label: "Email", value: "email" }, { label: "Name", value: "name" }, { label: "Created date", value: "created" },
 
                     //address
-                    { label: "Address postcode", value: "address.postal_code" }, { label: "Address company", value: "address.company" }, { label: "Address line 1", value: "address.address_line_1" },
-                    { label: "Address line 2", value: "address.address_line_2" }, { label: "Address city", value: "address.city" }, { label: "Address latitude", value: "address.location.coordinates[0]" },  { label: "Address longitude", value: "address.location.coordinates[1]" },
+                    { label: "Address - postcode", value: "address.postal_code" }, { label: "Address - company", value: "address.company" }, { label: "Address - line 1", value: "address.address_line_1" },
+                    { label: "Address - line 2", value: "address.address_line_2" }, { label: "Address - city", value: "address.city" }, { label: "Address - latitude", value: "address.location.coordinates[0]" },  { label: "Address - longitude", value: "address.location.coordinates[1]" },
                 ];
 
                 const parser = new Json2csvParser({ fields, ...options });

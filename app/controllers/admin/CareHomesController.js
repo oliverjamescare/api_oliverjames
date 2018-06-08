@@ -241,7 +241,7 @@ module.exports = {
         //updating user
         user.set({
             status: body.status || user.status,
-            notes: body.notes == ""? null : user.notes,
+            notes: body.notes == ""? null : body.notes || user.notes,
             banned_until: body.banned_until || user.banned_until
         });
 
