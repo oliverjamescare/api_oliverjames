@@ -49,9 +49,9 @@ module.exports = {
                 $match: {
                     care_home: { $exists: true },
                     $or:[
-                        { 'care_home.name': { $regex: pattern, $options: "xi" } },
-                        { 'care_home.care_service_name': { $regex: pattern, $options: "xi" } },
-                        { 'address.postal_code': { $regex: pattern, $options: "xi" } }
+                        { 'care_home.name': { $regex: pattern, $options: "i" } },
+                        { 'care_home.care_service_name': { $regex: pattern, $options: "i" } },
+                        { 'address.postal_code': { $regex: pattern, $options: "i" } }
                     ],
                 }
             },
@@ -98,6 +98,11 @@ module.exports = {
                 options["sortBy"] = { _id: -1 };
                 break
             }
+            case "id_asc":
+            {
+                options["sortBy"] = { _id: 1 };
+                break
+            }
             case "name_asc":
             {
                 options["sortBy"] = { 'care_home.name': 1 };
@@ -121,11 +126,6 @@ module.exports = {
             case "activation_date_asc":
             {
                 options["sortBy"] = { activation_date: 1 };
-                break
-            }
-            case "activation_date_desc":
-            {
-                options["sortBy"] = { activation_date: -1 };
                 break
             }
             case "status_asc":
@@ -160,7 +160,7 @@ module.exports = {
             }
             default:
 			{
-				options["sort"] = { _id: 1 };
+                options["sortBy"] = { activation_date: -1 };
 				break;
 			}
         }

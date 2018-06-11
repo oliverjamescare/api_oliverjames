@@ -44,9 +44,9 @@ module.exports = {
                         $or:[
                             { 'carer.first_name': { $regex: pattern, $options: "xi" } },
                             { 'carer.surname': { $regex: pattern, $options: "xi" } },
-                            { 'care_home.care_service_name': { $regex: pattern, $options: "xi" } },
-                            { 'care_home.name': { $regex: pattern, $options: "xi" } },
-                            { 'address.postal_code': { $regex: pattern, $options: "xi" } },
+                            { 'care_home.care_service_name': { $regex: pattern, $options: "i" } },
+                            { 'care_home.name': { $regex: pattern, $options: "i" } },
+                            { 'address.postal_code': { $regex: pattern, $options: "i" } },
                         ]
                     },
                     { _id: 1 })
@@ -138,7 +138,8 @@ module.exports = {
                 }
             ],
             lean: true,
-            leanWithId: false
+            leanWithId: false,
+            sort: { created: -1 },
         };
 
 
